@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">Canvas</string>
+    <string name="sky_not_installed">Sky is not installed. You must have Sky installed in order to use this!</string>
+    <string name="app_info"><![CDATA[<b>Canvas Mod Loader</b><br>
+    <a href="https://t.me/+Hc6QeQVTH1JjNjky">Support</a><br>
+    <a href="https://t.me/+mue7BZWmWOxkMDUy">Поддержка</a><br>
+    Made️ by:<br>
+    <a href="https://github.com/lukas0x1">Icarus</a><br>
+    <a href="https://github.com/artdeell">artDev</a><br>
+    Banner by:<br>
+    Сон~ (<a href="https://vk.com/son583">VK</a>, <a href="https://t.me/Son040">Telegram</a>)<br>
+    Icon by:<br>
+    Elias Gabriel (<a href="https://t.me/Eliatshaha">Telegram</a>)<br>
+    Original game by:<br>
+    <a href="https://thatgamecompany.com/">thatgamecompany</a>
+    ]]></string>
+    <string name="mod_manager">Mod Manager</string>
+    <string name="add_mod">Add mod</string>
+    <string name="mod_name">%s (%s)</string>
+    <string name="mod_invalid">Invalid mod. Missing dependencies?</string>
+    <string name="mod_remove_unable">Unable to remove mod</string>
+    <string name="mod_remove_deps">You have mods that depend on this mod, please remove them first!</string>
+    <string name="mod_remove_dep">%s depends on the mod you are trying to remove</string>
+    <string name="mod_ioe">I/O error</string>
+    <string name="mod_gf">General fault</string>
+    <string name="mod_add_unable">Unable to add mod</string>
+    <string name="mod_add_wrongformat">Mod is not readable</string>
+    <string name="mod_add_missingdep">Mod depends on %s %d.%d or newer, but it is not available</string>
+    <string name="mod_add_exists">A mod under this name already exists</string>
+    <string name="mod_version">%d.%d.%d</string>
+    <string name="mod_skip_updater">Skip  the updater</string>
+    <string name="sign_in">Sign in with %s</string>
+    <string name="enable_beta">Enable Sky Beta support</string>
+    <string name="wait">Wait</string>
+    <string name="updater_checking">Checking for updates…</string>
+    <string name="updater_update_available">A new update is available!</string>
+    <string name="updater_update_downloading">Downloading…</string>
+    <string name="updater_update_downloaded">Downloaded successfully!</string>
+    <string name="updater_skip">Skip</string>
+    <string name="updater_update">Update</string>
+    <string name="updater_install">Install</string>
+    <string name="updater_retry">Retry</string>
+    <string name="updater_failed">Failed to update</string>
+    <string name="updater_input_unreadable">Downloaded data not readable</string>
+    <string name="mod_canvas_version">Canvas %s</string>
+</resources>
