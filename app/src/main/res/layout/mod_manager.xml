@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+
     <ProgressBar
         android:id="@+id/mm_loadBar"
         style="?android:attr/progressBarStyleHorizontal"
@@ -61,5 +63,7 @@
         app:layout_constraintStart_toEndOf="@+id/mm_addMod"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

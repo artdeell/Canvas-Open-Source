@@ -7,6 +7,7 @@ import git.artdeell.skymodloader.auth.Google;
 import git.artdeell.skymodloader.auth.Huawei;
 import git.artdeell.skymodloader.auth.Nintendo;
 import git.artdeell.skymodloader.auth.PSN;
+import git.artdeell.skymodloader.auth.Steam;
 import com.tgc.sky.accounts.SystemAccountClientInfo;
 import com.tgc.sky.accounts.SystemAccountClientRequestState;
 import com.tgc.sky.accounts.SystemAccountInterface;
@@ -24,6 +25,7 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
     private Huawei m_systemAccountHuawei;
     private Nintendo m_systemAccountNintendo;
     private PSN m_systemAccountPlaystation;
+    private Steam m_systemAccountSteam;
 
     public native void OnSystemAccount(SystemAccountClientInfo systemAccountClientInfo);
 
@@ -43,6 +45,8 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
         huawei.Initialize(gameActivity, this);
         this.m_systemAccountPlaystation = new PSN();
         m_systemAccountPlaystation.Initialize(gameActivity, this);
+        Steam steam = this.m_systemAccountSteam = new Steam();
+        steam.Initialize(gameActivity, this);
         sInstance = this;
     }
 
@@ -72,7 +76,8 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
             INTS[SystemAccountType.kSystemAccountType_Nintendo.ordinal()] = 5;
             INTS[SystemAccountType.kSystemAccountType_Huawei.ordinal()] = 6;
             INTS[SystemAccountType.kSystemAccountType_PSN.ordinal()] = 7;
-            INTS[SystemAccountType.kSystemAccountType_Local.ordinal()] = 8;
+            INTS[SystemAccountType.kSystemAccountType_Steam.ordinal()] = 8;
+            INTS[SystemAccountType.kSystemAccountType_Local.ordinal()] = 9;
         }
     }
 
@@ -92,6 +97,8 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
                 return this.m_systemAccountHuawei;
             case 7:
                 return this.m_systemAccountPlaystation;
+            case 8:
+                return this.m_systemAccountSteam;
             default:
                 return null;
         }
@@ -99,7 +106,7 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
 
     /* access modifiers changed from: package-private */
     public void onResume() {
-        this.m_systemAccountGoogle.onResume();
+        //this.m_systemAccountGoogle.onResume();
     }
 
     public void InitializeCredentials(int i) {
@@ -161,6 +168,8 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
             case 7:
                 return "Sony";
             case 8:
+                return "Steam";
+            case 9:
                 return "Local";
             default:
                 return null;

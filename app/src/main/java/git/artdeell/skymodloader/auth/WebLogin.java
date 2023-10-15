@@ -30,8 +30,8 @@ import java.nio.charset.StandardCharsets;
 
 
 public class WebLogin extends WebViewClient implements SystemAccountInterface, Runnable {
-    private final SystemAccountType accountType;
-    private final String loginUrl;
+    private  SystemAccountType accountType;
+    private String loginUrl;
     private final String redirectUrl;
     private final Handler windowRestoreHandler = new Handler();
     private Dialog dialog;
@@ -108,6 +108,8 @@ public class WebLogin extends WebViewClient implements SystemAccountInterface, R
         webView.setWebViewClient(this);
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
+        settings.setUserAgentString("Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36");
+        //webView.setInitialScale(110);
         webView.loadUrl(loginUrl);
         startWatching();
     }

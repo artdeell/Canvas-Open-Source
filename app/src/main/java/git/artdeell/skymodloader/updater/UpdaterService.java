@@ -130,7 +130,7 @@ public class UpdaterService extends Service {
         }
     }
     private JSONObject pullUpdateInfo() throws IOException, JSONException {
-        InputStream inputStream = new URL("https://api.github.com/repos/lukas0x1/SML-filehost/releases/latest").openStream();
+        InputStream inputStream = new URL("https://api.github.com/repos/RomanChamelo/Canvas-Open-Source/releases/latest").openStream();
         return new JSONObject(new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n")));
     }
     private String getAssetURL(JSONObject release) throws JSONException {

@@ -1,6 +1,9 @@
 package com.tgc.sky.ui;
 
+import static git.artdeell.skymodloader.MainActivity.SKY_PACKAGE_NAME;
+
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
@@ -23,9 +26,15 @@ import java.util.Locale;
 public class TextField {
     /* access modifiers changed from: private */
     public GameActivity m_activity;
+    /* access modifiers changed from: private */
+    public boolean m_isCallbackTextfield;
+    /* access modifiers changed from: private */
+    public boolean m_onKeyboardCompleteAlreadyCalled;
     private SystemUI_android m_systemUI;
     private EditText m_textField;
     private TextFieldLimiter m_textFieldLimiter;
+    /* access modifiers changed from: private */
+    public String m_userText;
 
     public void initWithParams(GameActivity gameActivity, SystemUI_android systemUI_android) {
         this.m_activity = gameActivity;
@@ -50,44 +59,65 @@ public class TextField {
         this.m_textField.setFocusable(true);
         this.m_textField.setFocusableInTouchMode(true);
         this.m_textField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            public boolean onEditorAction(TextView textView, int imeAction, KeyEvent keyEvent) {
-                if (imeAction != EditorInfo.IME_ACTION_SEND && imeAction != EditorInfo.IME_ACTION_UNSPECIFIED) {
-                    return false;
-                }
-                InputMethodManager inputMethodManager = (InputMethodManager) TextField.this.m_activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                InputMethodSubtype currentInputMethodSubtype = inputMethodManager.getCurrentInputMethodSubtype();
-                String language = "";
-                if(currentInputMethodSubtype != null) {
-                    language = currentInputMethodSubtype.getLanguageTag();
-                    if (language.isEmpty() && !currentInputMethodSubtype.getLocale().isEmpty()) {
-                        language = new Locale(currentInputMethodSubtype.getLocale()).toLanguageTag();
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                    if (i != 4 && i != 0) {
+                        return false;
                     }
-                }
-                TextField.this.m_activity.onKeyboardCompleteNative(textView.getText().toString(), language, false);
-                textView.setText("");
-                return true;
+                    if (TextField.this.m_isCallbackTextfield) {
+                        boolean unused = TextField.this.m_onKeyboardCompleteAlreadyCalled = true;
+                        TextField.this.hideTextField();
+                    }
+                    TextField.this.m_activity.onKeyboardCompleteNative(textView.getText().toString(), Boolean.parseBoolean(String.valueOf(TextField.this.m_isCallbackTextfield)), TextField.this.m_isCallbackTextfield);
+                    textView.setText("");
+                    return true;
             }
         });
         this.m_textField.setFilters(new InputFilter[]{this.m_textFieldLimiter});
         this.m_activity.getBrigeView().addView(this.m_textField);
         this.m_activity.addOnKeyboardListener(new GameActivity.OnKeyboardListener() {
             public void onKeyboardChange(boolean z, int i) {
-                if (z) {
-                    TextField.this.resizeTextField(false, i);
-                    return;
-                }
-                TextField.this.hideTextField();
-                TextField.this.m_activity.onKeyboardCompleteNative("", "", true);
+                        if (z) {
+                            TextField.this.resizeTextField(false, i);
+                            return;
+                        }
+                        TextField.this.hideTextField();
+                        if (!TextField.this.m_isCallbackTextfield || !TextField.this.m_onKeyboardCompleteAlreadyCalled) {
+                            TextField.this.m_activity.onKeyboardCompleteNative(TextField.this.m_isCallbackTextfield ? TextField.this.m_userText : "", Boolean.parseBoolean(String.valueOf(TextField.this.m_isCallbackTextfield)), true);
+                        }
             }
         });
     }
 
     public void showTextFieldWithPrompt(String str, int i, int i2) {
+
+                this.m_userText = null;
+                this.m_isCallbackTextfield = false;
+                this.m_onKeyboardCompleteAlreadyCalled = false;
+                this.m_textFieldLimiter.maxByteSize = i2;
+                this.m_textFieldLimiter.maxCharacters = i;
+                this.m_textField.setText("");
+                this.m_textField.setHint(str);
+                EditText editText = this.m_textField;
+                editText.setImeOptions(editText.getImeOptions() | 4);
+                this.m_textField.setAlpha(0.0f);
+                this.m_textField.setVisibility(View.VISIBLE);
+                this.m_textField.requestFocus();
+                ((InputMethodManager) this.m_activity.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(this.m_textField, 0);
+
+    }
+
+    public void showTextFieldWithPrompt(String str, String str2, int i, int i2) {
+        this.m_userText = str2;
+        this.m_isCallbackTextfield = true;
+        this.m_onKeyboardCompleteAlreadyCalled = false;
         this.m_textFieldLimiter.maxByteSize = i2;
         this.m_textFieldLimiter.maxCharacters = i;
-        this.m_textField.setHint(str);
+        this.m_textField.setText(str2);
         EditText editText = this.m_textField;
-        editText.setImeOptions(editText.getImeOptions() | 4);
+        editText.setSelection(editText.length());
+        this.m_textField.setHint(str);
+        EditText editText2 = this.m_textField;
+        editText2.setImeOptions(editText2.getImeOptions() | 4);
         this.m_textField.setAlpha(0.0f);
         this.m_textField.setVisibility(View.VISIBLE);
         this.m_textField.requestFocus();
@@ -124,3 +154,4 @@ public class TextField {
         return (float) this.m_textField.getHeight();
     }
 }
+

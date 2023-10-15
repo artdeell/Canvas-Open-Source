@@ -45,7 +45,7 @@ import com.tgc.sky.ui.TextField;
 import com.tgc.sky.ui.TextFieldLimiter;
 import com.tgc.sky.ui.Utils;
 import com.tgc.sky.ui.dialogs.DialogResult;
-import com.tgc.sky.ui.panels.InvitationPanel;
+import com.tgc.sky.ui.panels.CodeScanner;
 import com.tgc.sky.ui.text.LocalizationManager;
 import com.tgc.sky.ui.text.Markup;
 import com.tgc.sky.ui.text.SystemHAlignment;
@@ -79,8 +79,9 @@ public class SystemUI_android {
     public GameActivity m_activity;
     private int m_currentId;
     private boolean m_enableHaptics = true;
+
     /* access modifiers changed from: private */
-    public InvitationPanel m_invitationPanel;
+    private CodeScanner m_codeScanner;
     /* access modifiers changed from: private */
     public float m_keyboardHeight;
     /* access modifiers changed from: private */
@@ -199,8 +200,20 @@ public class SystemUI_android {
     }
 
     /* access modifiers changed from: package-private */
+    public void ShowTextField(String str, String str2, int i, int i2) {
+        final String str3 = str;
+        final String str4 = str2;
+        final int i3 = i;
+        final int i4 = i2;
+        this.m_activity.runOnUiThread(new Runnable() {
+            public void run() {
+                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str3), str4, i3, i4);
+                boolean unused = SystemUI_android.this.m_textFieldIsShowing = true;
+            }
+        });
+    }
+    /* access modifiers changed from: package-private */
     public void HideTextField() {
-        if(m_textFieldIsShowing)
         this.m_activity.runOnUiThread(new Runnable() {
             public void run() {
                 SystemUI_android.this.m_textField.hideTextField();
@@ -678,39 +691,34 @@ public class SystemUI_android {
         return true;
     }
 
-    public int ShowInvitationPanel(String outgoingNickname, String outgoingInvite, int p_outgoingState, String incomingInvite, int p_incomingState, String str4, int p_mode) {
-        int activationResult;
-        if (GetMainWindowAttachedSheet() || (activationResult = TryActivate()) == -1) {
+    public int ShowCodeScanner(final int i) {
+        int TryActivate;
+        if (GetMainWindowAttachedSheet() || (TryActivate = TryActivate()) == -1) {
             return -1;
         }
-        this.m_activity.runOnUiThread(() -> {
-            InvitationPanel.Mode mode = InvitationPanel.Mode.values()[p_mode];
-            InvitationPanel.OutgoingState outgoingState = InvitationPanel.OutgoingState.values()[p_outgoingState];
-            InvitationPanel.IncomingState incomingState = InvitationPanel.IncomingState.values()[p_incomingState];
-            m_invitationPanel = new InvitationPanel(m_activity, this, m_markup, mode, outgoingNickname, outgoingInvite, outgoingState, incomingInvite, incomingState, str4 != null ? SystemUI_android.this.LocalizeString(str4) : null, new InvitationPanel.Handle() {
-                public void run(String str1, int i, boolean z) {
-                    SetResult(str1, i, z);
-                    if (z) {
-                        m_invitationPanel = null;
+        this.m_activity.runOnUiThread(new Runnable() {
+            public void run() {
+                SystemUI_android systemUI_android = SystemUI_android.this;
+                GameActivity gameActivity = SystemUI_android.this.m_activity;
+                SystemUI_android systemUI_android2 = SystemUI_android.this;
+                CodeScanner codeScanner = systemUI_android.m_codeScanner = new CodeScanner(gameActivity, systemUI_android2, systemUI_android2.m_markup, CodeScanner.Mode.values()[i], new CodeScanner.Handle() {
+                    public void run(String str, int i, boolean z) {
+                        SystemUI_android.this.SetResult(str, i, z);
+                        if (z) {
+                            CodeScanner codeScanner = SystemUI_android.this.m_codeScanner = null;
+                        }
                     }
-                }
-            });
-            m_invitationPanel.showAtLocation(m_activity.getWindow().getDecorView(), 19, 0, 0);
+                });
+                SystemUI_android.this.m_codeScanner.showAtLocation(SystemUI_android.this.m_activity.getWindow().getDecorView(), 19, 0, 0);
+            }
         });
-        return activationResult;
+        return TryActivate;
     }
 
-    public void SetOutgoingInvitationLinkState(int i, String str, String str2) {
-        InvitationPanel invitationPanel = this.m_invitationPanel;
-        if (invitationPanel != null) {
-            invitationPanel.setOutgoingInvitationLinkState(i, str, str2);
-        }
-    }
-
-    public void SetIncomingInvitationLinkState(int i, String str) {
-        InvitationPanel invitationPanel = this.m_invitationPanel;
-        if (invitationPanel != null) {
-            invitationPanel.setIncomingInvitationLinkState(i, str);
+    public void InformCodeInputResult(String str, String str2, int i) {
+        CodeScanner codeScanner = this.m_codeScanner;
+        if (codeScanner != null) {
+            codeScanner.informCodeInputResult(str, str2, i);
         }
     }
 

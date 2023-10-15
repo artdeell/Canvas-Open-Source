@@ -10,7 +10,7 @@
 #include "../ktx/ktx.h"
 #include "../misc/visibility.h"
 #include "../imgui/imgui_internal.h"
-
+#include "../canvas/Canvas.h"
 
 PRIVATE_API std::unordered_map<std::string, SkyImage*> IconLoader::images;
 PRIVATE_API std::unordered_map<std::string, SkyImage*> IconLoader::atlas_images;
@@ -42,7 +42,7 @@ PRIVATE_API SkyImage& IconLoader::uploadImageKtx(const char* name, const bool& i
     char* assetName = nullptr;
     asprintf(&assetName, "Data/Images/Bin/ETC2/%s.ktx", name);
     if(!assetName) return die();
-    AAsset* aAsset = AAssetManager_open(IconLoader::aAssetManager, assetName, AASSET_MODE_STREAMING);
+    AAsset* aAsset = AAssetManager_open(Canvas::aAssetManager, assetName, AASSET_MODE_STREAMING);
     free(assetName);
     if(aAsset == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR,"IconLoader", "Image not found: %s", name);

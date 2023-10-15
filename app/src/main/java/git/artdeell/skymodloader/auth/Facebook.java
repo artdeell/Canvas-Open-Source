@@ -38,7 +38,6 @@ public class Facebook implements SystemAccountInterface {
     /* access modifiers changed from: private */
     private SharedPreferences m_accountStorage;
 
-
     public OnPermissionCallback m_permissionCallback;
 
     public interface OnPermissionCallback {

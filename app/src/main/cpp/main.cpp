@@ -15,6 +15,7 @@
 #include "fileselector.h"
 #include <android/asset_manager_jni.h>
 
+
 void do_scroll();
 void fsel_setup(JNIEnv*);
 
@@ -85,6 +86,7 @@ int main() {
     KittyMemory::ProcMap procmap = KittyMemory::getLibraryMap(Canvas::get_libName());
     Canvas::set_libBase((uintptr_t)procmap.startAddr);
     Canvas::set_libSize((uintptr_t)procmap.length);
+
     return 0;
 }
 
@@ -97,7 +99,7 @@ Java_git_artdeell_skymodloader_MainActivity_settle(JNIEnv *env, jclass clazz, ji
     Canvas::gameVersion = gVersion;
     Canvas::isBeta = isBeta;
     Canvas::configDirPath = (*env).GetStringUTFChars(configPath, NULL);
-    IconLoader::aAssetManager = AAssetManager_fromJava(env, game_assets);
+    Canvas::aAssetManager = AAssetManager_fromJava(env, game_assets);
 }
 
 

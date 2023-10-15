@@ -1,11 +1,13 @@
 package git.artdeell.skymodloader;
 
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -20,6 +22,19 @@ import java.io.StringWriter;
 
 import git.artdeell.skymodloader.elfmod.ElfRefcountLoader;
 import git.artdeell.skymodloader.iconloader.IconLoader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
+
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
+
+import android.util.Log;
 
 public class MainActivity extends Activity {
     public static final String[] SKY_PACKAGE_NAMES = new String[] {null, "com.tgc.sky.android", "com.tgc.sky.android.huawei"};
@@ -28,8 +43,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getSharedPreferences("beta_enabler",Context.MODE_PRIVATE).getBoolean("enable_beta", false))
+        if(getSharedPreferences("beta_enabler",Context.MODE_PRIVATE).getBoolean("enable_beta", false)) {
             SKY_PACKAGE_NAMES[0] = "com.tgc.sky.android.test.gold";
+        }
         findAndLoad();
     }
 
@@ -78,6 +94,7 @@ public class MainActivity extends Activity {
                 BuildConfig.SKY_SERVER_HOSTNAME = "beta.radiance.thatgamecompany.com";
                 BuildConfig.SKY_BRANCH_NAME = "Test";
                 BuildConfig.SKY_STAGE_NAME = "Test";
+
             }
             BuildConfig.APPLICATION_ID = SKY_PACKAGE_NAME;
             startActivity(new Intent(this, GameActivity.class));
@@ -110,4 +127,6 @@ public class MainActivity extends Activity {
         builder.show();
     }
     private static native void settle(int gameVersion, boolean isBeta, String configDir, AssetManager gameAssets);
+
+
 }

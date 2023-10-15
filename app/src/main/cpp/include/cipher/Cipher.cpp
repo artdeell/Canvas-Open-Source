@@ -217,4 +217,24 @@ CipherHook::~CipherHook() {
     return;
 }
 
+char* Cipher::read_asset(char* asset_path) {
+    if (!asset_path) return nullptr;
+    AAsset* aAsset = AAssetManager_open(Canvas::aAssetManager, asset_path, AASSET_MODE_STREAMING);
 
+    if (aAsset == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, "CanvasReadAsset", "Asset not found: %s", asset_path);
+        return nullptr;
+    }
+
+    size_t asset_size = AAsset_getLength64(aAsset);
+    void* asset_buffer = malloc(asset_size);
+    if (asset_buffer == nullptr) return nullptr; // no mem?
+
+    if (AAsset_read(aAsset, asset_buffer, asset_size) != asset_size) {
+        free(asset_buffer);
+        return nullptr;
+    }
+
+    AAsset_close(aAsset);
+    return (char*)asset_buffer;
+}

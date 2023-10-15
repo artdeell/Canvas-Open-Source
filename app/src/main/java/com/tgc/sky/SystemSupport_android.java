@@ -58,7 +58,7 @@ public class SystemSupport_android implements GameActivity.OnActivityResultListe
     public static void HandlePush(Context context, Map<String, String> map) {
     }
 
-    public static void RegisterDeviceToken(Context context, String str) {
+    public static void RegisterDeviceToken(String str) {
     }
 
     private Object BuildHelpshiftConversationConfig(String[] strArr) {

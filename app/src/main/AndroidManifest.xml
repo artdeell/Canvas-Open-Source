@@ -61,7 +61,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/paths" />
         </provider>
-
     </application>
     <queries>
         <package android:name="com.tgc.sky.android" />

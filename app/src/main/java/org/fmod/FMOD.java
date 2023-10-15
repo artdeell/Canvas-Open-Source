@@ -18,9 +18,16 @@ public class FMOD {
 
     public static void init(Context context) {
         gContext = context;
+        if (context != null) {
+            gContext.registerReceiver(gPluginBroadcastReceiver, new IntentFilter("android.intent.action.HEADSET_PLUG"));
+        }
     }
 
     public static void close() {
+        Context context = gContext;
+        if (context != null) {
+            context.unregisterReceiver(gPluginBroadcastReceiver);
+        }
         gContext = null;
     }
 

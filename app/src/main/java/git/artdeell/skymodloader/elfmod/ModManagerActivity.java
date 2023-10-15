@@ -1,5 +1,7 @@
 package git.artdeell.skymodloader.elfmod;
 
+
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,15 +27,19 @@ import java.io.InputStream;
 import git.artdeell.skymodloader.BuildConfig;
 import git.artdeell.skymodloader.R;
 
+
 public class ModManagerActivity extends Activity implements LoadingListener {
     private static final int REQUEST_MOD = 1024*121;
     private static ElfUIBackbone loader;
     RecyclerView modListView;
+  
     View addModButton;
     View loadingBar;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch enableBetaSwitch;
     SharedPreferences beta_enabler;
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,6 +52,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
         enableBetaSwitch = findViewById(R.id.mm_enableSkyBeta);
         enableBetaSwitch.setOnCheckedChangeListener(this::onBetaChecked);
         enableBetaSwitch.setChecked(beta_enabler.getBoolean("enable_beta", false));
+
         ((TextView)findViewById(R.id.mm_versionName)).setText(getString(R.string.mod_canvas_version, BuildConfig.VERSION_NAME));
         if(loader == null) {
             loader = new ElfUIBackbone();
@@ -59,6 +66,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
         }
         modListView.setLayoutManager(new LinearLayoutManager(this));
         modListView.setAdapter(new ModListAdapter(loader));
+
     }
 
     public void onAddMod(View v) {
@@ -188,4 +196,5 @@ public class ModManagerActivity extends Activity implements LoadingListener {
                 .putBoolean("enable_beta", isChecked)
                 .apply();
     }
+
 }

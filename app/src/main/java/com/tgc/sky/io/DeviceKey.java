@@ -221,6 +221,7 @@ public class DeviceKey {
     }
 
     private static BigInteger sqrtMod(BigInteger bigInteger) {
+        BigInteger bigInteger2 = MODULUS;
         return bigInteger.modPow(MODULUS.add(BigInteger.ONE).shiftRight(2), MODULUS);
     }
 }

@@ -9,5 +9,6 @@ public enum SystemAccountType {
     kSystemAccountType_Nintendo,
     kSystemAccountType_Huawei,
     kSystemAccountType_PSN,
+    kSystemAccountType_Steam,
     kSystemAccountType_Count
 }

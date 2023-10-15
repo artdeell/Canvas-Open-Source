@@ -9,6 +9,7 @@ import com.tgc.sky.commerce.ProductInfo;
 import com.tgc.sky.commerce.ReceiptItem;
 import android.content.Context;
 import android.app.Application;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -41,7 +42,7 @@ public class SystemAnalytics_android
         return this.mUserId;
     }
     
-    void Initialize(final GameActivity activity) {
+    public void Initialize(final GameActivity activity) {
     }
     
     public void LogCrashBreadcrumb(final String s) {
@@ -76,5 +77,17 @@ public class SystemAnalytics_android
     }
     
     public void SubmitEvent(final String s, final String[] array, final String[] array2) {
+    }
+
+    public boolean HasTrackingAuthorization() {
+        return false;
+    }
+
+    public String GetAdvertisingTrackingId() {
+        return "00000000-0000-0000-0000-000000000000";
+    }
+
+    public String GetAppVendorTrackingId(){
+        return "00000000-0000-0000-0000-000000000000";
     }
 }

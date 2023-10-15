@@ -6,8 +6,11 @@
 #include "../misc/Utils.h"
 #include "../misc/visibility.h"
 
+
 PRIVATE_API _Atomic uint32_t Canvas::gameVersion;
 PRIVATE_API bool Canvas::isBeta;
+PRIVATE_API struct AAssetManager* Canvas::aAssetManager;
+
  PRIVATE_API uintptr_t Canvas::findLib(const char *libName) {
     return findLibrary(libName);
 }

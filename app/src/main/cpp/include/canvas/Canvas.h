@@ -34,6 +34,7 @@ private:
     inline static const char *m_libName = "libBootloader.so";
 
 public:
+    static struct AAssetManager* aAssetManager;
     inline static bool m_dev = false;
     static void push_Userlib(Userlib ulib);
     static bool isLibLoaded(const char *libName);

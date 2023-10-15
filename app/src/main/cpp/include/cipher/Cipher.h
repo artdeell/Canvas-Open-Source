@@ -7,6 +7,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <android/asset_manager.h>
 #include "../artpatch/artpatch.h"
 
 
@@ -22,6 +23,7 @@ public:
     static uintptr_t CipherScan(const char *pattern, const char *mask); //librange
     static uintptr_t CipherScan(uintptr_t start, const size_t size, const char *pattern, const char *mask);
     static const char* getConfigPath();
+    static char* read_asset(char* asset_path);
 };
 
 

@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -18,12 +19,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DisplayCutout;
+import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -84,6 +87,7 @@ public class GameActivity extends TGCNativeActivity {
     SystemAccounts_android m_systemAccounts = null;
     SystemIO_android m_systemIO = null;
     SystemUI_android m_systemUI = null;
+    public boolean portraitOnResume = false;
 
     public static class ActivityRequestCode {
         static final int ASK_PERMISSIONS = 100;
@@ -150,8 +154,7 @@ public class GameActivity extends TGCNativeActivity {
 
     public native void onInternetReachabilityNative(boolean z, boolean z2);
 
-    public native void onKeyboardCompleteNative(String str, String str2, boolean z);
-
+    public native void onKeyboardCompleteNative(String str, boolean z, boolean z2);
     public native void onNFCTagScannedNative(String str, int i, String str2, String str3);
 
     public native void onOpenedWithURLNative(String str, boolean z);
@@ -187,6 +190,34 @@ public class GameActivity extends TGCNativeActivity {
         bindService(updaterService, new UpdaterServiceConnection(this), BIND_AUTO_CREATE);
     }
 
+    private boolean isTextRenderingBrokenForDevice() {
+        if (Build.VERSION.SDK_INT != 31 && Build.VERSION.SDK_INT != 32) {
+            return false;
+        }
+        String[] strArr = {"OPD2102", "X21N2", "PFUM10", "TB128FU", "RMX3478", "RMX3471", "RMX3472", "2201116SC", "22101317C"};
+        for (int i = 0; i < 9; i++) {
+            if (Build.MODEL.compareToIgnoreCase(strArr[i]) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void fixTextRenderingOnProblemDevices_HACK() {
+        if (isTextRenderingBrokenForDevice()) {
+            Log.i(TAG, "Detected problematic text rendering on this device - applying workaround");
+            for (int i = 0; i < 29; i++) {
+                View view = new View(this);
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.width = 2;
+                layoutParams.height = 2;
+                layoutParams.flags = 1064;
+                layoutParams.format = 1;
+                layoutParams.gravity = Gravity.BOTTOM;
+                ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).addView(view, layoutParams);
+            }
+        }
+    }
     /* access modifiers changed from: protected */
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -206,6 +237,7 @@ public class GameActivity extends TGCNativeActivity {
         imguiView.setZOrderOnTop(true);
         ImGUI.setClipboardService((ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE));
         imguiInput = findViewById(R.id.imguiInput);
+        fixTextRenderingOnProblemDevices_HACK();
         FMOD.init(this);
         new SystemCommerce_android(this);
         this.m_systemIO = new SystemIO_android(this);
@@ -861,6 +893,29 @@ public class GameActivity extends TGCNativeActivity {
         return false;
     }
 
+    // sky live 0.22.6 (229119)
+    public boolean isScreenWideColorGamut() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return getResources().getConfiguration().isScreenWideColorGamut();
+        }
+        return false;
+    }
+
+    // beta 0.23.0
+    public float getDesiredMinLum() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMinLuminance();
+        }
+        return 0.0f;
+    }
+
+    // beta 0.23.0
+    public float getDesiredMaxLum() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMaxLuminance();
+        }
+        return 100.0f;
+    }
     public int getPhysicalMemorySize() {
         ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
         ((ActivityManager) getBaseContext().getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(memoryInfo);
