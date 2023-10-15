@@ -83,7 +83,7 @@ __attribute__((visibility ("hidden"))) void artpatch_set_hex(patch_t patch, cons
 }
 
 __attribute__((visibility ("hidden"))) void artpatch_apply(patch_t patch) {
-    const void* pagestart = (uintptr_t)patch->patchDestination & -PAGE_SIZE;
+    const void* pagestart = (void*)((uintptr_t)patch->patchDestination & -PAGE_SIZE);
     int prot_flags = procutils_read_mprotection(pagestart);
     if(!mprotect(pagestart, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC)) {
         if(!patch->patchApplied) memcpy(patch->backup, patch->patchDestination, patch->patchLength);
@@ -94,7 +94,7 @@ __attribute__((visibility ("hidden"))) void artpatch_apply(patch_t patch) {
 }
 __attribute__((visibility ("hidden"))) void artpatch_restore(patch_t patch) {
     if(!patch->patchApplied) return;
-    const void* pagestart = (uintptr_t)patch->patchDestination & -PAGE_SIZE;
+    const void* pagestart = (void*)((uintptr_t)patch->patchDestination & -PAGE_SIZE);
     int prot_flags = procutils_read_mprotection(pagestart);
     if(!mprotect(pagestart, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC)) {
         memcpy(patch->patchDestination, patch->backup, patch->patchLength);

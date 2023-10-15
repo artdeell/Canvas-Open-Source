@@ -50,7 +50,7 @@ android {
         buildConfig true
         aidl = true
     }
-    ndkVersion = '24.0.7856742'
+    ndkVersion = '26.0.10792818'
     namespace 'git.artdeell.skymodloader'
 }
 
