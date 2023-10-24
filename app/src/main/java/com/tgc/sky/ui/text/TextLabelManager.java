@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
@@ -76,16 +77,19 @@ public class TextLabelManager {
                 LocalizedStringArgs GetLocalizedStringArgs = TextLabelManager.this.m_localizationManager.GetLocalizedStringArgs(textLabel.textId);
                 textLabel.finalAttributedString = TextLabelManager.this.ProcessLabelText(GetLocalizedStringArgs, textAttributes);
                 textLabel.lastTextIdChange = GetLocalizedStringArgs.lastChangeCounter;
-                TextView textView = new TextView(TextLabelManager.this.m_activity);
-                textView.setText(textLabel.finalAttributedString, TextView.BufferType.SPANNABLE);
+                EllipsizingTextView ellipsizingTextView = new EllipsizingTextView(TextLabelManager.this.m_activity);
+                ellipsizingTextView.setText(textLabel.finalAttributedString, TextView.BufferType.SPANNABLE);
                 if (textAttributes.maxNumberOfLines > 0) {
-                    textView.setMaxLines(textAttributes.maxNumberOfLines);
+                    ellipsizingTextView.setMaxLines(textAttributes.maxNumberOfLines);
+                }
+                if (textAttributes.truncateWithEllipses) {
+                    ellipsizingTextView.setEllipsize(TextUtils.TruncateAt.END);
                 }
                 if (textAttributes.adjustFontSizeToFitWidth) {
-                    TextViewCompat.setAutoSizeTextTypeWithDefaults(textView, 1);
+                    TextViewCompat.setAutoSizeTextTypeWithDefaults(ellipsizingTextView, 1);
                 }
                 RectF transformRectToSystem = TextLabelManager.this.m_activity.transformRectToSystem(textPositioning.ProgramRect());
-                TextLabelManager.AdjustTextRect(textPositioning, textView, transformRectToSystem);
+                TextLabelManager.AdjustTextRect(textPositioning, ellipsizingTextView, transformRectToSystem);
                 float transformWidthToSystem = TextLabelManager.this.m_activity.transformWidthToSystem(textPositioning.padWidth);
                 float transformHeightToSystem = TextLabelManager.this.m_activity.transformHeightToSystem(textPositioning.padHeight);
                 transformRectToSystem.right += transformWidthToSystem;
@@ -96,22 +100,23 @@ public class TextLabelManager {
                 layoutParams.leftMargin = (int) transformRectToSystem.left;
                 layoutParams.topMargin = (int) transformRectToSystem.top;
                 int width = TextLabelManager.this.m_activity.getBrigeView().getWidth();
-                if (transformRectToSystem.right > ((float) width)) {
+                if (transformRectToSystem.right > width) {
                     layoutParams.rightMargin = width - ((int) transformRectToSystem.right);
                 }
-                textView.setLayoutParams(layoutParams);
-                int i = (int) (transformWidthToSystem * 0.5f);
-                int i2 = (int) (transformHeightToSystem * 0.5f);
-                textView.setPadding(i, i2, i, i2);
-                TextLabelManager.this.UpdateRemainingAttrsAndPos(textView, (TextAttributes) null, textAttributes, (TextPositioning) null, textPositioning);
-                TextLabelManager.this.DoClipping(textView, transformRectToSystem, textPositioning);
-                textLabel.view = textView;
-                TextLabelManager.this.m_activity.getBrigeView().addView(textView);
+                ellipsizingTextView.setLayoutParams(layoutParams);
+                int i2 = (int) (transformWidthToSystem * 0.5f);
+                int i3 = (int) (transformHeightToSystem * 0.5f);
+                ellipsizingTextView.setPadding(i2, i3, i2, i3);
+                TextLabelManager.this.UpdateRemainingAttrsAndPos(ellipsizingTextView, null, textAttributes, null, textPositioning);
+                TextLabelManager.this.DoClipping(ellipsizingTextView, transformRectToSystem, textPositioning);
+                textLabel.view = ellipsizingTextView;
+                TextLabelManager.this.m_activity.getBrigeView().addView(ellipsizingTextView);
                 TextLabelManager textLabelManager = TextLabelManager.this;
                 textLabelManager.UpdateCachedSize(textLabel, textLabelManager.m_activity.transformRectToProgram(transformRectToSystem));
             }
         });
     }
+
 
     public float[] GetTextLabelSize(int i) {
         this.m_lock.lock();
@@ -206,7 +211,9 @@ public class TextLabelManager {
                     transformRectToSystem.right += transformWidthToSystem;
                     transformRectToSystem.bottom += transformHeightToSystem;
                     ApplyTextPositioningAnchorPoint(pos, transformRectToSystem);
+
                     TextLabelManager.this.m_activity.transformPointToSystem(pos.f1049x, pos.f1050y, transformRectToSystem);
+
                     final RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams((int)transformRectToSystem.width(), (int)transformRectToSystem.height());
                     layoutParams.leftMargin = (int)transformRectToSystem.left;
                     layoutParams.topMargin = (int)transformRectToSystem.top;
@@ -224,7 +231,9 @@ public class TextLabelManager {
                     final RelativeLayout.LayoutParams layoutParams2 = (RelativeLayout.LayoutParams)view.getLayoutParams();
                     transformRectToSystem = new RectF(0.0f, 0.0f, (float)layoutParams2.width, (float)layoutParams2.height);
                     ApplyTextPositioningAnchorPoint(pos, transformRectToSystem);
-                    TextLabelManager.this.m_activity.transformPointToSystem(pos.f1049x, pos.f1050y, transformRectToSystem);
+
+                        TextLabelManager.this.m_activity.transformPointToSystem(pos.f1049x, pos.f1050y, transformRectToSystem);
+
                     layoutParams2.leftMargin = (int)transformRectToSystem.left;
                     layoutParams2.topMargin = (int)transformRectToSystem.top;
                     final int width2 = TextLabelManager.this.m_activity.getBrigeView().getWidth();

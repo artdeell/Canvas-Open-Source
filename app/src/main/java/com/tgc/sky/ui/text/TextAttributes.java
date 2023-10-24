@@ -11,6 +11,8 @@ public class TextAttributes {
     public boolean hasShadow = false;
     public boolean ignoreMarkupOptimization = false;
     public int maxNumberOfLines = 0;
+    public boolean truncateWithEllipses = false;
+
     public float scale = 1.0f;
     public float[] shadowColor;
     public float[] shadowOffset;
@@ -29,6 +31,7 @@ public class TextAttributes {
         this.ignoreMarkupOptimization = textAttributes.ignoreMarkupOptimization;
         this.scale = textAttributes.scale;
         this.maxNumberOfLines = textAttributes.maxNumberOfLines;
+        this.truncateWithEllipses = textAttributes.truncateWithEllipses;
         this.textAlignment = textAttributes.textAlignment;
         this.textColor = textAttributes.textColor;
         this.bgColor = textAttributes.bgColor;
