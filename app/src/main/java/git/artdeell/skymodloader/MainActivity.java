@@ -126,7 +126,7 @@ public class MainActivity extends Activity {
         builder.setPositiveButton(android.R.string.ok, (d,w)-> finish());
         builder.show();
     }
-    private static native void settle(int gameVersion, boolean isBeta, String configDir, AssetManager gameAssets);
+    public static native void settle(int gameVersion, boolean isBeta, String configDir, AssetManager gameAssets);
 
 
 }

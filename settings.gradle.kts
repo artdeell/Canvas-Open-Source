@@ -1,6 +1,6 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
+      gradlePluginPortal()
         google()
         mavenCentral()
     }
@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Sky ModLoader"
-include ':app'
+include(":app")
