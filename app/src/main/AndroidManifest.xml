@@ -44,7 +44,7 @@
         <activity android:name="com.tgc.sky.TGCNativeActivity"/>
         <activity android:name=".elfmod.ModManagerActivity"
             android:label="@string/mod_manager"
-            android:theme="@style/Theme.AppCompat.DayNight"
+            android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
