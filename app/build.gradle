@@ -49,17 +49,13 @@ android {
     buildFeatures { // start gradle 8.0
         buildConfig true
         aidl = true
-        dataBinding = true
     }
     ndkVersion = '26.0.10792818'
     namespace 'git.artdeell.skymodloader'
 }
 
 dependencies {
-    // Fix Duplicate class
-    implementation( platform 'org.jetbrains.kotlin:kotlin-bom:1.8.0')
 
-    implementation 'com.google.android.material:material:1.4.0'
     implementation 'net.openid:appauth:0.11.1'
     implementation 'net.fornwall:jelf:0.7.0'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'

@@ -1,6 +1,5 @@
 package git.artdeell.skymodloader.elfmod;
 
-import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
@@ -24,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ElfUIBackbone {
     private final List<ElfModUIMetadata> mods = new ArrayList<>();
     private LoadingListener listener = LoadingListener.DUMMY;
-    public Activity activity;
     private File modFolder;
     private volatile Exception currentException;
     private final AtomicBoolean progressBarActive = new AtomicBoolean(false);
@@ -34,9 +32,6 @@ public class ElfUIBackbone {
     }
     public ElfModUIMetadata getMod(int where) {
         return mods.get(where);
-    }
-    ElfUIBackbone(Activity activity){
-        this.activity = activity;
     }
 
     private void startLoading() {
@@ -67,7 +62,6 @@ public class ElfUIBackbone {
                 }catch (IOException e) {
                     e.printStackTrace();
                     ElfModUIMetadata metadata = new ElfModUIMetadata();
-                    metadata.activity = this.activity;
                     metadata.modFile = f;
                     metadata.name = f.getName();
                     metadata.modIsValid = false;
@@ -88,7 +82,6 @@ public class ElfUIBackbone {
     private ElfModUIMetadata getElfMetadata(File f) throws IOException{
         FileInputStream fis = new FileInputStream(f);
         ElfModUIMetadata defaultMeta = new ElfModUIMetadata();
-        defaultMeta.activity = this.activity;
         defaultMeta.name = f.getName();
         defaultMeta.modFile = f;
         getElfMetadata(defaultMeta, getBytesFromInputStream(fis));
@@ -97,7 +90,6 @@ public class ElfUIBackbone {
     }
     private ElfModUIMetadata getElfMetadata(byte[] bytes) {
         ElfModUIMetadata defaultMeta = new ElfModUIMetadata();
-        defaultMeta.activity = this.activity;
         return getElfMetadata(defaultMeta, bytes);
     }
     private ElfModUIMetadata getElfMetadata(ElfModUIMetadata defaultMeta, byte[] elfFile) {

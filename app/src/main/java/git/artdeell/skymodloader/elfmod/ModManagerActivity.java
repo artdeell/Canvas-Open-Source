@@ -1,5 +1,7 @@
 package git.artdeell.skymodloader.elfmod;
 
+
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,24 +26,25 @@ import java.io.InputStream;
 
 import git.artdeell.skymodloader.BuildConfig;
 import git.artdeell.skymodloader.R;
-import git.artdeell.skymodloader.SMLApplication;
-import git.artdeell.skymodloader.databinding.ModManagerBinding;
+
 
 public class ModManagerActivity extends Activity implements LoadingListener {
     private static final int REQUEST_MOD = 1024*121;
     private static ElfUIBackbone loader;
     RecyclerView modListView;
+  
     View addModButton;
     View loadingBar;
-    private ModManagerBinding binding;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch enableBetaSwitch;
     SharedPreferences beta_enabler;
 
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.mod_manager);
+        setContentView(R.layout.mod_manager);
         modListView = findViewById(R.id.mm_modList);
         addModButton = findViewById(R.id.mm_addMod);
         loadingBar = findViewById(R.id.mm_loadBar);
@@ -50,9 +52,10 @@ public class ModManagerActivity extends Activity implements LoadingListener {
         enableBetaSwitch = findViewById(R.id.mm_enableSkyBeta);
         enableBetaSwitch.setOnCheckedChangeListener(this::onBetaChecked);
         enableBetaSwitch.setChecked(beta_enabler.getBoolean("enable_beta", false));
+
         ((TextView)findViewById(R.id.mm_versionName)).setText(getString(R.string.mod_canvas_version, BuildConfig.VERSION_NAME));
         if(loader == null) {
-            loader = new ElfUIBackbone(this);
+            loader = new ElfUIBackbone();
             loader.addListener(this);
             loader.startLoadingAsync(new File(getFilesDir(),"mods"));
         }else{
@@ -63,6 +66,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
         }
         modListView.setLayoutManager(new LinearLayoutManager(this));
         modListView.setAdapter(new ModListAdapter(loader));
+
     }
 
     public void onAddMod(View v) {
@@ -192,4 +196,5 @@ public class ModManagerActivity extends Activity implements LoadingListener {
                 .putBoolean("enable_beta", isChecked)
                 .apply();
     }
+
 }

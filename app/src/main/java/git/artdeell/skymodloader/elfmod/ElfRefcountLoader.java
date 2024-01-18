@@ -37,9 +37,7 @@ public class ElfRefcountLoader extends ElfLoader{
         if(modFiles == null) return;
         for(File f : modFiles) {
             try {
-                if(f.getName().endsWith(".so")&&(!new File(f.getPath() + "_invalid.txt").exists())) {
-                    addElf(f);
-                }
+                addElf(f);
             }catch (Exception e) {
                 throw new InvalidModException("Failed to load mod" + f.getName());
             }

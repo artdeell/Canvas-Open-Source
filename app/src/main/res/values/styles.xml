@@ -6,23 +6,4 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:datePickerStyle">@android:style/Widget.DatePicker</item>
     </style>
-
-
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
-        <item name="android:windowBackground">#FFF8F8F8</item>
-    </style>
-
-    <style name="SpaceLine">
-        <item name="android:background">#FFF8F8F8</item>
-    </style>
-
-    <style name="Text" />
-    <style name="Text.Title" parent="Text" >
-        <item name="android:textColor">@color/black</item>
-    </style>
-
-    <style name="Card">
-        <item name="cardBackgroundColor">#FFEDEDED</item>
-    </style>
-
 </resources>
