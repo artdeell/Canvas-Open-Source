@@ -1,5 +1,7 @@
 package git.artdeell.skymodloader.auth;
 
+import static git.artdeell.skymodloader.MainActivity.SKY_PACKAGE_NAME;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Handler;
@@ -43,7 +45,7 @@ public class WebLogin extends WebViewClient implements SystemAccountInterface, R
 
     public WebLogin(String webLoginType, SystemAccountType systemAccountType) {
         this.accountType = systemAccountType;
-        loginUrl = String.format("https://%s/account/auth/oauth_signin?type=%s&token=", BuildConfig.SKY_SERVER_HOSTNAME, webLoginType);
+        loginUrl = String.format("https://%s/account/auth/oauth_signin?type=%s&token=cKN45n7UTSKHNoyzdugWNE:APA91bFg8MGDK26uj-RjRrRSANDGST4AqE29kh3ygCzN0IZWLgGis2K16aD9JoYXnaRBD2LgghA18Bc0ZG76AuWEzr3eAMTSRen8SsBPjtPftUVnuXECrjVfhd9z_WeDbx9MaHUO7GS9", BuildConfig.SKY_SERVER_HOSTNAME, webLoginType);
         redirectUrl = String.format("https://%s/account/auth/oauth_redirect", BuildConfig.SKY_SERVER_HOSTNAME);
     }
 
@@ -63,7 +65,15 @@ public class WebLogin extends WebViewClient implements SystemAccountInterface, R
         SystemAccountClientInfo systemAccountClientInfo = new SystemAccountClientInfo();
         this.m_accountClientInfo = systemAccountClientInfo;
         systemAccountClientInfo.accountType = accountType;
-        this.m_accountClientInfo.state = SystemAccountClientState.kSystemAccountClientState_SignedOut;
+        if(BuildConfig.SKY_SERVER_HOSTNAME.equals("live.radiance.thatgamecompany.com")) {
+            this.m_accountClientInfo.state = SystemAccountClientState.kSystemAccountClientState_SignedOut;
+        }
+        if(BuildConfig.SKY_SERVER_HOSTNAME.equals("beta.radiance.thatgamecompany.com") && systemAccountClientInfo.accountType == SystemAccountType.kSystemAccountType_Google) {
+            this.m_accountClientInfo.state = SystemAccountClientState.kSystemAccountClientState_NotAvailable;
+        }
+        if(BuildConfig.SKY_SERVER_HOSTNAME.equals("beta.radiance.thatgamecompany.com") && systemAccountClientInfo.accountType != SystemAccountType.kSystemAccountType_Google){
+            this.m_accountClientInfo.state = SystemAccountClientState.kSystemAccountClientState_SignedOut;
+        }
         this.m_accountClientInfo.requestState = SystemAccountClientRequestState.kSystemAccountClientRequestState_Idle;
         SystemAccountServerInfo systemAccountServerInfo = new SystemAccountServerInfo();
         this.m_accountServerInfo = systemAccountServerInfo;
@@ -108,7 +118,9 @@ public class WebLogin extends WebViewClient implements SystemAccountInterface, R
         webView.setWebViewClient(this);
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setUserAgentString("Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36");
+        if(BuildConfig.SKY_SERVER_HOSTNAME.equals("live.radiance.thatgamecompany.com")) {
+            settings.setUserAgentString("Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36");
+        }
         //webView.setInitialScale(110);
         webView.loadUrl(loginUrl);
         startWatching();

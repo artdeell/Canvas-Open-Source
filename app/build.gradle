@@ -16,7 +16,7 @@ android {
         versionCode 25
         versionName "1.4.3"
         manifestPlaceholders = [
-                'appAuthRedirectScheme': 'com.googleusercontent.apps.425067885496-t5lthegcq17g1gaco1l90cc3cncr0q0l'
+                'appAuthRedirectScheme': 'com.googleusercontent.apps.704988078112-46vk837uhg8n7qf3lb8dut52o7ugm7v4'
         ]
 
         externalNativeBuild {
@@ -51,7 +51,7 @@ android {
         aidl = true
         dataBinding = true
     }
-    ndkVersion = '26.0.10792818'
+    ndkVersion = '26.1.10909125'
     namespace 'git.artdeell.skymodloader'
 }
 
@@ -67,4 +67,5 @@ dependencies {
     implementation 'com.google.zxing:core:3.3.3'
     implementation 'androidx.recyclerview:recyclerview:1.3.1'
     implementation "io.noties.markwon:core:4.6.2"
+
 }

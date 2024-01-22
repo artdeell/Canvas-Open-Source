@@ -28,11 +28,8 @@ public class ElfModUIMetadata extends ElfModMetadata {
     }
 
     public String getName() {
-        return ModListAdapter.getVisibleModName(activity, this);
-    }
-
-    public void setName() {
         super.name = name;
+        return ModListAdapter.getVisibleModName(activity, this);
     }
 
     public String getVersion() {

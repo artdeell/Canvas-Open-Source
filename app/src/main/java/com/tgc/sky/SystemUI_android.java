@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.FileProvider;
 
 import git.artdeell.skymodloader.SMLApplication;
 import git.artdeell.skymodloader.auth.Facebook;
@@ -58,6 +59,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -80,6 +82,11 @@ public class SystemUI_android {
     private int m_currentId;
     private boolean m_enableHaptics = true;
 
+    private String m_textBuffer = "";
+
+    private int m_cursorPos = -1;
+    private int m_selectPos = -1;
+
     /* access modifiers changed from: private */
     private CodeScanner m_codeScanner;
     /* access modifiers changed from: private */
@@ -92,6 +99,8 @@ public class SystemUI_android {
     private DialogResult m_result;
     /* access modifiers changed from: private */
     public TextField m_textField;
+    private TextFieldState m_textFieldState;
+
     /* access modifiers changed from: private */
     public boolean m_textFieldIsShowing;
     /* access modifiers changed from: private */
@@ -116,6 +125,7 @@ public class SystemUI_android {
         this.m_textFieldLimiter = new TextFieldLimiter();
         this.m_keyboardIsShowing = false;
         this.m_keyboardHeight = 0.0f;
+        this.m_textFieldState = TextFieldState.kTextFieldState_Hidden;
         this.m_textFieldIsShowing = false;
         this.m_result = new DialogResult();
         this.m_currentId = 0;
@@ -189,8 +199,8 @@ public class SystemUI_android {
         return !this.m_activity.getBrigeView().hasWindowFocus();
     }
 
-    /* access modifiers changed from: package-private */
-    public void ShowTextField(final String str, final int i, final int i2) {
+
+    /*public void ShowTextField(final String str, final int i, final int i2) {
         this.m_activity.runOnUiThread(new Runnable() {
             public void run() {
                 SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
@@ -199,7 +209,7 @@ public class SystemUI_android {
         });
     }
 
-    /* access modifiers changed from: package-private */
+
     public void ShowTextField(String str, String str2, int i, int i2) {
         final String str3 = str;
         final String str4 = str2;
@@ -212,7 +222,7 @@ public class SystemUI_android {
             }
         });
     }
-    /* access modifiers changed from: package-private */
+
     public void HideTextField() {
         this.m_activity.runOnUiThread(new Runnable() {
             public void run() {
@@ -220,27 +230,100 @@ public class SystemUI_android {
             }
         });
         this.m_textFieldIsShowing = false;
+    }*/
+
+    // ------------------------------
+    public boolean ShowTextField(final String str, final int i, final int i2) {
+        if (this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
+            return false;
+        }
+        this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
+        this.m_activity.runOnUiThread(new Runnable() {
+            public void run() {
+                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
+                TextFieldState unused = SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
+            }
+        });
+        return true;
     }
 
-    /* access modifiers changed from: package-private */
-    public boolean IsTextFieldShowing() {
+    public boolean ShowTextField(String str, String str2, int i, int i2) {
+        if (this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
+            return false;
+        }
+        this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
+        final String str3 = str;
+        final String str4 = str2;
+        final int i3 = i;
+        final int i4 = i2;
+        this.m_activity.runOnUiThread(new Runnable() {
+            public void run() {
+                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str3), str4, i3, i4);
+                TextFieldState unused = SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
+            }
+        });
+        return true;
+    }
+
+    public void HideTextField() {
+        if (this.m_textFieldState != TextFieldState.kTextFieldState_RequestHide && this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
+            this.m_textFieldState = TextFieldState.kTextFieldState_RequestHide;
+            this.m_activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    SystemUI_android.this.m_textField.hideTextField();
+                    TextFieldState unused = SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Hidden;
+                }
+            });
+        }
+    }
+    // ------------------------------
+    /*public boolean IsTextFieldShowing() {
         return this.m_textFieldIsShowing;
+    }*/
+
+    public boolean IsTextFieldShowing() {
+        return this.m_textFieldState == TextFieldState.kTextFieldState_Showing;
     }
 
-    /* access modifiers changed from: package-private */
     public float GetTextFieldHeight() {
         return this.m_activity.transformHeightToProgram(this.m_textField.getTextFieldHeight());
     }
 
-    /* access modifiers changed from: package-private */
     public boolean IsKeyboardShowing() {
         return this.m_keyboardIsShowing;
     }
 
-    /* access modifiers changed from: package-private */
     public float GetKeyboardHeight() {
         return this.m_activity.transformHeightToProgram(this.m_keyboardHeight);
     }
+
+    //--------------------------------------------
+    public int UpdateCursorPosUTF8(int i, String str) {
+        return str.substring(0, i).getBytes(StandardCharsets.UTF_8).length;
+    }
+
+    public void GetKeyboardTextInfo() {
+        this.m_textBuffer = this.m_textField.getEditText().getText().toString();
+        int selectionStart = this.m_textField.getEditText().getSelectionStart();
+        int selectionEnd = this.m_textField.getEditText().getSelectionEnd();
+        this.m_cursorPos = UpdateCursorPosUTF8(selectionStart, this.m_textBuffer);
+        this.m_selectPos = selectionStart != selectionEnd ? UpdateCursorPosUTF8(selectionEnd, this.m_textBuffer) : -1;
+    }
+
+    public String GetTextEditBuffer() {
+        return this.m_textBuffer;
+    }
+
+    public int GetTextEditCursor() {
+        return this.m_cursorPos;
+    }
+
+    public int GetTextEditSelect() {
+        return this.m_selectPos;
+    }
+
+   //----------------------------------------------------------------
+
 
     public int ShowTextFieldDialog(String str, String str2, String str3, String str4, int i, int i2, String str5, String str6) throws UnsupportedEncodingException {
         int TryActivate;
@@ -781,7 +864,6 @@ public class SystemUI_android {
     /* JADX WARNING: Code restructure failed: missing block: B:3:0x0008, code lost:
         r0 = TryActivate();
      */
-    /* Code decompiled incorrectly, please refer to instructions dump. */
     public int ShareImage(String localizeString, final String s, final byte[] array, final boolean b) {
         final int tryActivate = this.TryActivate();
         if (tryActivate == -1) {
@@ -838,24 +920,31 @@ public class SystemUI_android {
 
     public int ShareVideo(String str) {
         int TryActivate;
-        if ((TryActivate = TryActivate()) == -1) {
+        if (GetMainWindowAttachedSheet() || (TryActivate = TryActivate()) == -1) {
             return -1;
         }
-        Uri fromFile = Uri.fromFile(new File((this.m_activity.getExternalCacheDir() + "/") + str));
-        Intent intent = new Intent();
-        intent.setAction("android.intent.action.SEND");
-        intent.setType("video/*");
-        intent.putExtra("android.intent.extra.STREAM", fromFile);
-        this.m_activity.startActivityForResult(Intent.createChooser(intent, ""), 112);
-        this.m_activity.AddOnActivityResultListener(new GameActivity.OnActivityResultListener() {
-            public void onActivityResult(int i, int i2, Intent intent) {
-                if (i == 112) {
-                    SystemUI_android.this.SetResult((String) null, i2 == -1 ? 1 : 0, true);
-                    SystemUI_android.this.m_activity.RemoveOnActivityResultListeners(this);
+        File file = new File((this.m_activity.getExternalCacheDir() + "/") + str);
+        Context baseContext = this.m_activity.getBaseContext();
+        try {
+            Uri uriForFile = FileProvider.getUriForFile(baseContext, baseContext.getApplicationContext().getPackageName() + ".provider", file);
+            Intent intent = new Intent();
+            intent.setAction("android.intent.action.SEND");
+            intent.setType("video/*");
+            intent.putExtra("android.intent.extra.STREAM", uriForFile);
+            this.m_activity.startActivityForResult(Intent.createChooser(intent, ""), 112);
+            this.m_activity.AddOnActivityResultListener(new GameActivity.OnActivityResultListener() {
+                @Override
+                public void onActivityResult(int i, int i2, Intent intent2) {
+                    if (i == 112) {
+                        SystemUI_android.this.SetResult(null, i2 == -1 ? 1 : 0, true);
+                        SystemUI_android.this.m_activity.RemoveOnActivityResultListeners(this);
+                    }
                 }
-            }
-        });
-        return TryActivate;
+            });
+            return TryActivate;
+        } catch (Exception unused) {
+            return -1;
+        }
     }
 
     public void SaveImage(String str, byte[] bArr) {

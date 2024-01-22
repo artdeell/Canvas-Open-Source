@@ -10,6 +10,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.tgc.sky.BuildConfig;
 import com.tgc.sky.GameActivity;
 import com.tgc.sky.accounts.SystemAccountClientInfo;
 import com.tgc.sky.accounts.SystemAccountClientRequestState;
@@ -52,7 +53,11 @@ public class Facebook implements SystemAccountInterface {
         SystemAccountClientInfo systemAccountClientInfo = new SystemAccountClientInfo();
         this.m_accountClientInfo = systemAccountClientInfo;
         systemAccountClientInfo.accountType = SystemAccountType.kSystemAccountType_Facebook;
-        this.m_accountClientInfo.state = SystemAccountClientState.kSystemAccountClientState_SignedOut;
+        if(BuildConfig.SKY_SERVER_HOSTNAME.equals("live.radiance.thatgamecompany.com")) {
+            this.m_accountClientInfo.state = SystemAccountClientState.kSystemAccountClientState_SignedOut;
+        } else{
+            this.m_accountClientInfo.state = SystemAccountClientState.kSystemAccountClientState_NotAvailable;
+        }
         SystemAccountServerInfo systemAccountServerInfo = new SystemAccountServerInfo();
         this.m_accountServerInfo = systemAccountServerInfo;
         systemAccountServerInfo.type = SystemAccountType.kSystemAccountType_Facebook;

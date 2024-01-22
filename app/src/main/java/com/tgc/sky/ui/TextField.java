@@ -67,7 +67,7 @@ public class TextField {
                         boolean unused = TextField.this.m_onKeyboardCompleteAlreadyCalled = true;
                         TextField.this.hideTextField();
                     }
-                    TextField.this.m_activity.onKeyboardCompleteNative(textView.getText().toString(), Boolean.parseBoolean(String.valueOf(TextField.this.m_isCallbackTextfield)), TextField.this.m_isCallbackTextfield);
+                    TextField.this.m_activity.onKeyboardCompleteNative(textView.getText().toString(), TextField.this.m_isCallbackTextfield, TextField.this.m_isCallbackTextfield);
                     textView.setText("");
                     return true;
             }
@@ -153,5 +153,10 @@ public class TextField {
     public float getTextFieldHeight() {
         return (float) this.m_textField.getHeight();
     }
+
+    public EditText getEditText() {
+        return this.m_textField;
+    }
+
 }
 

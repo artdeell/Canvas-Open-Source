@@ -190,34 +190,6 @@ public class GameActivity extends TGCNativeActivity {
         bindService(updaterService, new UpdaterServiceConnection(this), BIND_AUTO_CREATE);
     }
 
-    private boolean isTextRenderingBrokenForDevice() {
-        if (Build.VERSION.SDK_INT != 31 && Build.VERSION.SDK_INT != 32) {
-            return false;
-        }
-        String[] strArr = {"OPD2102", "X21N2", "PFUM10", "TB128FU", "RMX3478", "RMX3471", "RMX3472", "2201116SC", "22101317C"};
-        for (int i = 0; i < 9; i++) {
-            if (Build.MODEL.compareToIgnoreCase(strArr[i]) == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void fixTextRenderingOnProblemDevices_HACK() {
-        if (isTextRenderingBrokenForDevice()) {
-            Log.i(TAG, "Detected problematic text rendering on this device - applying workaround");
-            for (int i = 0; i < 29; i++) {
-                View view = new View(this);
-                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-                layoutParams.width = 2;
-                layoutParams.height = 2;
-                layoutParams.flags = 1064;
-                layoutParams.format = 1;
-                layoutParams.gravity = Gravity.BOTTOM;
-                ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).addView(view, layoutParams);
-            }
-        }
-    }
     /* access modifiers changed from: protected */
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -237,7 +209,6 @@ public class GameActivity extends TGCNativeActivity {
         imguiView.setZOrderOnTop(true);
         ImGUI.setClipboardService((ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE));
         imguiInput = findViewById(R.id.imguiInput);
-        fixTextRenderingOnProblemDevices_HACK();
         FMOD.init(this);
         new SystemCommerce_android(this);
         this.m_systemIO = new SystemIO_android(this);
@@ -253,9 +224,6 @@ public class GameActivity extends TGCNativeActivity {
             HandleNewIntent(intent);
         }
         getWindow().getDecorView().setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            /* JADX WARNING: Exception block dominator not found, dom blocks: [] */
-            /* JADX WARNING: Missing exception handler attribute for start block: B:8:0x0030 */
-            /* Code decompiled incorrectly, please refer to instructions dump. */
             public android.view.WindowInsets onApplyWindowInsets(android.view.View r5, android.view.WindowInsets r6) {
                 int safeInset = Integer.max(r6.getStableInsetTop(), r6.getStableInsetBottom());
                 if(Build.VERSION.SDK_INT > 28 && r6.getDisplayCutout() != null) {
@@ -270,56 +238,6 @@ public class GameActivity extends TGCNativeActivity {
                 gameActivity.transformHeightToProgram((float)safeInset);
                 gameActivity.onSafeAreaInsetsChanged(new float[] {safeInset, 0, safeInset, 0});
                 return r5.onApplyWindowInsets(r6);
-                /*
-                    r4 = this;
-                    int r0 = r6.getStableInsetTop()     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    int r1 = r6.getStableInsetBottom()     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    int r0 = java.lang.Integer.max(r0, r1)     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    int r1 = android.os.Build.VERSION.SDK_INT     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r2 = 27
-                    if (r1 < r2) goto L_0x0030
-                    android.view.DisplayCutout r1 = r6.getDisplayCutout()     // Catch:{ NoSuchMethodError -> 0x0030 }
-                    if (r1 == 0) goto L_0x0030
-                    andoid.view.DisplayCutout r1 = r6.getDisplayCutout()     // Catch:{ NoSuchMethodError -> 0x0030 }
-                    int r1 = r1.getSafeInsetLeft()     // Catch:{ NoSuchMethodError -> 0x0030 }
-                    android.view.DisplayCutout r2 = r6.getDisplayCutout()     // Catch:{ NoSuchMethodError -> 0x0030 }
-                    int r2 = r2.getSafeInsetRight()     // Catch:{ NoSuchMethodError -> 0x0030 }
-                    int r1 = java.lang.Integer.max(r1, r2)     // Catch:{ NoSuchMethodError -> 0x0030 }
-                    int r0 = java.lang.Integer.max(r0, r1)     // Catch:{ NoSuchMethodError -> 0x0030 }
-                L_0x0030:
-                    com.tgc.sky.GameActivity r1 = com.tgc.sky.GameActivity.this     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    android.graphics.Rect r1 = r1.mSafeAreaInsets     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r1.left = r0     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    com.tgc.sky.GameActivity r1 = com.tgc.sky.GameActivity.this     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    android.graphics.Rect r1 = r1.mSafeAreaInsets     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r2 = 0
-                    r1.top = r2     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    com.tgc.sky.GameActivity r1 = com.tgc.sky.GameActivity.this     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    android.graphics.Rect r1 = r1.mSafeAreaInsets     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r1.right = r0     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    com.tgc.sky.GameActivity r1 = com.tgc.sky.GameActivity.this     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    android.graphics.Rect r1 = r1.mSafeAreaInsets     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r1.bottom = r2     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    com.tgc.sky.GameActivity r1 = com.tgc.sky.GameActivity.this     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    float r0 = (float) r0     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    float r0 = r1.transformWidthToProgram(r0)     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r1 = 4
-                    float[] r1 = new float[r1]     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r1[r2] = r0     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r2 = 1
-                    r3 = 0
-                    r1[r2] = r3     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r2 = 2
-                    r1[r2] = r0     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r0 = 3
-                    r1[r0] = r3     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    com.tgc.sky.GameActivity r0 = com.tgc.sky.GameActivity.this     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    r0.onSafeAreaInsetsChanged(r1)     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    android.view.WindowInsets r5 = r5.onApplyWindowInsets(r6)     // Catch:{ Exception | NoSuchMethodError -> 0x0071 }
-                    return r5
-                L_0x0071:
-                    return r6
-                */
             }
         });
     }
