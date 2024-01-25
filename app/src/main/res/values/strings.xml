@@ -33,6 +33,7 @@
     <string name="mod_skip_updater">Skip  the updater</string>
     <string name="sign_in">Sign in with %s</string>
     <string name="enable_beta">Enable Sky Beta support</string>
+    <string name="launch">Play</string>
     <string name="enable_dev">Dev Server</string>
     <string name="wait">Wait</string>
     <string name="updater_checking">Checking for updates…</string>

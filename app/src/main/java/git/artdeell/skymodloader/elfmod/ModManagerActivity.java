@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import git.artdeell.skymodloader.BuildConfig;
+import git.artdeell.skymodloader.MainActivity;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.SMLApplication;
 import git.artdeell.skymodloader.databinding.ModManagerBinding;
@@ -34,6 +35,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
     RecyclerView modListView;
     View addModButton;
     View loadingBar;
+    View launchButton;
     private ModManagerBinding binding;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch enableBetaSwitch;
@@ -46,6 +48,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
         modListView = findViewById(R.id.mm_modList);
         addModButton = findViewById(R.id.mm_addMod);
         loadingBar = findViewById(R.id.mm_loadBar);
+        launchButton = findViewById(R.id.mm_launch);
         beta_enabler = getSharedPreferences("beta_enabler", Context.MODE_PRIVATE);
         enableBetaSwitch = findViewById(R.id.mm_enableSkyBeta);
         enableBetaSwitch.setOnCheckedChangeListener(this::onBetaChecked);
@@ -63,6 +66,10 @@ public class ModManagerActivity extends Activity implements LoadingListener {
         }
         modListView.setLayoutManager(new LinearLayoutManager(this));
         modListView.setAdapter(new ModListAdapter(loader));
+    }
+
+    public void onGameLaunch(View v) {
+        startActivity(new Intent(this, MainActivity.class));
     }
 
     public void onAddMod(View v) {
@@ -87,6 +94,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
     private void setLoadingStatus(boolean enable) {
         loadingBar.setVisibility(enable?View.VISIBLE:View.GONE);
         addModButton.setEnabled(!enable);
+        launchButton.setEnabled(!enable);
         modListView.setClickable(!enable);
     }
 

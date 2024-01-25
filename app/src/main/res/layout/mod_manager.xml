@@ -30,7 +30,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mm_addMod"
+            app:layout_constraintTop_toBottomOf="@+id/mm_launch"
             app:layout_constraintVertical_bias="0.0"
 
             app:layout_constraintEnd_toStartOf="@id/mm_modList" />
@@ -58,6 +58,17 @@
             app:layout_constraintBottom_toTopOf="@+id/mm_loadBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/mm_launch"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:enabled="false"
+            android:onClick="onGameLaunch"
+            android:text="@string/launch"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mm_addMod" />
 
         <Button
             android:id="@+id/mm_addMod"

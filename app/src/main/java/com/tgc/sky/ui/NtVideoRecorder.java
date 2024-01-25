@@ -22,8 +22,7 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/* renamed from: com.tgc.sky.ui.NtVideoRecorder */
-/* loaded from: classes2.dex */
+
 public class NtVideoRecorder {
     private static final int COMPRESS_RATIO = 256;
     private static final int IFRAME_INTERVAL = 1;
@@ -66,9 +65,6 @@ public class NtVideoRecorder {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: package-private */
-    /* renamed from: com.tgc.sky.ui.NtVideoRecorder$VideoEncodecThread */
-    /* loaded from: classes2.dex */
     public static class VideoEncodecThread extends Thread {
         private WeakReference<NtVideoRecorder> encoderWeakReference;
         private boolean mShouldExit;
@@ -128,7 +124,7 @@ public class NtVideoRecorder {
             this.encoderWeakReference.get().encodeFrameData(this.videoEncodec, this.videoBufferinfo, this.videoTrackIndex);
         }
 
-        @Override // java.lang.Thread, java.lang.Runnable
+        @Override
         public void run() {
             super.run();
             this.mShouldExit = false;
@@ -155,9 +151,6 @@ public class NtVideoRecorder {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: package-private */
-    /* renamed from: com.tgc.sky.ui.NtVideoRecorder$AudioEncodecThread */
-    /* loaded from: classes2.dex */
     public static class AudioEncodecThread extends Thread {
         private MediaCodec.BufferInfo audioBufferinfo;
         private MediaCodec audioEncodec;
@@ -175,7 +168,7 @@ public class NtVideoRecorder {
             this.audioTrackIndex.set(-1);
         }
 
-        @Override // java.lang.Thread, java.lang.Runnable
+        @Override
         public void run() {
             super.run();
             this.m_shouldExit = false;
@@ -525,7 +518,6 @@ public class NtVideoRecorder {
         return 0;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public void encodeYUV420SP(int[] iArr, int i, int i2, byte[] bArr) {
         int i3 = i * i2;
         Arrays.fill(bArr, 0, bArr.length, (byte) 0);
@@ -580,7 +572,6 @@ public class NtVideoRecorder {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public void encodeYUV420P(int[] iArr, int i, int i2, byte[] bArr) {
         int i3 = i * i2;
         Arrays.fill(bArr, 0, bArr.length, (byte) 0);

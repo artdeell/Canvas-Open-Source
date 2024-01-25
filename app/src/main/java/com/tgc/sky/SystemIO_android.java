@@ -655,14 +655,14 @@ public class SystemIO_android {
                         return "automated_test_data";
                     case 10:
                     case 11:
-                    default:
-                        return null;
                     case 12:
                         return "display_preference_data";
                     case 13:
                         return "first_open_ts";
                     case 14:
                         return "button_mapping";
+                    default:
+                        return null;
 
                 }
             case KEY_TYPE_BOOLEAN:
@@ -707,7 +707,6 @@ public class SystemIO_android {
                         return "kUserPreference_DisableCrossPlay";
                     case 20:
                         return "kUserPreference_EnableDarkMode";
-
                     default:
                         return null;
                 }
