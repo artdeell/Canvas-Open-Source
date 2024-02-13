@@ -2,7 +2,7 @@ package git.artdeell.skymodloader.elfmod;
 
 public interface LoadingListener {
     DummyListener DUMMY = new DummyListener();
-    void refreshModList(boolean mode, int which);
+    void refreshModList(int mode, int which);
     void onLoadingUpdated();
     void signalModRemovalUnsafe();
     void signalModRemovalError();
@@ -10,7 +10,7 @@ public interface LoadingListener {
 }
 class DummyListener implements LoadingListener{
     @Override
-    public void refreshModList(boolean mode, int which) {
+    public void refreshModList(int mode, int which) {
 
     }
 
@@ -35,5 +35,4 @@ class DummyListener implements LoadingListener{
     public void signalModAddException() {
 
     }
-
 }

@@ -4,11 +4,12 @@ package git.artdeell.skymodloader;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
-import android.os.Build;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -19,53 +20,23 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 
 import git.artdeell.skymodloader.elfmod.ElfRefcountLoader;
 import git.artdeell.skymodloader.iconloader.IconLoader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-
-
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.Signature;
-
-import android.util.Log;
 
 public class MainActivity extends Activity {
-    public static final String[] SKY_PACKAGE_NAMES = new String[] {null, "com.tgc.sky.android", "com.tgc.sky.android.huawei"};
-    public static String SKY_PACKAGE_NAME = null;
-    PackageManager packageManager;
+    SharedPreferences sharedPreferences;
+    public static String SKY_PACKAGE_NAME;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getSharedPreferences("beta_enabler",Context.MODE_PRIVATE).getBoolean("enable_beta", false)) {
-            SKY_PACKAGE_NAMES[0] = "com.tgc.sky.android.test.gold";
-        }
-        findAndLoad();
-    }
 
-    private void findAndLoad() {
-        packageManager = getPackageManager();
-        for(String pName : SKY_PACKAGE_NAMES) {
-            if(pName == null) continue;
-            try {
-                packageManager.getPackageInfo(pName, PackageManager.GET_SHARED_LIBRARY_FILES);
-                SKY_PACKAGE_NAME = pName;
-                break;
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        if(SKY_PACKAGE_NAME != null) {
-            loadGame();
-        }else{
-            alertDialog(getString(R.string.sky_not_installed));
-        }
+        sharedPreferences = getSharedPreferences("package_configs", Context.MODE_PRIVATE);
+        SKY_PACKAGE_NAME = sharedPreferences.getString("sky_package_name", "com.tgc.sky.android");
+        sharedPreferences.edit().putString("sky_package_name", SKY_PACKAGE_NAME).apply();
+        loadGame();
     }
 
     private void loadGame() {
@@ -78,27 +49,41 @@ public class MainActivity extends Activity {
             SMLApplication.smlRes = getResources();
             String versionName = info.versionName;
             BuildConfig.SKY_VERSION = versionName.substring(0, versionName.indexOf(' ')).trim();
-            BuildConfig.VERSION_CODE = info.versionCode;
+            BuildConfig.VERSION_CODE = sharedPreferences.getBoolean("skip_updates", false) ? 0x99999 : info.versionCode;
+
             String nativeLibraryDir = info.applicationInfo.nativeLibraryDir;
-            File modsDir = new File(getFilesDir(),"mods");
+            File modsDir = new File(getFilesDir(), "mods");
             File configDir = new File(getFilesDir(), "config");
-            if(!configDir.isDirectory() && !configDir.mkdirs()) throw new IOException("Failed to create mod configuration directory");
-            ElfLoader loader = new ElfLoader(nativeLibraryDir+":/system/lib64");
+            if (!configDir.isDirectory() && !configDir.mkdirs())
+                throw new IOException("Failed to create mod configuration directory");
+
+            ElfLoader loader = new ElfLoader(nativeLibraryDir + ":/system/lib64");
             loader.loadLib("libBootloader.so");
             System.loadLibrary("ciphered");
             IconLoader.findIcons();
-            MainActivity.settle(BuildConfig.VERSION_CODE, SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test"), configDir.getAbsolutePath(), SMLApplication.skyRes.getAssets());
-            new ElfRefcountLoader(nativeLibraryDir+":/system/lib64",modsDir).load();
-            if(SKY_PACKAGE_NAME.equals("com.tgc.sky.android.test.gold")) {
+
+            MainActivity.settle(
+                    info.versionCode,
+                    SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test"),
+                    configDir.getAbsolutePath(),
+                    SMLApplication.skyRes.getAssets()
+            );
+
+            new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
+
+            if (SKY_PACKAGE_NAME.equals("com.tgc.sky.android.test.gold")) {
                 SKY_PACKAGE_NAME = "com.tgc.sky.android.test.";
                 BuildConfig.SKY_SERVER_HOSTNAME = "beta.radiance.thatgamecompany.com";
                 BuildConfig.SKY_BRANCH_NAME = "Test";
                 BuildConfig.SKY_STAGE_NAME = "Test";
-
             }
+
             BuildConfig.APPLICATION_ID = SKY_PACKAGE_NAME;
             startActivity(new Intent(this, GameActivity.class));
-        }catch(Throwable e) {
+
+        } catch (PackageManager.NameNotFoundException e) {
+            alertDialog(getString(R.string.sky_not_installed));
+        } catch (Throwable e) {
             alertDialog(e);
         }
     }
@@ -116,16 +101,17 @@ public class MainActivity extends Activity {
         pw.close();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(stackTrace);
-        builder.setPositiveButton(android.R.string.ok, (d,w)-> finish());
+        builder.setPositiveButton(android.R.string.ok, (d, w) -> finish());
         builder.show();
     }
 
     public void alertDialog(String th) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(th);
-        builder.setPositiveButton(android.R.string.ok, (d,w)-> finish());
+        builder.setPositiveButton(android.R.string.ok, (d, w) -> finish());
         builder.show();
     }
+
     public static native void settle(int gameVersion, boolean isBeta, String configDir, AssetManager gameAssets);
 
 

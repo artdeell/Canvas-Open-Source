@@ -7,11 +7,17 @@
         <item name="android:datePickerStyle">@android:style/Widget.DatePicker</item>
     </style>
 
-
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
-        <item name="android:windowBackground">#FFF8F8F8</item>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
+    <style name="Buttons" parent="Theme.MaterialComponents.DayNight">
+        <!-- Customize the button attributes here -->
+        <item name="android:background">#FFEDEDED</item>
+        <!-- Add more styling attributes as needed -->
+    </style>
     <style name="SpaceLine">
         <item name="android:background">#FFF8F8F8</item>
     </style>
@@ -22,7 +28,7 @@
     </style>
 
     <style name="Card">
-        <item name="cardBackgroundColor">#FFEDEDED</item>
+        <item name="cardBackgroundColor">@color/widgets</item>
     </style>
 
 </resources>

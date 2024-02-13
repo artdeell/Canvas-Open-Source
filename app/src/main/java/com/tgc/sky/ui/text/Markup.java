@@ -1,7 +1,6 @@
 package com.tgc.sky.ui.text;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Typeface;
@@ -18,6 +17,10 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.NotificationCompat;
+import androidx.core.text.HtmlCompat;
+
 import com.tgc.sky.GameActivity;
 import com.tgc.sky.ui.NtRange;
 import com.tgc.sky.ui.Utils;
@@ -25,7 +28,6 @@ import com.tgc.sky.ui.spans.CustomTypefaceSpan;
 import com.tgc.sky.ui.spans.EmbeddedImageSpan;
 import com.tgc.sky.ui.spans.ShadowSpan;
 import com.tgc.sky.ui.spans.StrokeSpan;
-
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -41,35 +43,11 @@ import java.util.function.Predicate;
 
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.SMLApplication;
+import kotlin.text.Typography;
 
-/* renamed from: com.tgc.sky.ui.text.Markup */
+
 public class Markup {
-    private final int adventurePassColor = Color.argb(255, 255, 128, 51);
-    private Drawable attachmentBeacon;
-    private Drawable attachmentCamera;
-    private Drawable attachmentCandle;
-    private Drawable attachmentCape;
-    private Drawable attachmentCog;
-    private Drawable attachmentDiamond;
-    private Drawable attachmentExclamation;
-    private Drawable attachmentGamepadA;
-    private Drawable attachmentGamepadB;
-    private Drawable attachmentGamepadX;
-    private Drawable attachmentGamepadY;
-    private Drawable attachmentHeart;
-    private Drawable attachmentInvite;
-    private Drawable attachmentLeftShoulder;
-    private Drawable attachmentLeftTrigger;
-    private Drawable attachmentLightBulb;
-    private Drawable attachmentPrestige;
-    private Drawable attachmentQuestion;
-    private Drawable attachmentRightShoulder;
-    private Drawable attachmentRightTrigger;
-    private Map<String, Drawable> attachmentSeasonCandles;
-    private Map<String, Drawable> attachmentSeasonHearts;
-    private Map<String, Drawable> attachmentSeasonMasks;
-    private Map<String, Drawable> attachmentSeasonPendants;
-    private Drawable attachmentSeasonQuest;
+    private Map<String, Drawable> attachmentEventCandles;
     private Drawable attachmentSit;
     private Drawable attachmentSpellEarth;
     private Drawable attachmentSpellFire;
@@ -86,11 +64,44 @@ public class Markup {
     private Drawable attachmentToggleSwim;
     private Drawable attachmentWingBuff;
     private GameActivity m_activity;
-    private Map<String, String> m_buttonMap;
     private Typeface m_defaultFont;
     private final int menuGold = GetColor(1.0f, 0.9686f, 0.851f, 1.0f);
     private final int menuWhite = GetColor(1.0f, 1.0f, 1.0f, 1.0f);
+    private final int adventurePassColor = Color.argb(255, 255, 170, 51);
     private final int shadowColor = GetColor(0.0f, 0.0f, 0.0f, 0.5f);
+    private Map<String, String> m_buttonMap;
+    private Drawable attachmentBeacon;
+    private Drawable attachmentCamera;
+    private Drawable attachmentCandle;
+    private Drawable attachmentCape;
+    private Drawable attachmentCog;
+    private Drawable attachmentDiamond;
+    private Drawable attachmentExclamation;
+    private Drawable attachmentGamepadA;
+    private Drawable attachmentGamepadB;
+    private Drawable attachmentGamepadX;
+    private Drawable attachmentGamepadY;
+    private Drawable attachmentHeart;
+    private Drawable attachmentLike;
+    private Drawable attachmentInvite;
+    private Drawable attachmentLeftShoulder;
+    private Drawable attachmentLeftTrigger;
+    private Drawable attachmentLightBulb;
+    private Drawable attachmentPrestige;
+    private Drawable attachmentQuestion;
+    private Drawable attachmentCloseButton;
+    private Drawable attachmentGlobalChat;
+    private Drawable attachmentRightShoulder ;
+    private Drawable attachmentRightTrigger;
+    private Drawable attachmentAnalogLeft ;
+    private Drawable attachmentAnalogLeftUp;
+    private Drawable attachmentAnalogLeftDown ;
+    private Drawable attachmentAnalogRight;
+    private Map<String, Drawable> attachmentSeasonCandles ;
+    private Map<String, Drawable> attachmentSeasonHearts ;
+    private Map<String, Drawable> attachmentSeasonMasks ;
+    private Map<String, Drawable> attachmentSeasonPendants ;
+    private Drawable attachmentSeasonQuest;
 
     public Markup(GameActivity gameActivity) {
         this.m_activity = gameActivity;
@@ -110,87 +121,40 @@ public class Markup {
         this.attachmentGamepadX = CreateAttachment("systemui_gamepadx");
         this.attachmentGamepadY = CreateAttachment("systemui_gamepady");
         this.attachmentHeart = CreateAttachment("systemui_heart");
+        this.attachmentLike = CreateAttachment("systemui_like");
         this.attachmentInvite = CreateAttachment("systemui_invite");
         this.attachmentLeftShoulder = CreateAttachment("systemui_leftshoulder");
         this.attachmentLeftTrigger = CreateAttachment("systemui_lefttrigger");
         this.attachmentLightBulb = CreateAttachment("systemui_lightbulb");
         this.attachmentPrestige = CreateAttachment("systemui_prestige");
         this.attachmentQuestion = CreateAttachment("systemui_question");
+        this.attachmentCloseButton = CreateAttachment("systemui_closebutton");
+        this.attachmentGlobalChat = CreateAttachment("systemui_globalchat");
         this.attachmentRightShoulder = CreateAttachment("systemui_rightshoulder");
         this.attachmentRightTrigger = CreateAttachment("systemui_righttrigger");
-        HashMap hashMap = new HashMap();
-        this.attachmentSeasonCandles = hashMap;
-        hashMap.put("1", CreateAttachment("systemui_seasoncandle01"));
-        this.attachmentSeasonCandles.put("2", CreateAttachment("systemui_seasoncandle02"));
-        this.attachmentSeasonCandles.put("3", CreateAttachment("systemui_seasoncandle03"));
-        this.attachmentSeasonCandles.put("4", CreateAttachment("systemui_seasoncandle04"));
-        this.attachmentSeasonCandles.put("5", CreateAttachment("systemui_seasoncandle01"));
-        this.attachmentSeasonCandles.put("6", CreateAttachment("systemui_seasoncandle06"));
-        this.attachmentSeasonCandles.put("7", CreateAttachment("systemui_seasoncandle07"));
-        this.attachmentSeasonCandles.put("8", CreateAttachment("systemui_seasoncandle08"));
-        this.attachmentSeasonCandles.put("9", CreateAttachment("systemui_seasoncandle09"));
-        this.attachmentSeasonCandles.put("10", CreateAttachment("systemui_seasoncandle10"));
-        this.attachmentSeasonCandles.put("11", CreateAttachment("systemui_seasoncandle11"));
-        this.attachmentSeasonCandles.put("12", CreateAttachment("systemui_seasoncandle12"));
-        this.attachmentSeasonCandles.put("13", CreateAttachment("systemui_seasoncandle13"));
-        Object obj = "13";
-        this.attachmentSeasonCandles.put("14", CreateAttachment("systemui_seasoncandle14"));
-        Object obj2 = "14";
-        this.attachmentSeasonCandles.put("default", CreateAttachment("systemui_seasoncandle14"));
-        HashMap hashMap2 = new HashMap();
-        this.attachmentSeasonHearts = hashMap2;
-        hashMap2.put("1", CreateAttachment("systemui_seasonheart01"));
-        this.attachmentSeasonHearts.put("2", CreateAttachment("systemui_seasonheart02"));
-        this.attachmentSeasonHearts.put("3", CreateAttachment("systemui_seasonheart03"));
-        this.attachmentSeasonHearts.put("4", CreateAttachment("systemui_seasonheart04"));
-        this.attachmentSeasonHearts.put("5", CreateAttachment("systemui_seasonheart01"));
-        this.attachmentSeasonHearts.put("6", CreateAttachment("systemui_seasonheart06"));
-        this.attachmentSeasonHearts.put("7", CreateAttachment("systemui_seasonheart07"));
-        this.attachmentSeasonHearts.put("8", CreateAttachment("systemui_seasonheart08"));
-        this.attachmentSeasonHearts.put("9", CreateAttachment("systemui_seasonheart09"));
-        this.attachmentSeasonHearts.put("10", CreateAttachment("systemui_seasonheart10"));
-        this.attachmentSeasonHearts.put("11", CreateAttachment("systemui_seasonheart11"));
-        this.attachmentSeasonHearts.put("12", CreateAttachment("systemui_seasonheart12"));
-        this.attachmentSeasonHearts.put((String) obj, CreateAttachment("systemui_seasonheart13"));
-        this.attachmentSeasonHearts.put((String) obj2, CreateAttachment("systemui_seasonheart14"));
-        Object obj3 = "default";
-        this.attachmentSeasonHearts.put((String) obj3, CreateAttachment("systemui_seasonheart14"));
-        HashMap hashMap3 = new HashMap();
-        this.attachmentSeasonMasks = hashMap3;
-        hashMap3.put("1", CreateAttachment("systemui_seasonmask05"));
-        this.attachmentSeasonMasks.put("2", CreateAttachment("systemui_seasonmask02"));
-        this.attachmentSeasonMasks.put("3", CreateAttachment("systemui_seasonmask03"));
-        this.attachmentSeasonMasks.put("4", CreateAttachment("systemui_seasonmask04"));
-        this.attachmentSeasonMasks.put("5", CreateAttachment("systemui_seasonmask05"));
-        this.attachmentSeasonMasks.put("6", CreateAttachment("systemui_seasonmask06"));
-        this.attachmentSeasonMasks.put("7", CreateAttachment("systemui_seasonmask07"));
-        this.attachmentSeasonMasks.put("8", CreateAttachment("systemui_seasonmask07"));
-        this.attachmentSeasonMasks.put("9", CreateAttachment("systemui_seasonmask09"));
-        this.attachmentSeasonMasks.put("10", CreateAttachment("systemui_seasonmask10"));
-        this.attachmentSeasonMasks.put("11", CreateAttachment("systemui_seasonmask11"));
-        this.attachmentSeasonMasks.put("12", CreateAttachment("systemui_seasonmask12"));
-        this.attachmentSeasonMasks.put((String) obj, CreateAttachment("systemui_seasonmask13"));
-        Object obj4 = obj2;
-        this.attachmentSeasonMasks.put((String) obj4, CreateAttachment("systemui_seasonmask14"));
-        this.attachmentSeasonMasks.put((String) obj3, CreateAttachment("systemui_seasonmask14"));
-        HashMap hashMap4 = new HashMap();
-        this.attachmentSeasonPendants = hashMap4;
-        hashMap4.put("1", CreateAttachment("systemui_seasonpendant05"));
-        this.attachmentSeasonPendants.put("2", CreateAttachment("systemui_seasonpendant02"));
-        this.attachmentSeasonPendants.put("3", CreateAttachment("systemui_seasonpendant03"));
-        this.attachmentSeasonPendants.put("4", CreateAttachment("systemui_seasonpendant04"));
-        this.attachmentSeasonPendants.put("5", CreateAttachment("systemui_seasonpendant05"));
-        this.attachmentSeasonPendants.put("6", CreateAttachment("systemui_seasonpendant06"));
-        this.attachmentSeasonPendants.put("7", CreateAttachment("systemui_seasonpendant07"));
-        this.attachmentSeasonPendants.put("8", CreateAttachment("systemui_seasonpendant08"));
-        this.attachmentSeasonPendants.put("9", CreateAttachment("systemui_seasonpendant09"));
-        this.attachmentSeasonPendants.put("10", CreateAttachment("systemui_seasonpendant10"));
-        this.attachmentSeasonPendants.put("11", CreateAttachment("systemui_seasonpendant11"));
-        this.attachmentSeasonPendants.put("12", CreateAttachment("systemui_seasonpendant12"));
-        this.attachmentSeasonPendants.put((String) obj, CreateAttachment("systemui_seasonpendant13"));
-        this.attachmentSeasonPendants.put((String) obj4, CreateAttachment("systemui_seasonpendant14"));
-        this.attachmentSeasonPendants.put((String) obj3, CreateAttachment("systemui_seasonpendant14"));
+        this.attachmentAnalogLeft = CreateAttachment("systemui_analogleft");
+        this.attachmentAnalogLeftUp = CreateAttachment("systemui_analogleftup");
+        this.attachmentAnalogLeftDown = CreateAttachment("systemui_analogleftdown");
+        this.attachmentAnalogRight = CreateAttachment("systemui_analogright");
+        this.attachmentSeasonCandles = CreateSeasonAttachments("systemui_seasoncandle", new int[][]{new int[]{5, 1}});
+        this.attachmentSeasonHearts = CreateSeasonAttachments("systemui_seasonheart", new int[][]{new int[]{5, 1}});
+        this.attachmentSeasonMasks = CreateSeasonAttachments("systemui_seasonmask", new int[][]{new int[]{1, 5}, new int[]{8, 7}});
+        this.attachmentSeasonPendants = CreateSeasonAttachments("systemui_seasonpendant", new int[][]{new int[]{1, 5}});
         this.attachmentSeasonQuest = CreateAttachment("systemui_seasonquest");
+        HashMap hashMap = new HashMap();
+        this.attachmentEventCandles = hashMap;
+        hashMap.put("global_rainbow", CreateAttachment("systemui_eventcandle01"));
+        this.attachmentEventCandles.put("global_music", CreateAttachment("systemui_eventcandle02"));
+        this.attachmentEventCandles.put("global_sky_anniversary", CreateAttachment("systemui_eventcandle03"));
+        this.attachmentEventCandles.put("global_fashion", CreateAttachment("systemui_eventcandle04"));
+        this.attachmentEventCandles.put("global_summer", CreateAttachment("systemui_eventcandle05"));
+        this.attachmentEventCandles.put("global_aurora", CreateAttachment("systemui_eventcandle06"));
+        this.attachmentEventCandles.put("global_fireworks", CreateAttachment("systemui_eventcandle07"));
+        this.attachmentEventCandles.put("global_halloween", CreateAttachment("systemui_eventcandle08"));
+        this.attachmentEventCandles.put("global_feast", CreateAttachment("systemui_eventcandle09"));
+        this.attachmentEventCandles.put("global_daysoffortune", CreateAttachment("systemui_eventcandle10"));
+        this.attachmentEventCandles.put("global_daysoflove", CreateAttachment("systemui_eventcandle11"));
+        this.attachmentEventCandles.put("default", CreateAttachment("systemui_eventcandle01"));
         this.attachmentSit = CreateAttachment("systemui_sit");
         this.attachmentSpellEarth = CreateAttachment("systemui_spellearth");
         this.attachmentSpellFire = CreateAttachment("systemui_spellfire");
@@ -206,44 +170,9 @@ public class Markup {
         this.attachmentToggleDive = CreateAttachment("systemui_toggledive");
         this.attachmentThumbstick = CreateAttachment("systemui_thumbstick");
         this.attachmentWingBuff = CreateAttachment("systemui_wingbuff");
+
     }
 
-    private static int GetColor(float f, float f2, float f3, float f4) {
-        return Color.argb((int) (f4 * 255.0f), (int) (f * 255.0f), (int) (f2 * 255.0f), (int) (f3 * 255.0f));
-    }
-
-    private Drawable CreateAttachment(String resName) {
-        Drawable drawable;
-        try {
-            drawable = SMLApplication.skyRes.getDrawable(SMLApplication.skyRes.getIdentifier(resName, "drawable", SMLApplication.skyPName), null);
-        }catch (Exception e) {
-            drawable = new ColorDrawable(Color.WHITE);
-        }
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        return drawable;
-    }
-
-    public void SetGamepadButtonMap(String[] strArr, String[] strArr2) {
-        this.m_buttonMap.clear();
-        for (int i = 0; i < strArr.length; i++) {
-            this.m_buttonMap.put(strArr[i], strArr2[i]);
-        }
-    }
-
-    public Typeface DefaultFont() {
-        if (this.m_defaultFont == null) {
-            this.m_defaultFont = Typeface.DEFAULT;
-        }
-        return this.m_defaultFont;
-    }
-
-    public Object[] DefaultFont(float f) {
-        return new Object[]{new CustomTypefaceSpan(DefaultFont()), new AbsoluteSizeSpan((int) (f + 0.5f), true)};
-    }
-
-    public Object[] DefaultFontGame(float f) {
-        return new Object[]{new CustomTypefaceSpan(DefaultFont()), new AbsoluteSizeSpan(Utils.sp2px(f), false)};
-    }
     public ArrayList<Object> ProcessMarkupTag(String s, final Map<Object, Object> map, final StringBuilder sb) {
         final ArrayList list = new ArrayList<>();
         final int hashCode = s.hashCode();
@@ -1144,6 +1073,79 @@ public class Markup {
         return (ArrayList<Object>)list;
     }
 
+
+
+    private static int GetColor(float f, float f2, float f3, float f4) {
+        return Color.argb((int) (f4 * 255.0f), (int) (f * 255.0f), (int) (f2 * 255.0f), (int) (f3 * 255.0f));
+    }
+
+    private Drawable CreateAttachment(String resName) {
+        Drawable drawable;
+        try {
+            drawable = SMLApplication.skyRes.getDrawable(SMLApplication.skyRes.getIdentifier(resName, "drawable", SMLApplication.skyPName), null);
+        }catch (Exception e) {
+            drawable = new ColorDrawable(Color.WHITE);
+        }
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        return drawable;
+    }
+
+    private Map<String, Drawable> CreateSeasonAttachments(String str, int[][] iArr) {
+        int i;
+        HashMap hashMap = new HashMap();
+        Drawable drawable = null;
+        int i2 = 1;
+        while (true) {
+            int length = iArr.length;
+            int i3 = 0;
+            while (true) {
+                if (i3 >= length) {
+                    i = i2;
+                    break;
+                }
+                int[] iArr2 = iArr[i3];
+                if (iArr2[0] == i2) {
+                    i = iArr2[1];
+                    break;
+                }
+                i3++;
+            }
+            int identifier = SMLApplication.skyRes.getIdentifier(String.format("%s%02d", new Object[]{str, Integer.valueOf(i)}), "drawable", SMLApplication.skyPName);
+            if (identifier == 0) {
+                break;
+            }
+            drawable = SMLApplication.skyRes.getDrawable(identifier, null);
+            hashMap.put(String.valueOf(i2), drawable);
+            i2++;
+        }
+        if (drawable != null) {
+            hashMap.put("default", drawable);
+        }
+        return hashMap;
+    }
+
+    public void SetGamepadButtonMap(String[] strArr, String[] strArr2) {
+        this.m_buttonMap.clear();
+        for (int i = 0; i < strArr.length; i++) {
+            this.m_buttonMap.put(strArr[i], strArr2[i]);
+        }
+    }
+
+    public Typeface DefaultFont() {
+        if (this.m_defaultFont == null) {
+            this.m_defaultFont = Typeface.DEFAULT;
+        }
+        return this.m_defaultFont;
+    }
+
+    public Object[] DefaultFont(float f) {
+        return new Object[]{new CustomTypefaceSpan(DefaultFont()), new AbsoluteSizeSpan((int) (f + 0.5f), true)};
+    }
+
+    public Object[] DefaultFontGame(float f) {
+        return new Object[]{new CustomTypefaceSpan(DefaultFont()), new AbsoluteSizeSpan(Utils.sp2px(f), false)};
+    }
+
     public SpannableStringBuilder GetMarkedUpString(String str, ArrayList<Object> arrayList, boolean z) {
         int i;
         int i2;
@@ -1203,8 +1205,8 @@ public class Markup {
         List<String> arrayList8 = new ArrayList<>(Arrays.asList(TrimmingString(str3, '/').trim().split(" ")));
         arrayList8.removeIf(new Predicate<String>() {
             public boolean test(String str) {
-                    return str.length() <= 0;
-                }
+                return str.length() <= 0;
+            }
         });
         if (arrayList8.size() != 0) {
             String str4 = (String) arrayList8.get(0);
@@ -1223,7 +1225,7 @@ public class Markup {
                             str2 = (String) arrayList9.get(1);
                         }
                         if (str2.startsWith("\"") && str2.endsWith("\"")) {
-                            hashMap.put(str5, TrimmingString(str2, '"'));
+                            hashMap.put(str5, TrimmingString(str2, Typography.quote));
                         } else if (str2.startsWith("'") && str2.endsWith("'")) {
                             hashMap.put(str5, TrimmingString(str2, '\''));
                         }
@@ -1326,6 +1328,20 @@ public class Markup {
             str = this.m_activity.ResolveTemplateArgs("{{Seasons::prev}}");
         } else if (str.equalsIgnoreCase("next")) {
             str = this.m_activity.ResolveTemplateArgs("{{Seasons::next}}");
+        }
+        if (str.isEmpty() || !map.containsKey(str)) {
+            return map.get("default");
+        }
+        return map.get(str);
+    }
+
+    private Drawable ProcessEventArg(Map<String, Drawable> map, String str) {
+        if (str == null) {
+            str = this.m_activity.ResolveTemplateArgs("{{Events::event}}");
+        } else if (str.equalsIgnoreCase("prev")) {
+            str = this.m_activity.ResolveTemplateArgs("{{Events::prev}}");
+        } else if (str.equalsIgnoreCase("next")) {
+            str = this.m_activity.ResolveTemplateArgs("{{Events::next}}");
         }
         if (str.isEmpty() || !map.containsKey(str)) {
             return map.get("default");

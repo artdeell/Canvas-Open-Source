@@ -47,4 +47,28 @@
     <string name="updater_failed">Failed to update</string>
     <string name="updater_input_unreadable">Downloaded data not readable</string>
     <string name="mod_canvas_version">Canvas %s</string>
+    <string name="huawei">huawei</string>
+    <string name="beta">Beta</string>
+    <string name="live">Live</string>
+    <string name="game_not_installed_warning">Game is not installed</string>
+    <string name="play">PLAY</string>
+    <string name="mods">MODS</string>
+    <string name="check_updates_title">Do you want to check if [%1$s] have an update?</string>
+    <string name="check_updates_failed_title">Checking Failed</string>
+    <string name="updating_failed_title">"Updating Failed"</string>
+    <string name="check_updates_message">Note: Update will start if you feel OK.</string>
+    <string name="check_button_text">Check</string>
+    <string name="version_info">Version: %s\n%s</string>
+    <string name="update_dialog_title">%s Has a new update!!</string>
+    <string name="install_button_text">Install</string>
+    <string name="updater_busy">Updater is busy</string>
+    <string name="download_is_going">Download is going</string>
+    <string name="up_to_date_title">UP TO DATE</string>
+    <string name="up_to_date_message">Current mod is up to date\nVersion: %1$s</string>
+    <string name="remove">Remove</string>
+    <string name="check_for_updates">Check For Updates</string>
+    <string name="switch_skip_updates">Skip game update</string>
+    <string name="close">Close</string>
+
+
 </resources>

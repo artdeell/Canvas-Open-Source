@@ -21,22 +21,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import git.artdeell.skymodloader.modupdater.ModUpdater;
+
 public class ElfUIBackbone {
     private final List<ElfModUIMetadata> mods = new ArrayList<>();
     private LoadingListener listener = LoadingListener.DUMMY;
     public Activity activity;
+    public ModUpdater modUpdater;
     private File modFolder;
     private volatile Exception currentException;
     private final AtomicBoolean progressBarActive = new AtomicBoolean(false);
     private volatile UnsafeRemovalMetadata unsafeRemovalMetadata;
+
     public int getModsCount() {
         return mods.size();
     }
+
     public ElfModUIMetadata getMod(int where) {
         return mods.get(where);
     }
-    ElfUIBackbone(Activity activity){
+
+    ElfUIBackbone(Activity activity, ModUpdater modUpdater) {
         this.activity = activity;
+        this.modUpdater = modUpdater;
     }
 
     private void startLoading() {
@@ -56,15 +63,15 @@ public class ElfUIBackbone {
 
     public void loadMetaFromModFolder(File modFolder) {
         this.modFolder = modFolder;
-        if(!modFolder.exists()) {
+        if (!modFolder.exists()) {
             modFolder.mkdirs();
         }
         File[] files = modFolder.listFiles(new SharedObjectFileFilter());
-        if(files != null) {
-            for(File f : files) {
+        if (files != null) {
+            for (File f : files) {
                 try {
                     mods.add(getElfMetadata(f));
-                }catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     ElfModUIMetadata metadata = new ElfModUIMetadata();
                     metadata.activity = this.activity;
@@ -74,10 +81,11 @@ public class ElfUIBackbone {
                     mods.add(metadata);
                 }
             }
-            meta_loop: for(ElfModUIMetadata metadata : mods) {
-                if(!metadata.modIsValid) continue;
-                for(ElfModMetadata dep : metadata.dependencies) {
-                    if(findCompatibleDep(dep) == null) {
+            meta_loop:
+            for (ElfModUIMetadata metadata : mods) {
+                if (!metadata.modIsValid) continue;
+                for (ElfModMetadata dep : metadata.dependencies) {
+                    if (findCompatibleDep(dep) == null) {
                         metadata.modIsValid = false;
                         continue meta_loop;
                     }
@@ -85,7 +93,8 @@ public class ElfUIBackbone {
             }
         }
     }
-    private ElfModUIMetadata getElfMetadata(File f) throws IOException{
+
+    private ElfModUIMetadata getElfMetadata(File f) throws IOException {
         FileInputStream fis = new FileInputStream(f);
         ElfModUIMetadata defaultMeta = new ElfModUIMetadata();
         defaultMeta.activity = this.activity;
@@ -95,37 +104,41 @@ public class ElfUIBackbone {
         fis.close();
         return defaultMeta;
     }
+
     private ElfModUIMetadata getElfMetadata(byte[] bytes) {
         ElfModUIMetadata defaultMeta = new ElfModUIMetadata();
         defaultMeta.activity = this.activity;
         return getElfMetadata(defaultMeta, bytes);
     }
+
     private ElfModUIMetadata getElfMetadata(ElfModUIMetadata defaultMeta, byte[] elfFile) {
         try {
             ElfFile elf = ElfFile.from(elfFile);
             ElfStringTable shstrtab = elf.getSectionNameStringTable();
-            long secoff_icon=-1; long secsz_icon = -1;
-            long secoff_config=-1; long secsz_config = -1;
-            for(int i = 0; i < elf.e_shnum; i++) {
+            long secoff_icon = -1;
+            long secsz_icon = -1;
+            long secoff_config = -1;
+            long secsz_config = -1;
+            for (int i = 0; i < elf.e_shnum; i++) {
                 ElfSectionHeader shdr = elf.getSection(i).header;
                 String shname = shstrtab.get(shdr.sh_name);
-                if(".icon".equals(shname)) {
+                if (".icon".equals(shname)) {
                     secoff_icon = shdr.sh_offset;
                     secsz_icon = shdr.sh_size;
                     continue;
                 }
-                if(".config".equals(shname)) {
+                if (".config".equals(shname)) {
                     secoff_config = shdr.sh_offset;
                     secsz_config = shdr.sh_size;
                 }
             }
-            if(secoff_config == -1 || secsz_config == -1) {
+            if (secoff_config == -1 || secsz_config == -1) {
                 defaultMeta.modIsValid = false;
                 return defaultMeta;
             }
-            if(secsz_config > 0 && secsz_config < Integer.MAX_VALUE) {
-                byte[] config = new byte[(int)secsz_config];
-                System.arraycopy(elfFile, (int)secoff_config, config, 0, config.length);
+            if (secsz_config > 0 && secsz_config < Integer.MAX_VALUE) {
+                byte[] config = new byte[(int) secsz_config];
+                System.arraycopy(elfFile, (int) secoff_config, config, 0, config.length);
                 JSONObject jsonConfig = new JSONObject(new String(config, 0, config.length));
                 defaultMeta.name = jsonConfig.getString("name");
                 defaultMeta.description = jsonConfig.optString("description");
@@ -133,9 +146,10 @@ public class ElfUIBackbone {
                 defaultMeta.minorVersion = jsonConfig.getInt("minorVersion");
                 defaultMeta.patchVersion = jsonConfig.getInt("patchVersion");
                 defaultMeta.displayName = jsonConfig.optString("displayName");
+                defaultMeta.githubReleasesUrl = jsonConfig.optString("githubReleasesUrl");
                 JSONArray jdeps = jsonConfig.getJSONArray("dependencies");
                 ElfModMetadata[] dependencies = new ElfModMetadata[jdeps.length()];
-                for(int i = 0; i < dependencies.length; i++) {
+                for (int i = 0; i < dependencies.length; i++) {
                     JSONObject jsonDependency = jdeps.getJSONObject(i);
 
                     ElfModMetadata dependency = new ElfModMetadata();
@@ -148,87 +162,90 @@ public class ElfUIBackbone {
                 }
                 defaultMeta.dependencies = dependencies;
                 defaultMeta.modIsValid = true;
-            }else{
+            } else {
                 defaultMeta.modIsValid = false;
                 return defaultMeta;
             }
-            if(secsz_icon > 0 && secsz_icon < Integer.MAX_VALUE) {
+            if (secsz_icon > 0 && secsz_icon < Integer.MAX_VALUE) {
                 try {
                     byte[] icon = new byte[(int) secsz_icon];
-                    System.arraycopy(elfFile, (int)secoff_icon, icon, 0, icon.length);
+                    System.arraycopy(elfFile, (int) secoff_icon, icon, 0, icon.length);
                     defaultMeta.icon = BitmapFactory.decodeByteArray(icon, 0, icon.length);
-                }catch (Exception e) {
+                } catch (Exception e) {
                     defaultMeta.icon = null;
                     e.printStackTrace();
                 }
             }
-           return defaultMeta;
-        }catch (Exception e) {
+            return defaultMeta;
+        } catch (Exception e) {
             e.printStackTrace();
             defaultMeta.modIsValid = false;
             return defaultMeta;
         }
     }
+
     private ElfModMetadata findCompatibleDep(ElfModMetadata depInfo) {
         ElfModUIMetadata metadata = null;
-        for(ElfModUIMetadata metadata1 : mods) {
-            if(depInfo.name.equals(metadata1.name) && metadata1.modIsValid) {
+        for (ElfModUIMetadata metadata1 : mods) {
+            if (depInfo.name.equals(metadata1.name) && metadata1.modIsValid) {
                 metadata = metadata1;
                 break;
             }
         }
-        Log.i("ElfLdr","depInfo.name="+depInfo.name);
-        if(metadata != null) {
-            Log.i("ElfLdr","depInfo.minor="+depInfo.minorVersion+";metadata.minor="+metadata.minorVersion);
-            if(depInfo.majorVersion != metadata.majorVersion) return null;
-            if(depInfo.minorVersion > metadata.minorVersion) return null;
+        Log.i("ElfLdr", "depInfo.name=" + depInfo.name);
+        if (metadata != null) {
+            Log.i("ElfLdr", "depInfo.minor=" + depInfo.minorVersion + ";metadata.minor=" + metadata.minorVersion);
+            if (depInfo.majorVersion != metadata.majorVersion) return null;
+            if (depInfo.minorVersion > metadata.minorVersion) return null;
         }
         return metadata;
     }
+
     private void loadFileFromInputStream(InputStream inputStream) throws IOException, NoDependenciesException, InvalidModException, ModExistsException {
-            byte[] elf = getBytesFromInputStream(inputStream);
-            inputStream.close();
-            ElfModUIMetadata metadata = getElfMetadata(elf);
-            if(!metadata.modIsValid) throw  new InvalidModException();
-            ArrayList<ElfModMetadata> badDependencies = new ArrayList<>();
-            for(ElfModMetadata dep : metadata.dependencies) {
-                if(findCompatibleDep(dep) == null) {
-                    metadata.modIsValid = false;
-                    badDependencies.add(dep);
-                }
+        byte[] elf = getBytesFromInputStream(inputStream);
+        inputStream.close();
+        ElfModUIMetadata metadata = getElfMetadata(elf);
+        if (!metadata.modIsValid) throw new InvalidModException();
+        ArrayList<ElfModMetadata> badDependencies = new ArrayList<>();
+        for (ElfModMetadata dep : metadata.dependencies) {
+            if (findCompatibleDep(dep) == null) {
+                metadata.modIsValid = false;
+                badDependencies.add(dep);
             }
-            if(!badDependencies.isEmpty()) {
-                throw new NoDependenciesException(metadata, badDependencies.toArray(new ElfModMetadata[0]));
-            }else{
-                if(findSameMod(metadata.name)) throw new ModExistsException();
-                File modFile = new File(modFolder, metadata.name);
-                FileOutputStream fos = new FileOutputStream(modFile);
-                fos.write(elf);
-                fos.close();
-                metadata.modFile = modFile;
-                mods.add(metadata);
-                //TODO: copy mod to the mods folder
-            }
+        }
+        if (!badDependencies.isEmpty()) {
+            throw new NoDependenciesException(metadata, badDependencies.toArray(new ElfModMetadata[0]));
+        } else {
+            if (findSameMod(metadata.name)) throw new ModExistsException();
+            File modFile = new File(modFolder, metadata.name);
+            FileOutputStream fos = new FileOutputStream(modFile);
+            fos.write(elf);
+            fos.close();
+            metadata.modFile = modFile;
+            mods.add(metadata);
+            //TODO: copy mod to the mods folder
+        }
     }
-    
+
     public void addModSafely(InputStream stream) {
-        new Thread(()->{
-             startLoading();
+        new Thread(() -> {
+            startLoading();
             try {
                 loadFileFromInputStream(stream);
-                listener.refreshModList(true, getModsCount()-1);
-            }catch (Exception e) {
-                 notifyException(e);
+                listener.refreshModList(1, getModsCount() - 1);
+            } catch (Exception e) {
+                notifyException(e);
             }
             stopLoading();
         }).start();
     }
-     public void removeModSafelyAsync(int which) {
-        new Thread(()->{
-             startLoading();
+
+    public void removeModSafelyAsync(int which) {
+        new Thread(() -> {
+            startLoading();
             ElfModUIMetadata reqModMeta = getMod(which);
             ArrayList<ElfModUIMetadata> dependingMods = new ArrayList<>();
-            if(reqModMeta.modIsValid) {
+            if (reqModMeta.modIsValid) {
                 for (ElfModUIMetadata meta : mods) {
                     if (!meta.modIsValid) continue;
                     for (ElfModMetadata dep : meta.dependencies) {
@@ -239,20 +256,21 @@ public class ElfUIBackbone {
                     }
                 }
             }
-            if(dependingMods.isEmpty()) {
-                if(reqModMeta.modFile.delete()){
-                     mods.remove(reqModMeta);
-                     listener.refreshModList(false, which);
-                }else {
+            if (dependingMods.isEmpty()) {
+                if (reqModMeta.modFile.delete()) {
+                    mods.remove(reqModMeta);
+                    listener.refreshModList(0, which);
+                } else {
                     listener.signalModRemovalError();
                 }
-            }else  {
+            } else {
                 unsafeRemovalMetadata = new UnsafeRemovalMetadata(reqModMeta, dependingMods);
                 listener.signalModRemovalUnsafe();
             }
             stopLoading();
         }).start();
     }
+
     private static byte[] getBytesFromInputStream(InputStream is) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         byte[] buffer = new byte[0xFFFF];
@@ -261,34 +279,43 @@ public class ElfUIBackbone {
         }
         return os.toByteArray();
     }
+
     public void addListener(LoadingListener listener) {
         this.listener = listener;
     }
+
     public void removeListener() {
         this.listener = LoadingListener.DUMMY;
     }
+
     public Exception getException() {
         return currentException;
     }
+
     public void resetException() {
         currentException = null;
     }
+
     public boolean getProgressBarState() {
         return progressBarActive.get();
     }
+
     public UnsafeRemovalMetadata getUnsafeRemovalMetadata() {
         return unsafeRemovalMetadata;
     }
-    public void reserModRemovalMetadata() {
+
+    public void resetModRemovalMetadata() {
         unsafeRemovalMetadata = null;
     }
+
     public void startLoadingAsync(final File modsFolder) {
-        new Thread(()->{
-             startLoading();
+        new Thread(() -> {
+            startLoading();
             loadMetaFromModFolder(modsFolder);
-             stopLoading();
+            stopLoading();
         }).start();
     }
+
     public static class UnsafeRemovalMetadata {
         public final ElfModUIMetadata removingMod;
         public final List<ElfModUIMetadata> dependingMods;
@@ -298,10 +325,43 @@ public class ElfUIBackbone {
             this.dependingMods = dependingMods;
         }
     }
+
     private boolean findSameMod(String name) {
-        for(ElfModUIMetadata mod : mods) {
-            if(mod.name.equals(name)) return true;
+        for (ElfModUIMetadata mod : mods) {
+            if (mod.name.equals(name)) return true;
         }
         return false;
+    }
+
+    public int getModIndex(ElfModMetadata elfMod) {
+        for (int i = 0; i < mods.size(); i++) {
+            if (mods.get(i).name.equals(elfMod.name)) return i;
+        }
+        return -1;
+    }
+
+    public Boolean isModMetadataValid(File file) {
+        try {
+            ElfModUIMetadata elfMod = getElfMetadata(file);
+            return elfMod.modIsValid;
+        } catch (IOException io) {}
+
+        return false;
+    }
+
+    public ElfModUIMetadata updateElfMod(int idx, File modFile) throws IOException, InvalidModException {
+        ElfModUIMetadata elfMod = getElfMetadata(modFile);
+
+        if (!elfMod.modIsValid) {
+            throw new InvalidModException("Invalid mod metadata");
+        }
+
+        File _modFile = new File(this.activity.getFilesDir(), "mods/" + elfMod.getLibName());
+        elfMod.modFile.renameTo(_modFile);
+        elfMod.modFile = _modFile;
+
+        mods.set(idx, elfMod);
+        listener.refreshModList(2, idx);
+        return elfMod;
     }
 }

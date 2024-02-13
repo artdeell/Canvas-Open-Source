@@ -81,7 +81,6 @@ public class SystemIO_android {
         kUserPreference_EnableDarkMode
     }
 
-    /* loaded from: classes2.dex */
     enum UserPreferenceFloatKey {
         kUserPreference_MusicVolume,
         kUserPreference_SfxVolume,
@@ -94,7 +93,6 @@ public class SystemIO_android {
         kUserPreference_CameraZoomSpeed
     }
 
-    /* loaded from: classes2.dex */
     enum UserPreferenceIntKey {
         kUserPreference_TimeOffset,
         kUserPreference_AgreedTOSVersion,
@@ -103,8 +101,6 @@ public class SystemIO_android {
         kUserPreference_QualityFps
     }
 
-    /* JADX INFO: Access modifiers changed from: package-private */
-    /* loaded from: classes2.dex */
     public enum UserPreferenceStringKey {
         kUserPreference_Version,
         kUserPreference_UserId,

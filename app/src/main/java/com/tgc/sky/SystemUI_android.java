@@ -1,5 +1,7 @@
 package com.tgc.sky;
 
+import static git.artdeell.skymodloader.MainActivity.SKY_PACKAGE_NAME;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
@@ -266,14 +268,23 @@ public class SystemUI_android {
     }
 
     public void HideTextField() {
-        if (this.m_textFieldState != TextFieldState.kTextFieldState_RequestHide && this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
-            this.m_textFieldState = TextFieldState.kTextFieldState_RequestHide;
+        if(SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test.")) {
+            if (this.m_textFieldState != TextFieldState.kTextFieldState_RequestHide && this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
+                this.m_textFieldState = TextFieldState.kTextFieldState_RequestHide;
+                this.m_activity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        SystemUI_android.this.m_textField.hideTextField();
+                        TextFieldState unused = SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Hidden;
+                    }
+                });
+            }
+        } else{
             this.m_activity.runOnUiThread(new Runnable() {
                 public void run() {
                     SystemUI_android.this.m_textField.hideTextField();
-                    TextFieldState unused = SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Hidden;
                 }
             });
+            this.m_textFieldIsShowing = false;
         }
     }
     // ------------------------------
@@ -282,7 +293,11 @@ public class SystemUI_android {
     }*/
 
     public boolean IsTextFieldShowing() {
-        return this.m_textFieldState == TextFieldState.kTextFieldState_Showing;
+        if(SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test.")) {
+            return this.m_textFieldState == TextFieldState.kTextFieldState_Showing;
+        } else{
+            return this.m_textFieldIsShowing;
+        }
     }
 
     public float GetTextFieldHeight() {

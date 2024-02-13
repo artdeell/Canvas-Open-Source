@@ -3,15 +3,18 @@ package git.artdeell.skymodloader.elfmod;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
-import git.artdeell.skymodloader.R;
-import git.artdeell.skymodloader.SMLApplication;
+import org.json.JSONException;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import git.artdeell.skymodloader.R;
 
 public class ElfModUIMetadata extends ElfModMetadata {
 
     public Activity activity;
-    public File modFile;
 
     public String description;
 
@@ -20,7 +23,6 @@ public class ElfModUIMetadata extends ElfModMetadata {
     public ElfUIBackbone loader;
 
     public int which = 0;
-    public String name;
 
 
     public void remove() {
@@ -28,7 +30,6 @@ public class ElfModUIMetadata extends ElfModMetadata {
     }
 
     public String getName() {
-        super.name = name;
         return ModListAdapter.getVisibleModName(activity, this);
     }
 
@@ -53,12 +54,13 @@ public class ElfModUIMetadata extends ElfModMetadata {
         if (!enabled) {
             try {
                 new File(modFile.getPath() + "_invalid.txt").createNewFile();
-            }catch(Exception e){}
-        }
-        else {
+            } catch (Exception e) {
+            }
+        } else {
             try {
                 new File(modFile.getPath() + "_invalid.txt").delete();
-            }catch(Exception e){}
+            } catch (Exception e) {
+            }
         }
     }
 }

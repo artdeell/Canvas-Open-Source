@@ -45,7 +45,7 @@ public class WebLogin extends WebViewClient implements SystemAccountInterface, R
 
     public WebLogin(String webLoginType, SystemAccountType systemAccountType) {
         this.accountType = systemAccountType;
-        loginUrl = String.format("https://%s/account/auth/oauth_signin?type=%s&token=cKN45n7UTSKHNoyzdugWNE:APA91bFg8MGDK26uj-RjRrRSANDGST4AqE29kh3ygCzN0IZWLgGis2K16aD9JoYXnaRBD2LgghA18Bc0ZG76AuWEzr3eAMTSRen8SsBPjtPftUVnuXECrjVfhd9z_WeDbx9MaHUO7GS9", BuildConfig.SKY_SERVER_HOSTNAME, webLoginType);
+        loginUrl = String.format("https://%s/account/auth/oauth_signin?type=%s&token=", BuildConfig.SKY_SERVER_HOSTNAME, webLoginType);
         redirectUrl = String.format("https://%s/account/auth/oauth_redirect", BuildConfig.SKY_SERVER_HOSTNAME);
     }
 
