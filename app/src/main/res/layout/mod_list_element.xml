@@ -34,8 +34,11 @@
                 <TextView
                     android:id="@+id/modNameTextView"
                     style="@style/Text.Title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_toStartOf="@id/module_indicator"
+                    android:layout_toLeftOf="@id/module_indicator"
+                    android:layout_alignWithParentIfMissing="true"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
@@ -72,8 +75,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:layout_toEndOf="@id/modNameTextView"
-                    android:layout_toRightOf="@id/modNameTextView"
+
                     android:checked="@={_item.enabled}" />
 
                 <Space
@@ -117,6 +119,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/check_for_updates"
+                        android:textColor="@color/text"
                         android:textStyle="bold"
                         tools:text="Check For Updates" />
 
@@ -150,6 +153,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/remove"
+                        android:textColor="@color/text"
                         android:textStyle="bold"
                         tools:text="Remove" />
 

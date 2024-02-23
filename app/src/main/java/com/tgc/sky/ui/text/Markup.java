@@ -642,10 +642,21 @@ public class Markup {
                     }
                     break;
                 }
+                case 584350802:
+                    if (s.equals("event_candle")) {
+                        n2 = 66;
+                        break Label_1678;
+                    }
+                    break;
+
             }
             n2 = -1;
         }
         switch (n2) {
+            case 66: {
+                list.add(new EmbeddedImageSpan(ProcessEventArg(this.attachmentEventCandles, (String) map.get("event")), false, false));
+                break;
+            }
             case 65: {
                 sb.append(DateFormat.getTimeFormat((Context)this.m_activity).format(new Date()));
                 break;

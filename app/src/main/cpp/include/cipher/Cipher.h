@@ -14,6 +14,12 @@
 uintptr_t* get_adr_val(const char *pattern, const char *mask, uintptr_t *address, uint32_t relOffset = 4, uint32_t patternOffset = 0);
 typedef void (*func)();
 
+enum Section{
+    BOOTLOADER_ROD = 0,
+    BOOTLOADER_RWP,
+    BOOTLOADER_RXP,
+};
+
 class Cipher {
 public:
     static uint32_t getGameVersion();
@@ -22,7 +28,14 @@ public:
     static const char *get_libName();
     static uintptr_t CipherScan(const char *pattern, const char *mask); //librange
     static uintptr_t CipherScan(uintptr_t start, const size_t size, const char *pattern, const char *mask);
-    static const char* getConfigPath();
+    static std::vector<uintptr_t> CipherScanAll(const char *pattern, const char *mask); //librange
+    static std::vector<uintptr_t> CipherScanAll(uintptr_t start, uintptr_t end, const char *pattern, const char *mask);
+    static uintptr_t CipherScanSegments(const char *pattern, const char *mask, const Section& section = BOOTLOADER_RXP);
+    static uintptr_t CipherScanIdaPattern(const std::string &pattern); //librange
+    static uintptr_t CipherScanIdaPattern(const uintptr_t start, const uintptr_t end, const std::string &pattern);
+    static std::vector<uintptr_t> CipherScanIdaPatternAll(const std::string &pattern);//librange
+    static std::vector<uintptr_t> CipherScanIdaPatternAll(const uintptr_t start, const uintptr_t end, const std::string &pattern);
+    static const char *getConfigPath();
     static char* read_asset(char* asset_path);
 };
 

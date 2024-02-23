@@ -37,7 +37,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/paths" />
+                android:resource="@xml/recordpaths" />
         </provider>
         <activity
             android:name=".updater.UpdaterActivity"
@@ -86,7 +86,7 @@
         </activity>
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name="git.artdeell.skymodloader.updater.Updater"
             android:authorities="git.artdeell.skymodloader.updater"
             android:exported="false"
             android:grantUriPermissions="true">

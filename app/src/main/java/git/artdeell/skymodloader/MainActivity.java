@@ -50,37 +50,24 @@ public class MainActivity extends Activity {
             String versionName = info.versionName;
             BuildConfig.SKY_VERSION = versionName.substring(0, versionName.indexOf(' ')).trim();
             BuildConfig.VERSION_CODE = sharedPreferences.getBoolean("skip_updates", false) ? 0x99999 : info.versionCode;
-
             String nativeLibraryDir = info.applicationInfo.nativeLibraryDir;
             File modsDir = new File(getFilesDir(), "mods");
             File configDir = new File(getFilesDir(), "config");
-            if (!configDir.isDirectory() && !configDir.mkdirs())
-                throw new IOException("Failed to create mod configuration directory");
-
+            if (!configDir.isDirectory() && !configDir.mkdirs()) throw new IOException("Failed to create mod configuration directory");
             ElfLoader loader = new ElfLoader(nativeLibraryDir + ":/system/lib64");
             loader.loadLib("libBootloader.so");
             System.loadLibrary("ciphered");
             IconLoader.findIcons();
-
-            MainActivity.settle(
-                    info.versionCode,
-                    SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test"),
-                    configDir.getAbsolutePath(),
-                    SMLApplication.skyRes.getAssets()
-            );
-
+            MainActivity.settle(info.versionCode, SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test"), configDir.getAbsolutePath(), SMLApplication.skyRes.getAssets());
             new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
-
             if (SKY_PACKAGE_NAME.equals("com.tgc.sky.android.test.gold")) {
                 SKY_PACKAGE_NAME = "com.tgc.sky.android.test.";
                 BuildConfig.SKY_SERVER_HOSTNAME = "beta.radiance.thatgamecompany.com";
                 BuildConfig.SKY_BRANCH_NAME = "Test";
                 BuildConfig.SKY_STAGE_NAME = "Test";
             }
-
             BuildConfig.APPLICATION_ID = SKY_PACKAGE_NAME;
             startActivity(new Intent(this, GameActivity.class));
-
         } catch (PackageManager.NameNotFoundException e) {
             alertDialog(getString(R.string.sky_not_installed));
         } catch (Throwable e) {

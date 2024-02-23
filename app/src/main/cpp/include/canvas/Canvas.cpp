@@ -11,7 +11,7 @@ PRIVATE_API _Atomic uint32_t Canvas::gameVersion;
 PRIVATE_API bool Canvas::isBeta;
 PRIVATE_API struct AAssetManager* Canvas::aAssetManager;
 
- PRIVATE_API uintptr_t Canvas::findLib(const char *libName) {
+PRIVATE_API uintptr_t Canvas::findLib(const char *libName) {
     return findLibrary(libName);
 }
 
@@ -45,6 +45,46 @@ PRIVATE_API unsigned long Canvas::get_libSize() {
 
 PRIVATE_API const char *Canvas::get_libName() {
     return m_libName;
+}
+
+PRIVATE_API void Canvas::set_libExecStart(uintptr_t start) {
+    Canvas::m_libExecStart = start;
+}
+
+PRIVATE_API void Canvas::set_libExecSize(unsigned long size) {
+    Canvas::m_libExecSize = size;
+}
+
+PRIVATE_API uintptr_t Canvas::get_libExecStart() {
+    return m_libExecStart;
+}
+
+PRIVATE_API unsigned long Canvas::get_libExecSize() {
+    return m_libExecSize;
+}
+
+PRIVATE_API void Canvas::set_libDataStart(uintptr_t start) {
+    m_libDataStart = start;
+}
+
+PRIVATE_API void Canvas::set_libDataSize(unsigned long size) {
+    m_libDataSize = size;
+}
+
+PRIVATE_API uintptr_t Canvas::get_libDataStart() {
+    return m_libDataStart;
+}
+
+PRIVATE_API unsigned long Canvas::get_libDataSize() {
+    return m_libDataSize;
+}
+
+PRIVATE_API void Canvas::set_libExecEnd(uintptr_t end) {
+    m_libExecEnd = end;
+}
+
+PRIVATE_API uintptr_t Canvas::get_libExecEnd() {
+    return m_libExecEnd;
 }
 
 

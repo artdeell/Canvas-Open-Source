@@ -58,22 +58,23 @@ PRIVATE_API void SystemsTest() {
     ImGui::End();*/
 }
 
+
 PRIVATE_API void Canvas::CanvasMenu() {
-        ImGui::Begin("Canvas Menu");
-        for(auto & m_Userlib : Canvas::m_Userlibs){
-            ImGui::Checkbox(m_Userlib.Name, &m_Userlib.UIEnabled);
-            if(m_Userlib.UIEnabled) {
-                if(m_Userlib.UISelfManaged) ImGui::PushID(m_Userlib.Name);
-                else ImGui::Begin(m_Userlib.Name);
-                m_Userlib.Draw();
-                if(m_Userlib.UISelfManaged) ImGui::PopID();
-                else ImGui::End();
-            }
+    ImGui::Begin("Canvas Menu");
+    for(auto & m_Userlib : Canvas::m_Userlibs){
+        ImGui::Checkbox(m_Userlib.Name, &m_Userlib.UIEnabled);
+        if(m_Userlib.UIEnabled) {
+            if(m_Userlib.UISelfManaged) ImGui::PushID(m_Userlib.Name);
+            else ImGui::Begin(m_Userlib.Name);
+            m_Userlib.Draw();
+            if(m_Userlib.UISelfManaged) ImGui::PopID();
+            else ImGui::End();
         }
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::Checkbox("Limit FPS", &Canvas::framerateLimited);
-        ImGui::End();
-        //SystemsTest();
+    }
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::Checkbox("Limit FPS", &Canvas::framerateLimited);
+    ImGui::End();
+    //SystemsTest();
 }
 
 __unused __attribute__((constructor))
@@ -83,12 +84,24 @@ int main() {
     do {
         sleep(1);
     } while (!Canvas::isLibLoaded(Canvas::get_libName()));
-    KittyMemory::ProcMap procmap = KittyMemory::getLibraryMap(Canvas::get_libName());
-    Canvas::set_libBase((uintptr_t)procmap.startAddr);
-    Canvas::set_libSize((uintptr_t)procmap.length);
+    auto procmap = ElfScanner::createWithPath(Canvas::get_libName());
+    Canvas::set_libBase((uintptr_t) procmap.baseSegment().startAddress);
+    Canvas::set_libSize((uintptr_t) procmap.baseSegment().length);
+    for(auto& maps : procmap.segments()) {
+        if(maps.is_rx) {
+            Canvas::set_libExecStart((uintptr_t) maps.startAddress);
+            Canvas::set_libExecSize((uintptr_t) maps.length);
+            Canvas::set_libExecEnd((uintptr_t) maps.endAddress);
+        }
+        if (maps.is_rw) {
+            Canvas::set_libDataStart((uintptr_t) maps.startAddress);
+            Canvas::set_libDataSize((uintptr_t) maps.length);
+        }
+    }
 
     return 0;
 }
+
 
 extern "C"
 JNIEXPORT void JNICALL

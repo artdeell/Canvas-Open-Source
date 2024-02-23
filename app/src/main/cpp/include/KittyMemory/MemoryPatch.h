@@ -6,70 +6,82 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
-
-#include "KittyUtils.h"
+#include <cstdint>
 
 #include "KittyMemory.h"
+
+enum MP_ASM_ARCH {
+    MP_ASM_ARM32 = 0,
+    MP_ASM_ARM64,
+    MP_ASM_x86,
+    MP_ASM_x86_64,
+};
 
 class MemoryPatch
 {
 private:
+    std::vector<KittyMemory::ProcMap> getAllmaps;
     uintptr_t _address;
     size_t _size;
 
     std::vector<uint8_t> _orig_code;
     std::vector<uint8_t> _patch_code;
 
-    std::string _hexString;
-
 public:
     MemoryPatch();
-
-    /*
-     * expects library name and relative address
-     */
-    MemoryPatch(const char *libraryName, uintptr_t address,
-                const void *patch_code, size_t patch_size, bool useMapCache = true);
-
-    /*
-     * expects absolute address
-     */
-    MemoryPatch(uintptr_t absolute_address,
-                const void *patch_code, size_t patch_size);
-
     ~MemoryPatch();
 
-    /*
-     * compatible hex format (0xffff & ffff & ff ff)
-     */
-    static MemoryPatch *createWithHex(const char *libraryName, uintptr_t address, std::string hex, bool useMapCache = true);
-    static MemoryPatch *createWithHex(uintptr_t absolute_address, std::string hex);
+    static MemoryPatch createWithBytes(uintptr_t absolute_address, const void *patch_code, size_t patch_size);
+    static MemoryPatch createWithHex(uintptr_t absolute_address, std::string hex);
 
-    /*
-     * Validate patch
+#ifndef kNO_KEYSTONE
+    /**
+     * Keystone assembler
      */
+    static MemoryPatch createWithAsm(uintptr_t absolute_address, MP_ASM_ARCH asm_arch, const std::string &asm_code, uintptr_t asm_address=0);
+#endif
+
+
+    static MemoryPatch createWithBytes(const KittyMemory::ProcMap &map, uintptr_t address, const void *patch_code, size_t patch_size);
+    static MemoryPatch createWithHex(const KittyMemory::ProcMap &map, uintptr_t address, const std::string &hex);
+    
+#ifndef kNO_KEYSTONE
+    /**
+     * Keystone assembler
+     */
+     static MemoryPatch createWithAsm(const KittyMemory::ProcMap &map, uintptr_t address, MP_ASM_ARCH asm_arch, const std::string &asm_code, uintptr_t asm_address=0);
+#endif
+
+
+
     bool isValid() const;
-
     size_t get_PatchSize() const;
-
-    /*
-     * Returns pointer to the target address
-     */
     uintptr_t get_TargetAddress() const;
 
     /*
-     * Restores patch to original value
+     * Restores the patch to the original value
      */
     bool Restore();
 
     /*
-     * Applies patch modifications to target address
+     * Applies patch modifications to the target address
      */
     bool Modify();
 
     /*
-     * Returns current patch target address bytes as hex string
+     * Returns hex string of the current target address bytes
      */
-    std::string get_CurrBytes();
+    std::string get_CurrBytes() const;
+
+    /*
+     * Returns hex string of the original bytes
+     */
+    std::string get_OrigBytes() const;
+    
+    /*
+     * Returns hex string of the patch bytes
+     */
+    std::string get_PatchBytes() const;
 };

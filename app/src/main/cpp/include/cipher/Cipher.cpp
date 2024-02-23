@@ -31,12 +31,109 @@ const char* Cipher::get_libName() {
     return Canvas::get_libName();
 }
 
-uintptr_t  Cipher::CipherScan(const char *pattern, const char *mask) {
-    return KittyScanner::find(Canvas::get_libBase(), Canvas::get_libSize(), pattern, mask);
+uintptr_t Cipher::CipherScan(const char *pattern, const char *mask) {
+    char line[512] = {0};
+    FILE *fp = fopen("/proc/self/maps", "r");
+    if (!fp) return 0;
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, Canvas::get_libName())) {
+            unsigned long long start, end; uintptr_t result; size_t length;
+            sscanf(line, "%llx-%llx", &start, &end);
+            length = end - start;
+            result = KittyScanner::find(start, length, pattern, mask);
+            if (result) {
+                fclose(fp);
+                return result;
+            }
+        }
+    }
+    fclose(fp);
+    return 0;
 }
 
 uintptr_t Cipher::CipherScan(uintptr_t start, const size_t size, const char *pattern, const char *mask) {
     return KittyScanner::find(start, size, pattern, mask);
+}
+
+uintptr_t Cipher::CipherScanSegments(const char *pattern, const char *mask, const Section& section) {
+    uintptr_t result = 0;
+    if(section == BOOTLOADER_ROD) {
+        result = KittyScanner::find(Canvas::get_libBase(), Canvas::get_libSize(), pattern, mask);
+    }
+    if(section == BOOTLOADER_RXP) {
+        result = KittyScanner::find(Canvas::get_libExecStart(), Canvas::get_libExecSize(), pattern, mask);
+    }
+    if(section == BOOTLOADER_RWP) {
+        result = KittyScanner::find(Canvas::get_libDataStart(), Canvas::get_libDataSize(), pattern, mask);
+    }
+    return result;
+}
+
+std::vector<uintptr_t> Cipher::CipherScanAll(const char *pattern, const char *mask){
+    char line[512] = {0}; std::vector<uintptr_t> result{}; std::vector<uintptr_t> resultGroups{};
+    if(!pattern || ! mask) return result;
+    FILE *fp = fopen("/proc/self/maps", "r");
+    if (!fp) return result;
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, Canvas::get_libName())) {
+            unsigned long long start, end;
+            sscanf(line, "%llx-%llx", &start, &end);
+            result = KittyScanner::findBytesAll(start, end, pattern, mask);
+            resultGroups.reserve(resultGroups.size() + result.size());
+            resultGroups.insert(resultGroups.end(), result.begin(), result.end());
+        }
+    }
+    fclose(fp);
+    return resultGroups;
+}
+
+std::vector<uintptr_t> Cipher::CipherScanAll(uintptr_t start, uintptr_t end, const char *pattern, const char *mask) {
+    return KittyScanner::findBytesAll(start, end, pattern, mask);
+}
+
+uintptr_t Cipher::CipherScanIdaPattern(const std::string &pattern){
+    char line[512] = {0};
+    FILE *fp = fopen("/proc/self/maps", "r");
+    if (!fp) return 0;
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, Canvas::get_libName())) {
+            unsigned long long start, end; uintptr_t result;
+            sscanf(line, "%llx-%llx", &start, &end);
+            result = KittyScanner::findIdaPatternFirst(start, end, pattern);
+            if (result) {
+                fclose(fp);
+                return result;
+            }
+        }
+    }
+    fclose(fp);
+    return 0;
+}
+
+std::vector<uintptr_t> Cipher::CipherScanIdaPatternAll(const std::string &pattern){
+    char line[512] = {0}; std::vector<uintptr_t> result{}, resultGroups{};
+    if(pattern.empty()) return resultGroups;
+    FILE *fp = fopen("/proc/self/maps", "r");
+    if (!fp) return result;
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, Canvas::get_libName())) {
+            unsigned long long start, end;
+            sscanf(line, "%llx-%llx", &start, &end);
+            result = KittyScanner::findIdaPatternAll(start, end, pattern);
+            resultGroups.reserve(resultGroups.size() + result.size());
+            resultGroups.insert(resultGroups.end(), result.begin(), result.end());
+        }
+    }
+    fclose(fp);
+    return resultGroups;
+}
+
+uintptr_t Cipher::CipherScanIdaPattern(const uintptr_t start, const uintptr_t end, const std::string &pattern){
+    return KittyScanner::findIdaPatternFirst(start, end, pattern);
+}
+
+std::vector<uintptr_t> Cipher::CipherScanIdaPatternAll(const uintptr_t start, const uintptr_t end, const std::string &pattern){
+    return KittyScanner::findIdaPatternAll(start, end, pattern);
 }
 
 const char *Cipher::getConfigPath() {
@@ -83,7 +180,7 @@ CipherBase *CipherBase::set_Address(const char *Symbol) { //sets address via sym
 }
 
 CipherBase *CipherBase::set_Address(const char *pattern, const char *mask) {
-    this->p_Address = KittyScanner::find_from_lib(this->get_libName(), pattern, mask);
+    this->p_Address = Cipher::CipherScan(pattern, mask);
     return this;
 }
 

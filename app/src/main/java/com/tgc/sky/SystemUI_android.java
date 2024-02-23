@@ -201,39 +201,6 @@ public class SystemUI_android {
         return !this.m_activity.getBrigeView().hasWindowFocus();
     }
 
-
-    /*public void ShowTextField(final String str, final int i, final int i2) {
-        this.m_activity.runOnUiThread(new Runnable() {
-            public void run() {
-                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
-                boolean unused = SystemUI_android.this.m_textFieldIsShowing = true;
-            }
-        });
-    }
-
-
-    public void ShowTextField(String str, String str2, int i, int i2) {
-        final String str3 = str;
-        final String str4 = str2;
-        final int i3 = i;
-        final int i4 = i2;
-        this.m_activity.runOnUiThread(new Runnable() {
-            public void run() {
-                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str3), str4, i3, i4);
-                boolean unused = SystemUI_android.this.m_textFieldIsShowing = true;
-            }
-        });
-    }
-
-    public void HideTextField() {
-        this.m_activity.runOnUiThread(new Runnable() {
-            public void run() {
-                SystemUI_android.this.m_textField.hideTextField();
-            }
-        });
-        this.m_textFieldIsShowing = false;
-    }*/
-
     // ------------------------------
     public boolean ShowTextField(final String str, final int i, final int i2) {
         if (this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
@@ -268,7 +235,6 @@ public class SystemUI_android {
     }
 
     public void HideTextField() {
-        if(SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test.")) {
             if (this.m_textFieldState != TextFieldState.kTextFieldState_RequestHide && this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
                 this.m_textFieldState = TextFieldState.kTextFieldState_RequestHide;
                 this.m_activity.runOnUiThread(new Runnable() {
@@ -278,26 +244,11 @@ public class SystemUI_android {
                     }
                 });
             }
-        } else{
-            this.m_activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    SystemUI_android.this.m_textField.hideTextField();
-                }
-            });
-            this.m_textFieldIsShowing = false;
-        }
     }
     // ------------------------------
-    /*public boolean IsTextFieldShowing() {
-        return this.m_textFieldIsShowing;
-    }*/
 
     public boolean IsTextFieldShowing() {
-        if(SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test.")) {
-            return this.m_textFieldState == TextFieldState.kTextFieldState_Showing;
-        } else{
-            return this.m_textFieldIsShowing;
-        }
+        return this.m_textFieldState == TextFieldState.kTextFieldState_Showing;
     }
 
     public float GetTextFieldHeight() {
@@ -338,7 +289,6 @@ public class SystemUI_android {
     }
 
    //----------------------------------------------------------------
-
 
     public int ShowTextFieldDialog(String str, String str2, String str3, String str4, int i, int i2, String str5, String str6) throws UnsupportedEncodingException {
         int TryActivate;

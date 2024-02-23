@@ -13,8 +13,8 @@ android {
         applicationId "git.artdeell.skymodloader"
         minSdk 25
         targetSdk 34
-        versionCode 27
-        versionName "1.4.4"
+        versionCode 28
+        versionName "1.4.5"
         manifestPlaceholders = [
                 'appAuthRedirectScheme': 'com.googleusercontent.apps.704988078112-46vk837uhg8n7qf3lb8dut52o7ugm7v4'
         ]
@@ -50,6 +50,7 @@ android {
         buildConfig true
         aidl = true
         dataBinding = true
+        prefab true
     }
     ndkVersion = '26.1.10909125'
     namespace 'git.artdeell.skymodloader'
@@ -59,13 +60,13 @@ dependencies {
     // Fix Duplicate class
     implementation( platform 'org.jetbrains.kotlin:kotlin-bom:1.8.0')
 
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'net.openid:appauth:0.11.1'
     implementation 'net.fornwall:jelf:0.7.0'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.zxing:core:3.3.3'
-    implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'com.google.zxing:core:3.3.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation "io.noties.markwon:core:4.6.2"
-
+    implementation 'com.bytedance.android:shadowhook:1.0.9'
 }
