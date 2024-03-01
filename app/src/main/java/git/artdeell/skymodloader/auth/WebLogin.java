@@ -118,7 +118,7 @@ public class WebLogin extends WebViewClient implements SystemAccountInterface, R
         webView.setWebViewClient(this);
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
-        if(BuildConfig.SKY_SERVER_HOSTNAME.equals("live.radiance.thatgamecompany.com")) {
+        if(this.accountType == SystemAccountType.kSystemAccountType_Google) {
             settings.setUserAgentString("Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36");
         }
         //webView.setInitialScale(110);

@@ -124,6 +124,24 @@ public class TextField {
         ((InputMethodManager) this.m_activity.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(this.m_textField, 0);
     }
 
+    public void showTextFieldWithPrompt(String str, String str2, int i, int i2, boolean z) {
+        this.m_userText = str2;
+        this.m_isCallbackTextfield = z;
+        this.m_onKeyboardCompleteAlreadyCalled = false;
+        this.m_textFieldLimiter.maxByteSize = i2;
+        this.m_textFieldLimiter.maxCharacters = i;
+        this.m_textField.setText(str2);
+        EditText editText = this.m_textField;
+        editText.setSelection(editText.length());
+        this.m_textField.setHint(str);
+        EditText editText2 = this.m_textField;
+        editText2.setImeOptions(editText2.getImeOptions() | 4);
+        this.m_textField.setAlpha(0.0f);
+        this.m_textField.setVisibility(View.VISIBLE);
+        this.m_textField.requestFocus();
+        ((InputMethodManager) this.m_activity.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(this.m_textField, 0);
+    }
+
     public void hideTextField() {
         ((InputMethodManager) this.m_activity.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(this.m_textField.getWindowToken(), 0);
         GameActivity.hideNavigationFullScreen(this.m_activity.getBrigeView());

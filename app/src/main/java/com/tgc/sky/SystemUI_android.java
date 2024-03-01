@@ -234,6 +234,21 @@ public class SystemUI_android {
         return true;
     }
 
+    public boolean ShowTextField(final String str, final String str2, final int i, final int i2, final boolean z) {
+        if (this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
+            return false;
+        }
+        this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), str2, i, i2, z);
+                SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
+            }
+        });
+        return true;
+    }
+
     public void HideTextField() {
             if (this.m_textFieldState != TextFieldState.kTextFieldState_RequestHide && this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
                 this.m_textFieldState = TextFieldState.kTextFieldState_RequestHide;
