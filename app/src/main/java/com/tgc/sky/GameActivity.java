@@ -805,35 +805,24 @@ public class GameActivity extends TGCNativeActivity {
     }
 
     public boolean isScreenHdr() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return getResources().getConfiguration().isScreenHdr();
-        }
-        return false;
+        return getResources().getConfiguration().isScreenHdr();
     }
 
     // sky live 0.22.6 (229119)
     public boolean isScreenWideColorGamut() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return getResources().getConfiguration().isScreenWideColorGamut();
-        }
-        return false;
+        return getResources().getConfiguration().isScreenWideColorGamut();
     }
 
     // beta 0.23.0
     public float getDesiredMinLum() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMinLuminance();
-        }
-        return 0.0f;
+        return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMinLuminance();
     }
 
     // beta 0.23.0
     public float getDesiredMaxLum() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMaxLuminance();
-        }
-        return 100.0f;
+        return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMaxLuminance();
     }
+
     public int getPhysicalMemorySize() {
         ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
         ((ActivityManager) getBaseContext().getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(memoryInfo);

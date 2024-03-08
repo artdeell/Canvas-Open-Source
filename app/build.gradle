@@ -11,10 +11,10 @@ android {
     }
     defaultConfig {
         applicationId "git.artdeell.skymodloader"
-        minSdk 25
+        minSdk 26
         targetSdk 34
-        versionCode 29
-        versionName "1.4.6"
+        versionCode 30
+        versionName "1.4.7"
         manifestPlaceholders = [
                 'appAuthRedirectScheme': 'com.googleusercontent.apps.704988078112-46vk837uhg8n7qf3lb8dut52o7ugm7v4'
         ]

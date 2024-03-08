@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Canvas</string>
-    <string name="sky_not_installed">Sky is not installed. You must have Sky installed in order to use this!</string>
+    <string name="sky_not_installed">Open Mod Manager and choose Live/Beta/Huawei. Sky is not installed. You must have Sky installed in order to use this!</string>
     <string name="app_info"><![CDATA[<b>Canvas Mod Loader</b><br>
     <a href="https://t.me/+Hc6QeQVTH1JjNjky">Support</a><br>
     <a href="https://t.me/+mue7BZWmWOxkMDUy">Поддержка</a><br>
@@ -67,7 +67,7 @@
     <string name="up_to_date_message">Current mod is up to date\nVersion: %1$s</string>
     <string name="remove">Remove</string>
     <string name="check_for_updates">Check For Updates</string>
-    <string name="switch_skip_updates">Skip game update</string>
+    <string name="switch_skip_updates">Skip game update (sky beta only)</string>
     <string name="close">Close</string>
 
 

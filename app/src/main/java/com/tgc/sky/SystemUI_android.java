@@ -234,31 +234,53 @@ public class SystemUI_android {
         return true;
     }
 
-    public boolean ShowTextField(final String str, final String str2, final int i, final int i2, final boolean z) {
-        if (this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
-            return false;
+    int ShowTextField(final String str, final int i, final int i2) {
+        int TryActivate;
+        if (this.m_textFieldState == TextFieldState.kTextFieldState_Hidden && (TryActivate = this.m_textField.TryActivate()) != -1) {
+            this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
+            this.m_activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
+                    SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
+                }
+            });
+            return TryActivate;
         }
-        this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
-        this.m_activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), str2, i, i2, z);
-                SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
-            }
-        });
-        return true;
+        return -1;
+    }
+
+    int ShowTextField(final String str, final String str2, final int i, final int i2, final boolean z) {
+        int TryActivate;
+        if (this.m_textFieldState == TextFieldState.kTextFieldState_Hidden && (TryActivate = this.m_textField.TryActivate()) != -1) {
+            this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
+            this.m_activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), str2, i, i2, z);
+                    SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
+                }
+            });
+            return TryActivate;
+        }
+        return -1;
+    }
+
+    boolean IsTextFieldIdActive(int i) {
+        return this.m_textField.IsActiveId(i);
     }
 
     public void HideTextField() {
-            if (this.m_textFieldState != TextFieldState.kTextFieldState_RequestHide && this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
-                this.m_textFieldState = TextFieldState.kTextFieldState_RequestHide;
-                this.m_activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        SystemUI_android.this.m_textField.hideTextField();
-                        TextFieldState unused = SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Hidden;
-                    }
-                });
-            }
+        if (this.m_textFieldState != TextFieldState.kTextFieldState_RequestHide && this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
+            this.m_textFieldState = TextFieldState.kTextFieldState_RequestHide;
+            this.m_activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    SystemUI_android.this.m_textField.hideTextField();
+                    TextFieldState unused = SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Hidden;
+                }
+            });
+            this.m_textField.ClearId();
+        }
     }
     // ------------------------------
 
@@ -292,7 +314,7 @@ public class SystemUI_android {
     }
 
     public String GetTextEditBuffer() {
-        return this.m_textBuffer;
+        return this.m_textField.getTextBuffer();
     }
 
     public int GetTextEditCursor() {
