@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.18.1)
 
 
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_BUILD_TYPE RelWithDebInfo)
 #set(CMAKE_BUILD_TYPE Debug)
-#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Release)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
@@ -34,7 +34,7 @@ add_library(
         main.cpp
         ${CPP_FILES}
         scroll.cpp
-        Core/fileSelector/fileselector.cpp
+        Core/imgui/backends/imgui_impl_opengl3.cpp
         Utils/imgui_androidbk/androidbk.cpp
 
 )
@@ -42,6 +42,7 @@ add_library(
 target_include_directories(
         ciphered PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/Utils/KittyMemory
+        ${CMAKE_CURRENT_SOURCE_DIR}/Core/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/Core
 )
 
