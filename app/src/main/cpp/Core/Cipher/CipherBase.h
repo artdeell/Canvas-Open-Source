@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include "Cipher.h"
 
 class CipherBase {
 private:
@@ -10,7 +11,7 @@ private:
     std::uintptr_t p_Address;
 
 protected:
-    std::uint8_t m_type;
+    Types m_type;
     const char* get_libName();
     bool get_Lock();
     std::uintptr_t get_address();

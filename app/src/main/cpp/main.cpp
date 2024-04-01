@@ -5,12 +5,12 @@
 #include <unistd.h>
 #include "include/misc/Logger.h"
 #include "main.h"
-#include "include/imgui/imgui.h"
-#include "include/imgui/androidbk.h"
+#include "Core/imgui/imgui.h"
+#include "Utils/imgui_androidbk/androidbk.h"
 #include "include/misc/Vector3.h"
 #include <vector>
-#include <Canvas/Canvas.hpp>
-#include <Cipher/Cipher.hpp>
+#include "Canvas/Canvas.h"
+#include "Cipher/Cipher.h"
 #include "include/misc/visibility.h"
 #include "iconloader/IconLoader.h"
 #include "FileSelector/fileselector.h"
@@ -38,29 +38,72 @@ PRIVATE_API void SystemsTest() {
     ImGui::Begin("System Tests");
     ImGui::Text("Sky is Live: %s", Cipher::get_GameType() == GameType::Live ? "true" : "false");
     ImGui::Text("Sky is Beta: %s", Cipher::get_GameType() == GameType::Beta? "true" : "false");
+    if (IconLoader::iconButton("UiMenuGate", 60)) {
+
+    }
 
     ImGui::End();
 }
 
-#include <string>
-PRIVATE_API void Canvas::CanvasMenu() {
-    ImGui::Begin("Canvas Menu");
-    for(auto & userLib : Canvas::userLibs){
-        ImGui::Checkbox(userLib.Name, &userLib.UIEnabled);
-        if(userLib.UIEnabled) {
-            if(userLib.UISelfManaged) ImGui::PushID(userLib.Name);
-            else ImGui::Begin(userLib.Name);
+PRIVATE_API static void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::BeginItemTooltip())
+    {
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
+
+PRIVATE_API void DrawMods() {
+    for (auto &userLib: Canvas::userLibs) {
+        if (userLib.UIEnabled) {
+            if (userLib.UISelfManaged) {
+                ImGui::PushID(userLib.Name);
+            } else {
+                ImGui::Begin(userLib.Name);
+            }
+
             userLib.Draw();
-            if(userLib.UISelfManaged) ImGui::PopID();
-            else ImGui::End();
+
+            if (userLib.UISelfManaged) {
+                ImGui::PopID();
+            } else {
+                ImGui::End();
+            }
         }
     }
+}
 
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+PRIVATE_API void Canvas::CanvasMenu() {
+    ImGui::Begin("Canvas Menu");
+    if (ImGui::BeginTable("Mods##canvas_mods_table", 2)) {
+        ImGui::TableSetupColumn("mod", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("info", ImGuiTableColumnFlags_WidthStretch);
+        for (auto &userLib: Canvas::userLibs) {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Checkbox(userLib.Name, &userLib.UIEnabled);
+
+            ImGui::TableSetColumnIndex(1);
+            HelpMarker(userLib.Name);
+
+        }
+        ImGui::EndTable();
+    }
+
+    DrawMods();
+    ImGui::Text(
+            "Application average %.3f ms/frame (%.1f FPS)",
+            1000.0f / ImGui::GetIO().Framerate,
+            ImGui::GetIO().Framerate
+    );
     ImGui::Checkbox("Limit FPS", &Canvas::frameRateLimited);
     ImGui::End();
 
-    SystemsTest();
+    //SystemsTest();
 }
 
 __unused __attribute__((constructor))

@@ -2,12 +2,12 @@
 // Created by Lukas on 24/07/2022.
 //
 
-#include "Cipher.hpp"
+#include "Cipher.h"
 
 #include "../../include/misc/Logger.h"
 #include "../../include/misc/visibility.h"
 
-#include <Canvas/Canvas.hpp>
+#include <Canvas/Canvas.h>
 #include <KittyMemory/KittyInclude.hpp>
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "CipherBase.hpp"
+#include "CipherBase.h"
 
 class CipherHook : public CipherBase {
 private:

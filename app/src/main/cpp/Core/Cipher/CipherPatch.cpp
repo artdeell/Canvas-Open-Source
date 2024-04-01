@@ -1,6 +1,6 @@
-#include "CipherPatch.hpp"
+#include "CipherPatch.h"
 
-#include <Cipher/Cipher.hpp>
+#include "Cipher.h"
 
 CipherPatch *CipherPatch::set_Opcode(std::string _hex) {
     artpatch_set_hex(this->patch, _hex.c_str());

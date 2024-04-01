@@ -2,7 +2,7 @@
 // Created by maks on 06.12.2022.
 //
 #include <unordered_map>
-#include "include/imgui/imgui_internal.h"
+#include "Core/imgui/imgui_internal.h"
 #include "include/misc/visibility.h"
 
 PRIVATE_API void do_scroll() {

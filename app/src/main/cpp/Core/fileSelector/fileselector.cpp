@@ -3,7 +3,7 @@
 //
 
 #include "fileselector.h"
-#include "Canvas/Canvas.hpp"
+#include "Canvas/Canvas.h"
 #include "../../include/misc/visibility.h"
 #include <jni.h>
 #include <android/log.h>

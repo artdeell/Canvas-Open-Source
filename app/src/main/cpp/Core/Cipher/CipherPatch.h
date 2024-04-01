@@ -3,7 +3,7 @@
 #include <string>
 
 #include "../../Utils/artpatch/artpatch.h"
-#include "CipherBase.hpp"
+#include "CipherBase.h"
 
 class CipherPatch : public CipherBase {
     bool m_fired = false;

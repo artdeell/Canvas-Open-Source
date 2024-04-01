@@ -9,8 +9,8 @@
 #include <android/log.h>
 #include "../ktx/ktx.h"
 #include "../include/misc/visibility.h"
-#include "../include/imgui/imgui_internal.h"
-#include <Canvas/Canvas.hpp>
+#include "../imgui/imgui_internal.h"
+#include "Canvas/Canvas.h"
 
 PRIVATE_API std::unordered_map<std::string, SkyImage*> IconLoader::images;
 PRIVATE_API std::unordered_map<std::string, SkyImage*> IconLoader::atlas_images;
@@ -143,13 +143,21 @@ void IconLoader::icon(const std::string& name, const float& size, const ImVec4& 
     else placeholder(size2);
 }
 
-bool IconLoader::iconButton(const std::string &name, const float& size, const ImVec4& color) {
+bool IconLoader::iconButton(const std::string &name, const float &size, const ImVec4 &color) {
     ImVec2 size2 = ImVec2(size, size);
-    PrivateUIIcon* icon = getIcon(name);
-    if(icon != nullptr) return ImGui::ImageButtonEx(ImGui::GetCurrentWindow()->GetID(name.c_str()),
-                                                    (ImTextureID)icon->atlasTexture, size2, icon->uv0, icon->uv1,
-                                                    ImGui::GetStyle().FramePadding, ImVec4(0,0,0,0), color);
-    else return  ImGui::Button(name.c_str(), size2);
+    PrivateUIIcon *icon = getIcon(name);
+    if (icon != nullptr) {
+        return ImGui::ImageButtonEx(
+                ImGui::GetCurrentWindow()->GetID(name.c_str()),
+                (ImTextureID) icon->atlasTexture,
+                size2,
+                icon->uv0,
+                icon->uv1,
+                ImVec4(0, 0, 0, 0),
+                color
+        );
+    }
+    else return ImGui::Button(name.c_str(), size2);
 }
 
 PRIVATE_API SkyImage& IconLoader::getAtlasImage(const std::string &name)  {

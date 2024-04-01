@@ -1,9 +1,9 @@
-#include "CipherBase.hpp"
+#include "CipherBase.h"
 
 #include <dlfcn.h>
 
-#include <Cipher/Cipher.hpp>
-#include <Canvas/Canvas.hpp>
+#include "Cipher.h"
+#include <Canvas/Canvas.h>
 
 #include "../../include/misc/visibility.h"
 

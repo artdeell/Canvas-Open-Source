@@ -1,4 +1,4 @@
-#include "Canvas.hpp"
+#include "Canvas.h"
 
 #include "../../include/misc/Utils.h"
 #include "../../include/misc/visibility.h"

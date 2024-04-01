@@ -34,7 +34,7 @@ add_library(
         main.cpp
         ${CPP_FILES}
         scroll.cpp
-        Core/FileSelector/fileselector.cpp
+        Core/fileSelector/fileselector.cpp
 #[[        include/imgui/imgui.cpp
         include/imgui/androidbk.cpp
         include/imgui/imgui_demo.cpp

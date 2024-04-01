@@ -9,14 +9,14 @@
 #include <android/asset_manager_jni.h>
 #include <jni.h>
 #include <ctime>
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_internal.h"
+#include "imgui/imgui_impl_opengl3.h"
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #include <unistd.h>
-#include <Canvas/Canvas.hpp>
-#include "../include/misc/visibility.h"
+#include "Canvas/Canvas.h"
+#include "../../include/misc/visibility.h"
 
 #define g_LogTag "imgui4ca"
 
