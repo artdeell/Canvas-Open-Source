@@ -35,13 +35,8 @@ add_library(
         ${CPP_FILES}
         scroll.cpp
         Core/fileSelector/fileselector.cpp
-#[[        include/imgui/imgui.cpp
-        include/imgui/androidbk.cpp
-        include/imgui/imgui_demo.cpp
-        include/imgui/imgui_draw.cpp
-        include/imgui/imgui_tables.cpp
-        include/imgui/imgui_widgets.cpp
-        include/imgui/imgui_impl_opengl3.cpp]]
+        Utils/imgui_androidbk/androidbk.cpp
+
 )
 
 target_include_directories(
