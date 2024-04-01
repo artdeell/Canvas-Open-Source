@@ -11,6 +11,7 @@ import android.text.InputFilter;
 import android.text.Editable;
 import android.text.TextWatcher;
 
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -27,6 +28,8 @@ import com.tgc.sky.SystemUI_android;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+
+import git.artdeell.skymodloader.MainActivity;
 
 
 public class TextField {
@@ -92,16 +95,23 @@ public class TextField {
         this.m_textField.setVisibility(View.INVISIBLE);
         this.m_textField.setFocusable(true);
         this.m_textField.setFocusableInTouchMode(true);
-        this.m_textField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (i != 4 && i != 0) {
-                    return false;
-                }
-                TextField.this.m_activity.onKeyboardCompleteNative(textView.getText().toString(), TextField.this.m_isCallbackTextfield, TextField.this.m_isCallbackTextfield);
+        this.m_textField.setOnEditorActionListener((textView, imeAction, keyEvent) -> {
+            if (imeAction == EditorInfo.IME_ACTION_SEND || imeAction == EditorInfo.IME_ACTION_UNSPECIFIED) {
+                // Run Canvas message listeners
+                MainActivity.onKeyboardCompleteNative(textView.getText().toString());
+                TextField.this.m_activity.onKeyboardCompleteNative(
+                        textView.getText().toString(),
+                        TextField.this.m_isCallbackTextfield,
+                        TextField.this.m_isCallbackTextfield
+                );
                 textView.setText("");
-                boolean unused = TextField.this.m_onKeyboardCompleteAlreadyCalled = true;
+                if (TextField.this.m_isCallbackTextfield) {
+                    TextField.this.m_onKeyboardCompleteAlreadyCalled = true;
+                    TextField.this.hideTextField();
+                }
                 return true;
             }
+            return false;
         });
         this.m_textField.setFilters(new InputFilter[]{this.m_textFieldLimiter});
         this.m_activity.getBrigeView().addView(this.m_textField);

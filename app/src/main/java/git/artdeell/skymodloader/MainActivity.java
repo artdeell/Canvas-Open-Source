@@ -9,7 +9,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -20,7 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import git.artdeell.skymodloader.elfmod.ElfRefcountLoader;
 import git.artdeell.skymodloader.iconloader.IconLoader;
@@ -28,6 +28,8 @@ import git.artdeell.skymodloader.iconloader.IconLoader;
 public class MainActivity extends Activity {
     SharedPreferences sharedPreferences;
     public static String SKY_PACKAGE_NAME;
+    Map<String, Integer> skyPackages;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,10 @@ public class MainActivity extends Activity {
         sharedPreferences = getSharedPreferences("package_configs", Context.MODE_PRIVATE);
         SKY_PACKAGE_NAME = sharedPreferences.getString("sky_package_name", "com.tgc.sky.android");
         sharedPreferences.edit().putString("sky_package_name", SKY_PACKAGE_NAME).apply();
+        skyPackages = new HashMap<>();
+        skyPackages.put("com.tgc.sky.android", 0);
+        skyPackages.put("com.tgc.sky.android.test.gold", 1);
+        skyPackages.put("com.tgc.sky.android.huawei", 2);
         loadGame();
     }
 
@@ -58,7 +64,12 @@ public class MainActivity extends Activity {
             loader.loadLib("libBootloader.so");
             System.loadLibrary("ciphered");
             IconLoader.findIcons();
-            MainActivity.settle(BuildConfig.VERSION_CODE, SKY_PACKAGE_NAME.startsWith("com.tgc.sky.android.test"), configDir.getAbsolutePath(), SMLApplication.skyRes.getAssets());
+            MainActivity.settle(
+                    BuildConfig.VERSION_CODE,
+                    skyPackages.getOrDefault(SKY_PACKAGE_NAME, 0),
+                    configDir.getAbsolutePath(),
+                    SMLApplication.skyRes.getAssets()
+            );
             new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
             if (SKY_PACKAGE_NAME.equals("com.tgc.sky.android.test.gold")) {
                 SKY_PACKAGE_NAME = "com.tgc.sky.android.test.";
@@ -100,7 +111,7 @@ public class MainActivity extends Activity {
         builder.show();
     }
 
-    public static native void settle(int gameVersion, boolean isBeta, String configDir, AssetManager gameAssets);
-
+    public static native void settle(int _gameVersion, int _gameType, String _configDir, AssetManager _gameAssets);
+    public static native void onKeyboardCompleteNative(String message);
 
 }

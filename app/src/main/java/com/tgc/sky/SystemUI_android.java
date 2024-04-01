@@ -234,7 +234,8 @@ public class SystemUI_android {
         return true;
     }
 
-    int ShowTextField(final String str, final int i, final int i2) {
+    /// TODO: Check this out later
+/*    int ShowTextField(final String str, final int i, final int i2) {
         int TryActivate;
         if (this.m_textFieldState == TextFieldState.kTextFieldState_Hidden && (TryActivate = this.m_textField.TryActivate()) != -1) {
             this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
@@ -248,7 +249,7 @@ public class SystemUI_android {
             return TryActivate;
         }
         return -1;
-    }
+    }*/
 
     int ShowTextField(final String str, final String str2, final int i, final int i2, final boolean z) {
         int TryActivate;

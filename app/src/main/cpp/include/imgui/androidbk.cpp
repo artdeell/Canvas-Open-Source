@@ -15,7 +15,7 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #include <unistd.h>
-#include "../canvas/Canvas.h"
+#include <Canvas/Canvas.hpp>
 #include "../misc/visibility.h"
 
 #define g_LogTag "imgui4ca"
@@ -183,8 +183,8 @@ PRIVATE_API void newframe() {
 PRIVATE_API void renderloop()
 {
     ImGuiIO &io = ImGui::GetIO();
-    while(run) {
-        if(Canvas::framerateLimited) usleep(41000);
+    while (run) {
+        if(Canvas::frameRateLimited) usleep(41000);
         ImGui_ImplOpenGL3_NewFrame();
         newframe();
         ImGui::NewFrame();

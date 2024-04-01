@@ -1,6 +1,7 @@
 #include <android/log.h>
 #include <dlfcn.h>
 #include <pthread.h>
+#include <thread>
 #include <unistd.h>
 #include "include/misc/Logger.h"
 #include "main.h"
@@ -8,11 +9,11 @@
 #include "include/imgui/androidbk.h"
 #include "include/misc/Vector3.h"
 #include <vector>
-#include "include/cipher/Cipher.h"
-#include "include/canvas/Canvas.h"
+#include <Canvas/Canvas.hpp>
+#include <Cipher/Cipher.hpp>
 #include "include/misc/visibility.h"
-#include "include/iconloader/IconLoader.h"
-#include "fileselector.h"
+#include "iconloader/IconLoader.h"
+#include "FileSelector/fileselector.h"
 #include <android/asset_manager_jni.h>
 
 
@@ -32,98 +33,75 @@ void file_selector_cb(int fd) {
         close(fd);
     }
 }
-
+std::uintptr_t address;
 PRIVATE_API void SystemsTest() {
-    ImGui::Begin("SystemsTest");
-    ImGui::Text("Game version: %i",Cipher::getGameVersion());
-    ImGui::Text("Is beta: %s", Cipher::isGameBeta() ? "Yes":"No");
-    UIIcon icon;
-    IconLoader::getUIIcon("UiOutfitPropAP10Hoop", &icon);
-    if(icon.textureId != IL_NO_TEXTURE) {
-        ImGui::Image((ImTextureID)icon.textureId, ImVec2(64,64), icon.uv0, icon.uv1, ImVec4(1,1,1,1));
-    }else{
-        ImGui::Text("Icon missing");
-    }
-    IconLoader::icon("UiOutfitPropAP10Hoop", 64);
-    /*ImGui::InputText("Test content", test_file_buf, 511);
-    if(ImGui::Button("Write test file")) {
-        gfd = -3;
-        requestFile("text/plain", &file_selector_cb, true);
-    }
-    if(ImGui::Button("Read file")) {
-        gfd = -2;
-        requestFile("text/plain", &file_selector_cb, false);
-    }
-    ImGui::Text("Fd: %i", gfd);
-    ImGui::End();*/
+    ImGui::Begin("System Tests");
+    ImGui::Text("Sky is Live: %s", Cipher::get_GameType() == GameType::Live ? "true" : "false");
+    ImGui::Text("Sky is Beta: %s", Cipher::get_GameType() == GameType::Beta? "true" : "false");
+
+    ImGui::End();
 }
 
-
+#include <string>
 PRIVATE_API void Canvas::CanvasMenu() {
     ImGui::Begin("Canvas Menu");
-    for(auto & m_Userlib : Canvas::m_Userlibs){
-        ImGui::Checkbox(m_Userlib.Name, &m_Userlib.UIEnabled);
-        if(m_Userlib.UIEnabled) {
-            if(m_Userlib.UISelfManaged) ImGui::PushID(m_Userlib.Name);
-            else ImGui::Begin(m_Userlib.Name);
-            m_Userlib.Draw();
-            if(m_Userlib.UISelfManaged) ImGui::PopID();
+    for(auto & userLib : Canvas::userLibs){
+        ImGui::Checkbox(userLib.Name, &userLib.UIEnabled);
+        if(userLib.UIEnabled) {
+            if(userLib.UISelfManaged) ImGui::PushID(userLib.Name);
+            else ImGui::Begin(userLib.Name);
+            userLib.Draw();
+            if(userLib.UISelfManaged) ImGui::PopID();
             else ImGui::End();
         }
     }
+
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    ImGui::Checkbox("Limit FPS", &Canvas::framerateLimited);
+    ImGui::Checkbox("Limit FPS", &Canvas::frameRateLimited);
     ImGui::End();
-    //SystemsTest();
+
+    SystemsTest();
 }
 
 __unused __attribute__((constructor))
 int main() {
     LOGI("Starting Sky ModMenu.. Build time: " __DATE__ " " __TIME__);
-
+    Canvas::libName = "libBootloader.so";
     do {
         sleep(1);
-    } while (!Canvas::isLibLoaded(Canvas::get_libName()));
-    auto procmap = ElfScanner::createWithPath(Canvas::get_libName());
-    Canvas::set_libBase((uintptr_t) procmap.baseSegment().startAddress);
-    Canvas::set_libSize((uintptr_t) procmap.baseSegment().length);
-    for(auto& maps : procmap.segments()) {
-        if(maps.is_rx) {
-            Canvas::set_libExecStart((uintptr_t) maps.startAddress);
-            Canvas::set_libExecSize((uintptr_t) maps.length);
-            Canvas::set_libExecEnd((uintptr_t) maps.endAddress);
-        }
-        if (maps.is_rw) {
-            Canvas::set_libDataStart((uintptr_t) maps.startAddress);
-            Canvas::set_libDataSize((uintptr_t) maps.length);
-        }
-    }
-
+    } while (!Canvas::isLibLoaded(Canvas::libName));
+    auto elfScanner = ElfScanner::createWithPath(Canvas::libName);
+    Canvas::libBase = elfScanner.baseSegment().startAddress;
     return 0;
 }
 
-
 extern "C"
 JNIEXPORT void JNICALL
-Java_git_artdeell_skymodloader_MainActivity_settle(JNIEnv *env, jclass clazz, jint gVersion, jboolean isBeta, jstring configPath,
-                                                   jobject game_assets) {
-    env->GetJavaVM(&Canvas::javavm);
+Java_git_artdeell_skymodloader_MainActivity_settle(
+        JNIEnv *env,
+        jclass clazz,
+        jint _gameVersion,
+        jint _gameType,
+        jstring _configDir,
+        jobject _gameAssets
+) {
+    env->GetJavaVM(&Canvas::javaVM);
     fsel_setup(env);
-    Canvas::gameVersion = gVersion;
-    Canvas::isBeta = isBeta;
-    Canvas::configDirPath = (*env).GetStringUTFChars(configPath, NULL);
-    Canvas::aAssetManager = AAssetManager_fromJava(env, game_assets);
+    Canvas::gameVersion = _gameVersion;
+    Canvas::gameType = _gameType;
+    Canvas::configsPath = (*env).GetStringUTFChars(_configDir, NULL);
+    Canvas::aAssetManager = AAssetManager_fromJava(env, _gameAssets);
 }
 
-
+typedef void (*func)();
 PRIVATE_API void *UserThread(void *Ulib){
-    Userlib *userlib = (Userlib *)Ulib;
-    func (*Start)() = (func(*)())userlib->Draw;
-    userlib->Draw = Start();
-    if(userlib->Name && userlib->Draw){
-        Canvas::push_Userlib(*userlib);
+    Canvas::UserLib *pUserLib = (Canvas::UserLib *)Ulib;
+    func (*Start)() = (func(*)())pUserLib->Draw;
+    pUserLib->Draw = Start();
+    if(pUserLib->Name && pUserLib->Draw){
+        Canvas::pushUserLib(*pUserLib);
     }
-    delete userlib;
+    delete pUserLib;
     pthread_exit(nullptr);
 }
 
@@ -136,8 +114,16 @@ PRIVATE_API void crash(JNIEnv *env, char* crashReason) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(JNIEnv *env, jclass clazz, jstring path, jboolean isDraw, jstring name, jboolean dev, jboolean selfManagedUI) {
-    Canvas::m_dev = dev;
+Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
+        JNIEnv *env,
+        jclass clazz,
+        jstring path,
+        jboolean isDraw,
+        jstring name,
+        jboolean dev,
+        jboolean selfManagedUI
+) {
+    Canvas::dev = dev;
     const char *temp = env->GetStringUTFChars(path, 0);
     void *dl_entry = dlopen(temp, RTLD_LOCAL);
     if(dl_entry == nullptr) {
@@ -152,11 +138,24 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(JNIEnv *env,
     }
     //if(!Start) return;
     temp = env->GetStringUTFChars(name, 0);
-    Userlib *userlib = new Userlib;
+    Canvas::UserLib* pUserLib = new Canvas::UserLib;
     if(!isDraw) temp = nullptr;
-    userlib->Name = temp;
-    userlib->Draw = (void (*)(void))(Start);
-    userlib->UISelfManaged = selfManagedUI;
+    pUserLib->Name = temp;
+    pUserLib->Draw = (void (*)(void))(Start);
+    pUserLib->UISelfManaged = selfManagedUI;
     pthread_t pid;
-    pthread_create(&pid, nullptr, UserThread, (void *)userlib);
+    pthread_create(&pid, nullptr, UserThread, (void *)pUserLib);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_git_artdeell_skymodloader_MainActivity_onKeyboardCompleteNative(
+        JNIEnv *env,
+        jclass clazz,
+        jstring message
+) {
+    std::string msg = env->GetStringUTFChars(message, nullptr);
+    for (auto& listener : Canvas::onKeyboardCompleteListeners) {
+        listener(msg);
+    }
 }
