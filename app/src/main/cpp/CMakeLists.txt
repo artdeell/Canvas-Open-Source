@@ -14,9 +14,6 @@ endif()
 project("imgui")
 
 
-#add_definitions(-DkNO_KEYSTONE)
-
-
 add_library(ktx_read SHARED IMPORTED)
 set_target_properties(ktx_read PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Utils/ktx/libktx_read.so)
 
@@ -50,7 +47,7 @@ target_compile_options(ciphered PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-Werror -std=c+
 target_compile_options(ciphered PUBLIC -w -s -Wno-error=format-security -fpermissive -fexceptions)
 #target_link_options(cpihered PUBLIC -Wl,--gc-sections,--strip-all,-llog)
 
-
+#add_definitions(-DkNO_KEYSTONE)
 if (NOT kNO_KEYSTONE)
         set(keystone ${CMAKE_CURRENT_SOURCE_DIR}/Utils/KittyMemory/KittyMemory/Deps/Keystone/libs-android/arm64-v8a/libkeystone.a)
         target_link_libraries(ciphered ${keystone})

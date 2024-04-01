@@ -22,12 +22,14 @@ CipherHook::~CipherHook() {
 //sets detour function
 CipherHook* CipherHook::set_Hook(std::uintptr_t _hook) {
     this->p_Hook = _hook;
+    LOGI("set_Hook: %lx", _hook);
     return this;
 }
 
 //sets callback to original function
 CipherHook* CipherHook::set_Callback(std::uintptr_t _callback) {
     this->p_Callback = _callback;
+    LOGI("set_Callback: %lx", _callback);
     return this;
 }
 

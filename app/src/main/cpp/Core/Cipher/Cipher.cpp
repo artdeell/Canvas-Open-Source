@@ -73,7 +73,7 @@ bool segmentHasFlag(const KittyMemory::ProcMap& _segment, const Flags& _flag) {
         case Flags::ReadAndExecute:
             return _segment.is_rx;
         case Flags::Any:
-            return true;
+            return _segment.is_ro || _segment.is_rw || _segment.is_rx;
         default:
             return false;
     }

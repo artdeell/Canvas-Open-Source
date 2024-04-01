@@ -14,6 +14,7 @@
 #include "include/misc/visibility.h"
 #include "iconloader/IconLoader.h"
 #include "FileSelector/fileselector.h"
+#include "Cipher/CipherHook.h"
 #include <android/asset_manager_jni.h>
 
 
@@ -33,16 +34,15 @@ void file_selector_cb(int fd) {
         close(fd);
     }
 }
-std::uintptr_t address;
+
+
 PRIVATE_API void SystemsTest() {
     ImGui::Begin("System Tests");
     ImGui::Text("Sky is Live: %s", Cipher::get_GameType() == GameType::Live ? "true" : "false");
-    ImGui::Text("Sky is Beta: %s", Cipher::get_GameType() == GameType::Beta? "true" : "false");
+    ImGui::Text("Sky is Beta: %s", Cipher::get_GameType() == GameType::Beta?  "true" : "false");
     if (IconLoader::iconButton("UiMenuGate", 60)) {
 
     }
-
-    ImGui::End();
 }
 
 PRIVATE_API static void HelpMarker(const char* desc)
@@ -79,7 +79,7 @@ PRIVATE_API void DrawMods() {
 
 PRIVATE_API void Canvas::CanvasMenu() {
     ImGui::Begin("Canvas Menu");
-    if (ImGui::BeginTable("Mods##canvas_mods_table", 2)) {
+    if (ImGui::BeginTable("Mods##canvas_mods_table", 2, ImGuiTableFlags_None, ImVec2(-1.0f, 0.0f))) {
         ImGui::TableSetupColumn("mod", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("info", ImGuiTableColumnFlags_WidthStretch);
         for (auto &userLib: Canvas::userLibs) {

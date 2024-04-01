@@ -97,13 +97,14 @@ public class TextField {
         this.m_textField.setFocusableInTouchMode(true);
         this.m_textField.setOnEditorActionListener((textView, imeAction, keyEvent) -> {
             if (imeAction == EditorInfo.IME_ACTION_SEND || imeAction == EditorInfo.IME_ACTION_UNSPECIFIED) {
-                // Run Canvas message listeners
-                MainActivity.onKeyboardCompleteNative(textView.getText().toString());
                 TextField.this.m_activity.onKeyboardCompleteNative(
                         textView.getText().toString(),
                         TextField.this.m_isCallbackTextfield,
                         TextField.this.m_isCallbackTextfield
                 );
+
+                // Run Canvas message listeners
+                MainActivity.onKeyboardCompleteNative(textView.getText().toString());
                 textView.setText("");
                 if (TextField.this.m_isCallbackTextfield) {
                     TextField.this.m_onKeyboardCompleteAlreadyCalled = true;
