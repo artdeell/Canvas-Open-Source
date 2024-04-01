@@ -4,3 +4,6 @@
 [submodule "app/src/main/cpp/Utils/And64InlineHook"]
 	path = app/src/main/cpp/Utils/And64InlineHook
 	url = https://github.com/Rprop/And64InlineHook.git
+[submodule "app/src/main/cpp/Core/imgui"]
+	path = app/src/main/cpp/Core/imgui
+	url = git@github.com:ocornut/imgui.git
