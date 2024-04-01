@@ -1,8 +1,11 @@
 #pragma once
 
-#include <cstdint>
 #include <vector>
-#include "Cipher.h"
+
+enum class Types : int {
+    e_patch = 0,
+    e_hook
+};
 
 class CipherBase {
 private:

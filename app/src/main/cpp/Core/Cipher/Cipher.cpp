@@ -6,6 +6,7 @@
 
 #include "../../include/misc/Logger.h"
 #include "../../include/misc/visibility.h"
+#include <android/asset_manager.h>
 
 #include <Canvas/Canvas.h>
 #include <KittyMemory/KittyInclude.hpp>

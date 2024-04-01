@@ -1,15 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <utility>
-#include <string>
-#include <android/asset_manager.h>
-#include "../../Utils/artpatch/artpatch.h"
 
-enum class Types : int {
-    e_patch = 0,
-    e_hook
-};
 
 /**
  * @brief Specifies the type of the game.
