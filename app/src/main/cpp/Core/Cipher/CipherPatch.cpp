@@ -41,9 +41,7 @@ CipherPatch::CipherPatch() {
 }
 
 CipherPatch::~CipherPatch() {
-    patch.b
     artpatch_restore(this->patch);
-
     CipherBase::s_InstanceVec.erase(
         std::find(
             CipherBase::s_InstanceVec.begin(),

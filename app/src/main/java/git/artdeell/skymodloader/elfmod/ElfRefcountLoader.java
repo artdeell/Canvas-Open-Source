@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import git.artdeell.skymodloader.ElfLoader;
 import git.artdeell.skymodloader.LibrarySelectorListener;
@@ -53,11 +54,21 @@ public class ElfRefcountLoader extends ElfLoader{
 
     @Override
     public void loadNative(String absolutePath, String name) {
-        if(absolutePath.startsWith(modsFolder.getAbsolutePath())) {
+        if (absolutePath.startsWith(modsFolder.getAbsolutePath())) {
             ElfModMetadata metadata = metadataByName.get(name);
-            if(metadata == null) throw new IllegalStateException("WTF? No saved metadata for mod library " +name);
-            LibrarySelectorListener.onModLibrary(absolutePath, metadata.displaysUI, metadata.displayName != null?metadata.displayName:metadata.name, metadata.dev, metadata.selfManagedUI);
-        }else {
+            if (metadata == null) {
+                throw new IllegalStateException("WTF? No saved metadata for mod library " + name);
+            }
+
+            LibrarySelectorListener.onModLibrary(
+                    absolutePath,
+                    metadata.displaysUI,
+                    Optional.ofNullable(metadata.displayName).orElse(metadata.name),
+                    Optional.ofNullable(metadata.description).orElse(""),
+                    metadata.majorVersion + "." + metadata.minorVersion + "." + metadata.patchVersion,
+                    metadata.selfManagedUI
+            );
+        } else {
             super.loadNative(absolutePath, name);
         }
     }
@@ -86,12 +97,12 @@ public class ElfRefcountLoader extends ElfLoader{
             JSONObject jsonConfig = new JSONObject(new String(config, 0, config.length));
             ElfModMetadata modMetadata = new ElfModMetadata();
             modMetadata.name = jsonConfig.getString("name");
+            modMetadata.description = jsonConfig.getString("description");
             modMetadata.majorVersion = jsonConfig.getInt("majorVersion");
             modMetadata.minorVersion = jsonConfig.getInt("minorVersion");
             modMetadata.patchVersion = jsonConfig.getInt("patchVersion");
             modMetadata.displayName = jsonConfig.optString("displayName");
             modMetadata.displaysUI = jsonConfig.optBoolean("displaysUI");
-            modMetadata.dev = jsonConfig.optBoolean("dev");
             modMetadata.selfManagedUI = jsonConfig.optBoolean("selfManagedUI");
             JSONArray jdeps = jsonConfig.getJSONArray("dependencies");
             ElfModMetadata[] dependencies = new ElfModMetadata[jdeps.length()];

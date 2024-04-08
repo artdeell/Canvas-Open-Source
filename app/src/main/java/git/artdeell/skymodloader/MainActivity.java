@@ -8,7 +8,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.DisplayMetrics;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -21,6 +24,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import git.artdeell.skymodloader.elfmod.ElfRefcountLoader;
 import git.artdeell.skymodloader.iconloader.IconLoader;
@@ -30,11 +34,13 @@ public class MainActivity extends Activity {
     public static String SKY_PACKAGE_NAME;
     Map<String, Integer> skyPackages;
 
+    public static DeviceInfo deviceInfo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        deviceInfo = getDeviceInfo();
         sharedPreferences = getSharedPreferences("package_configs", Context.MODE_PRIVATE);
         SKY_PACKAGE_NAME = sharedPreferences.getString("sky_package_name", "com.tgc.sky.android");
         sharedPreferences.edit().putString("sky_package_name", SKY_PACKAGE_NAME).apply();
@@ -63,6 +69,16 @@ public class MainActivity extends Activity {
             ElfLoader loader = new ElfLoader(nativeLibraryDir + ":/system/lib64");
             loader.loadLib("libBootloader.so");
             System.loadLibrary("ciphered");
+
+            setDeviceInfoNative(
+                deviceInfo.xdpi,
+                deviceInfo.ydpi,
+                deviceInfo.density,
+                Optional.ofNullable(deviceInfo.deviceName).orElse(""),
+                Optional.ofNullable(deviceInfo.deviceManufacturer).orElse(""),
+                Optional.ofNullable(deviceInfo.deviceModel).orElse("")
+            );
+
             IconLoader.findIcons();
             MainActivity.settle(
                     BuildConfig.VERSION_CODE,
@@ -111,7 +127,28 @@ public class MainActivity extends Activity {
         builder.show();
     }
 
+    public DeviceInfo getDeviceInfo() {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.xdpi = displayMetrics.xdpi;
+        deviceInfo.ydpi = displayMetrics.ydpi;
+        deviceInfo.density = displayMetrics.density;
+
+        deviceInfo.deviceName = Settings.Global.getString(getContentResolver(), "device_name");
+        if (deviceInfo.deviceName == null || deviceInfo.deviceName.isEmpty()) {
+            deviceInfo.deviceName = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
+        }
+        deviceInfo.deviceName = (deviceInfo.deviceName == null || deviceInfo.deviceName.isEmpty()) ? "NO_DEVICE_NAME" : deviceInfo.deviceName;
+
+        deviceInfo.deviceManufacturer = Build.MANUFACTURER;
+        deviceInfo.deviceModel = Build.MODEL;
+        return deviceInfo;
+    }
+
     public static native void settle(int _gameVersion, int _gameType, String _configDir, AssetManager _gameAssets);
+    public static native void setDeviceInfoNative(float _xdpi, float _ydpi, float _density, String _deviceName, String _manufacturer, String _model);
     public static native void onKeyboardCompleteNative(String message);
+
+
 
 }

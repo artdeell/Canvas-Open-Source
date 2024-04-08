@@ -21,6 +21,13 @@
 void do_scroll();
 void fsel_setup(JNIEnv*);
 
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
+    Canvas::javaVM = vm;
+    Canvas::javaVM->GetEnv((void **) &Canvas::jniEnv, JNI_VERSION_1_6);
+    return JNI_VERSION_1_6;
+}
+
+
 char test_file_buf[512] = {0};
 int gfd = -2;
 void file_selector_cb(int fd) {
@@ -40,9 +47,9 @@ PRIVATE_API void SystemsTest() {
     ImGui::Begin("System Tests");
     ImGui::Text("Sky is Live: %s", Cipher::get_GameType() == GameType::Live ? "true" : "false");
     ImGui::Text("Sky is Beta: %s", Cipher::get_GameType() == GameType::Beta?  "true" : "false");
-    if (IconLoader::iconButton("UiMenuGate", 60)) {
 
-    }
+    ImGui::End();
+
 }
 
 PRIVATE_API static void HelpMarker(const char* desc)
@@ -51,7 +58,7 @@ PRIVATE_API static void HelpMarker(const char* desc)
     if (ImGui::BeginItemTooltip())
     {
         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted(desc);
+        ImGui::TextWrapped(desc);
         ImGui::PopTextWrapPos();
         ImGui::EndTooltip();
     }
@@ -61,9 +68,9 @@ PRIVATE_API void DrawMods() {
     for (auto &userLib: Canvas::userLibs) {
         if (userLib.UIEnabled) {
             if (userLib.UISelfManaged) {
-                ImGui::PushID(userLib.Name);
+                ImGui::PushID(userLib.Name.c_str());
             } else {
-                ImGui::Begin(userLib.Name);
+                ImGui::Begin(userLib.Name.c_str());
             }
 
             userLib.Draw();
@@ -77,18 +84,42 @@ PRIVATE_API void DrawMods() {
     }
 }
 
+#include <sstream>
+std::string formatUserLibInfo(const Canvas::UserLib& userLib) {
+    std::ostringstream oss;
+    oss << userLib.Name << ": " << userLib.Version << "\n";
+    if (!userLib.Description.empty()) {
+        oss << "-----\n";
+        oss << "Description:\n" << userLib.Description << "\n";
+    }
+    return oss.str();
+}
+
 PRIVATE_API void Canvas::CanvasMenu() {
     ImGui::Begin("Canvas Menu");
-    if (ImGui::BeginTable("Mods##canvas_mods_table", 2, ImGuiTableFlags_None, ImVec2(-1.0f, 0.0f))) {
-        ImGui::TableSetupColumn("mod", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("info", ImGuiTableColumnFlags_WidthStretch);
+    if (!Canvas::userLibs.empty() && ImGui::BeginTable(
+            "Mods##canvas_mods_table",
+            2,
+            ImGuiTableFlags_Borders
+               | ImGuiTableFlags_RowBg
+               | ImGuiTableFlags_BordersH
+               | ImGuiTableFlags_BordersOuterH,
+            ImVec2(-1.0f, 0.0f))
+    ) {
+        ImGui::TableSetupColumn("Mod", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn(
+                "Info",
+                ImGuiTableColumnFlags_WidthFixed,
+                ImGui::CalcTextSize("Info").x + (20.0f / (24 / ImGui::GetFont()->FontSize))
+        );
+        ImGui::TableHeadersRow();
         for (auto &userLib: Canvas::userLibs) {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
-            ImGui::Checkbox(userLib.Name, &userLib.UIEnabled);
+            ImGui::Checkbox(userLib.Name.c_str(), &userLib.UIEnabled);
 
             ImGui::TableSetColumnIndex(1);
-            HelpMarker(userLib.Name);
+            HelpMarker(formatUserLibInfo(userLib).c_str());
 
         }
         ImGui::EndTable();
@@ -115,6 +146,7 @@ int main() {
     } while (!Canvas::isLibLoaded(Canvas::libName));
     auto elfScanner = ElfScanner::createWithPath(Canvas::libName);
     Canvas::libBase = elfScanner.baseSegment().startAddress;
+
     return 0;
 }
 
@@ -128,20 +160,22 @@ Java_git_artdeell_skymodloader_MainActivity_settle(
         jstring _configDir,
         jobject _gameAssets
 ) {
-    env->GetJavaVM(&Canvas::javaVM);
+    //env->GetJavaVM(&Canvas::javaVM);
     fsel_setup(env);
+    Canvas::MainActivity = clazz;
     Canvas::gameVersion = _gameVersion;
     Canvas::gameType = _gameType;
     Canvas::configsPath = (*env).GetStringUTFChars(_configDir, NULL);
     Canvas::aAssetManager = AAssetManager_fromJava(env, _gameAssets);
 }
 
+
 typedef void (*func)();
 PRIVATE_API void *UserThread(void *Ulib){
     Canvas::UserLib *pUserLib = (Canvas::UserLib *)Ulib;
     func (*Start)() = (func(*)())pUserLib->Draw;
     pUserLib->Draw = Start();
-    if(pUserLib->Name && pUserLib->Draw){
+    if(!pUserLib->Name.empty() && pUserLib->Draw){
         Canvas::pushUserLib(*pUserLib);
     }
     delete pUserLib;
@@ -160,32 +194,35 @@ JNIEXPORT void JNICALL
 Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
         JNIEnv *env,
         jclass clazz,
-        jstring path,
-        jboolean isDraw,
-        jstring name,
-        jboolean dev,
-        jboolean selfManagedUI
+        jstring _path,
+        jboolean _isDraw,
+        jstring _displayName,
+        jstring _description,
+        jstring _version,
+        jboolean _selfManagedUI
 ) {
-    Canvas::dev = dev;
-    const char *temp = env->GetStringUTFChars(path, 0);
+
+    const char *temp = env->GetStringUTFChars(_path, 0);
     void *dl_entry = dlopen(temp, RTLD_LOCAL);
     if(dl_entry == nullptr) {
         crash(env, dlerror());
         return;
     }
+
     func (*Start)() = (func (*)()) dlsym( dl_entry, "Start");
-    env->ReleaseStringUTFChars(path, temp);
+    env->ReleaseStringUTFChars(_path, temp);
     if(Start == nullptr) {
         crash(env, dlerror());
         return;
     }
-    //if(!Start) return;
-    temp = env->GetStringUTFChars(name, 0);
+
+
     Canvas::UserLib* pUserLib = new Canvas::UserLib;
-    if(!isDraw) temp = nullptr;
-    pUserLib->Name = temp;
+    pUserLib->UISelfManaged = _selfManagedUI;
+    pUserLib->Name = env->GetStringUTFChars(_displayName, 0);
+    pUserLib->Description = env->GetStringUTFChars(_description, 0);
+    pUserLib->Version = env->GetStringUTFChars(_version, 0);
     pUserLib->Draw = (void (*)(void))(Start);
-    pUserLib->UISelfManaged = selfManagedUI;
     pthread_t pid;
     pthread_create(&pid, nullptr, UserThread, (void *)pUserLib);
 }
@@ -201,4 +238,26 @@ Java_git_artdeell_skymodloader_MainActivity_onKeyboardCompleteNative(
     for (auto& listener : Canvas::onKeyboardCompleteListeners) {
         listener(msg);
     }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_git_artdeell_skymodloader_MainActivity_setDeviceInfoNative(
+        JNIEnv *env, jclass clazz,
+        jfloat _xdpi,
+        jfloat _ydpi,
+        jfloat _density,
+        jstring _deviceName,
+        jstring _manufacturer,
+        jstring _model
+) {
+    Canvas::deviceInfo.xdpi = _xdpi;
+    Canvas::deviceInfo.ydpi = _ydpi;
+    Canvas::deviceInfo.density = _density;
+    Canvas::deviceInfo.deviceName = env->GetStringUTFChars(_deviceName, nullptr);
+    Canvas::deviceInfo.deviceManufacturer = env->GetStringUTFChars(_manufacturer, nullptr);
+    Canvas::deviceInfo.deviceModel = env->GetStringUTFChars(_model, nullptr);
+
+    LOGI("%s", Canvas::deviceInfo.deviceName.c_str());
+
 }

@@ -155,6 +155,7 @@ public class ElfUIBackbone {
                     ElfModMetadata dependency = new ElfModMetadata();
                     dependency.modIsValid = true;
                     dependency.name = jsonDependency.getString("name");
+                    dependency.description = jsonDependency.getString("description");
                     dependency.majorVersion = jsonDependency.getInt("majorVersion");
                     dependency.minorVersion = jsonDependency.getInt("minorVersion");
                     dependency.patchVersion = jsonDependency.getInt("patchVersion");

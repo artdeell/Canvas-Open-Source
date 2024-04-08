@@ -1,102 +1,129 @@
-// 
-// Decompiled by Procyon v0.5.36
-// 
-
 package com.tgc.sky.ui.panels;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.content.ContentResolver;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import android.graphics.BitmapFactory;
-import android.util.Log;
-
-import java.util.Arrays;
-import android.text.Spannable;
-import java.io.UnsupportedEncodingException;
-import android.graphics.RectF;
-import android.widget.Space;
-import android.widget.LinearLayout;
-
-import androidx.constraintlayout.widget.ConstraintSet;
-
-import android.util.AttributeSet;
-import android.text.InputFilter;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.content.res.ColorStateList;
-import android.graphics.drawable.StateListDrawable;
-import android.widget.RadioButton;
-import java.util.ArrayList;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import android.util.DisplayMetrics;
-import android.graphics.drawable.GradientDrawable;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ColorDrawable;
-
-import com.tgc.sky.ui.text.Markup;
-import com.tgc.sky.SystemUI_android;
-import android.content.Context;
-import com.tgc.sky.ui.TextFieldLimiter;
 import android.widget.EditText;
-import android.widget.RadioGroup;
-import android.content.Intent;
-import java.util.HashMap;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.Space;
 import android.widget.TextView;
-
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.internal.view.SupportMenu;
+import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
 import com.tgc.sky.GameActivity;
+import com.tgc.sky.SystemUI_android;
+import com.tgc.sky.ui.TextFieldLimiter;
+import com.tgc.sky.ui.qrcodereaderview.QRCodeReaderTextureView;
+import com.tgc.sky.ui.qrcodereaderview.QRCodeReaderView;
+import com.tgc.sky.ui.text.Markup;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
-public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardListener, GameActivity.OnActivityResultListener, View.OnLayoutChangeListener, TextView.OnEditorActionListener {
+/* loaded from: classes2.dex */
+public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardListener, GameActivity.OnActivityResultListener, View.OnLayoutChangeListener, TextView.OnEditorActionListener, QRCodeReaderTextureView.OnQRCodeReadListener {
     private PanelButton _actionButton;
     private PanelButton _closeButton;
     private RelativeLayout _container;
-    /* access modifiers changed from: private */
-    public RelativeLayout _containerContentView;
+    private RelativeLayout _containerContentView;
     private PanelButton _deleteButton;
     private TextView _headerTextView;
-    /* access modifiers changed from: private */
-    public ProgressBar mActivityIndicatorView;
-    private HashMap<Object, Object> mButtonLocalizedStrings = new HashMap<>();
-    /* access modifiers changed from: private */
-    public boolean mCaptureSession;
+    private ProgressBar mActivityIndicatorView;
+    private HashMap<Object, Object> mButtonLocalizedStrings;
+    private boolean mCaptureSession;
     public String mCodeInput;
     public String mCodeInputError;
-    CodeScannerState mCodeScannerState = CodeScannerState.kCodeScannerState_Idle;
+    CodeScannerState mCodeScannerState;
     EnterState mEnterState;
     public Handle mHandler;
     private Intent mImagePicker;
-    private boolean mImagePickerActive = false;
+    private boolean mImagePickerActive;
     private ScannerOverlay mImageScannerView;
-    ImportState mImportState = ImportState.kImportState_CameraAskPermission;
+    ImportState mImportState;
     private Mode mMode;
-    /* access modifiers changed from: private */
-    public QRCodeBoundsView mOverlay;
+    private QRCodeBoundsView mOverlay;
     private RadioGroup mSegmentedControl;
-    private HashMap<Object, Object> mTextAttributedStrings = new HashMap<>();
-    /* access modifiers changed from: private */
-    public EditText mTextField;
+    private HashMap<Object, Object> mTextAttributedStrings;
+    private EditText mTextField;
     TextFieldLimiter mTextFieldLimiter;
-    /* access modifiers changed from: private */
-    public RelativeLayout mVideoPreview;
+    private RelativeLayout mVideoPreview;
+    private QRCodeReaderView mVideoPreviewLayer;
+    private RelativeLayout view;
 
-    /* access modifiers changed from: private */
-    public RelativeLayout view;
+    /* JADX INFO: Access modifiers changed from: package-private */
+    /* loaded from: classes2.dex */
+    public enum CodeScannerState {
+        kCodeScannerState_Idle,
+        kCodeScannerState_Parsing,
+        kCodeScannerState_Parsed,
+        kCodeScannerState_Throttled,
+        kCodeScannerState_Error
+    }
 
+    /* JADX INFO: Access modifiers changed from: package-private */
+    /* loaded from: classes2.dex */
+    public enum EnterState {
+        kEnterState_WaitingForUser,
+        kEnterState_CheckingCode,
+        kEnterState_CheckedCode,
+        kEnterState_RateLimited,
+        kEnterState_Error
+    }
+
+    /* loaded from: classes2.dex */
     public interface Handle {
         void run(String str, int i, boolean z);
+    }
+
+    /* JADX INFO: Access modifiers changed from: package-private */
+    /* loaded from: classes2.dex */
+    public enum ImportState {
+        kImportState_CameraAskPermission,
+        kImportState_CameraNoPermission,
+        kImportState_CameraActive,
+        kImportState_PickerActive,
+        kImportState_ParsingLink,
+        kImportState_ParsedLink,
+        kImportState_Error
+    }
+
+    /* loaded from: classes2.dex */
+    public enum Mode {
+        kCodeScannerMode_Scan,
+        kCodeScannerMode_Type
+    }
+
+    /* loaded from: classes2.dex */
+    public enum ResultOptions {
+        kCodeScanner_UserClosedPanel,
+        kCodeScanner_ValidateShortCode,
+        kCodeScanner_ValidateUrl,
+        kCodeScanner_FinishedWithUrl
     }
 
     public void keyboardDidShow(int i) {
@@ -109,32 +136,37 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
     }
 
     public void informCodeInputResult(final String str, String str2, int i) {
-        if (str2 == null) {
-            this.m_activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    CodeScanner.this.dismissInternal();
-                    CodeScanner.this.mHandler.run(str, ResultOptions.kCodeScanner_FinishedWithUrl.ordinal(), true);
-                }
-            });
-        } else if (str2.equals("throttled")) {
-            setCodeScannerState(CodeScannerState.kCodeScannerState_Throttled, str2);
-        } else {
-            setCodeScannerState(CodeScannerState.kCodeScannerState_Error, str2);
+        if (str2 != null) {
+            if (str2.equals("throttled")) {
+                setCodeScannerState(CodeScannerState.kCodeScannerState_Throttled, str2);
+                return;
+            } else {
+                setCodeScannerState(CodeScannerState.kCodeScannerState_Error, str2);
+                return;
+            }
         }
+        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.1
+            @Override // java.lang.Runnable
+            public void run() {
+                CodeScanner.this.dismissInternal();
+                CodeScanner.this.mHandler.run(str, ResultOptions.kCodeScanner_FinishedWithUrl.ordinal(), true);
+            }
+        });
     }
 
     public void setCodeScannerState(CodeScannerState codeScannerState, String str) {
         this.mCodeScannerState = codeScannerState;
         if (codeScannerState == CodeScannerState.kCodeScannerState_Idle) {
             this.mCodeInput = str;
-        } else if (!(codeScannerState == CodeScannerState.kCodeScannerState_Error || str == null)) {
+        } else if (codeScannerState != CodeScannerState.kCodeScannerState_Error && str != null) {
             this.mCodeInput = str;
         }
         if (codeScannerState == CodeScannerState.kCodeScannerState_Error && str != null) {
             this.mCodeInputError = str;
         }
         updateState();
-        this.m_activity.runOnUiThread(new Runnable() {
+        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.2
+            @Override // java.lang.Runnable
             public void run() {
                 CodeScanner.this.updateView();
             }
@@ -142,9 +174,9 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
     }
 
     public void updateState() {
-        int i = this.mMode.getValue();
+        int i = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$Mode[this.mMode.ordinal()];
         if (i == 1) {
-            int i2 = this.mCodeScannerState.getValue();
+            int i2 = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$CodeScannerState[this.mCodeScannerState.ordinal()];
             if (i2 == 1) {
                 this.mEnterState = EnterState.kEnterState_WaitingForUser;
             } else if (i2 == 2) {
@@ -153,11 +185,13 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                 this.mEnterState = EnterState.kEnterState_CheckedCode;
             } else if (i2 == 4) {
                 this.mEnterState = EnterState.kEnterState_RateLimited;
-            } else if (i2 == 5) {
+            } else if (i2 != 5) {
+            } else {
                 this.mEnterState = EnterState.kEnterState_Error;
             }
-        /*} else if (i == 2) {
-            int i3 = this.mCodeScannerState.getValue();
+        } else if (i != 2) {
+        } else {
+            int i3 = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$CodeScannerState[this.mCodeScannerState.ordinal()];
             if (i3 != 1) {
                 if (i3 == 2) {
                     this.mImportState = ImportState.kImportState_ParsingLink;
@@ -173,12 +207,11 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                 startReading();
             } else if (this.mImportState != ImportState.kImportState_CameraNoPermission) {
                 this.mImportState = ImportState.kImportState_CameraAskPermission;
-            }*/
+            }
         }
     }
 
-
-    private static void SetMarginsH(View view2, int i, int i2, int i3, int i4, int i5) {
+    private static void SetMarginsH(View view, int i, int i2, int i3, int i4, int i5) {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(i, i2);
         if (i5 != 0) {
             layoutParams.gravity = i5;
@@ -189,14 +222,14 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         if (i4 != 0) {
             layoutParams.rightMargin = i4;
         }
-        view2.setLayoutParams(layoutParams);
+        view.setLayoutParams(layoutParams);
     }
 
-    private static void SetMarginsH(View view2, int i, int i2, int i3, int i4) {
-        SetMarginsH(view2, i, i2, i3, i4, 0);
+    private static void SetMarginsH(View view, int i, int i2, int i3, int i4) {
+        SetMarginsH(view, i, i2, i3, i4, 0);
     }
 
-    private static void SetMarginsV(View view2, int i, int i2, int i3, int i4, int i5) {
+    private static void SetMarginsV(View view, int i, int i2, int i3, int i4, int i5) {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(i, i2);
         layoutParams.gravity = i5;
         if (i3 != 0) {
@@ -205,11 +238,11 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         if (i4 != 0) {
             layoutParams.bottomMargin = i4;
         }
-        view2.setLayoutParams(layoutParams);
+        view.setLayoutParams(layoutParams);
     }
 
-    private static void SetMarginsV(View view2, int i, int i2, int i3, int i4) {
-        SetMarginsV(view2, i, i2, i3, i4, 1);
+    private static void SetMarginsV(View view, int i, int i2, int i3, int i4) {
+        SetMarginsV(view, i, i2, i3, i4, 1);
     }
 
     private LinearLayout MakeLayout(int i, int i2) {
@@ -227,7 +260,6 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         return space;
     }
 
-    /* JADX INFO: super call moved to the top of the method (can break code semantics) */
     public CodeScanner(Context context, SystemUI_android systemUI_android, Markup markup, Mode mode, Handle handle) {
         super(context, systemUI_android, markup);
         this.mHandler = handle;
@@ -285,7 +317,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         constraintLayout.setLayoutParams(layoutParams2);
         ArrayList<String> arrayList = new ArrayList<String>() { // from class: com.tgc.sky.ui.panels.CodeScanner.3
             {
-                //add(CodeScanner.this.m_systemUI.LocalizeString("code_scanner_scan_mode_title"));
+                add(CodeScanner.this.m_systemUI.LocalizeString("code_scanner_scan_mode_title"));
                 add(CodeScanner.this.m_systemUI.LocalizeString("code_scanner_type_mode_title"));
             }
         };
@@ -317,7 +349,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
             fArr[6] = AppleConvertAndroidScale;
             fArr[7] = AppleConvertAndroidScale;
             gradientDrawable2.setCornerRadii(fArr);
-            gradientDrawable2.setColor(-16777216);
+            gradientDrawable2.setColor(ViewCompat.MEASURED_STATE_MASK);
             GradientDrawable gradientDrawable3 = new GradientDrawable();
             float[] fArr2 = new float[8];
             fArr2[i] = f2;
@@ -329,12 +361,12 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
             fArr2[6] = AppleConvertAndroidScale;
             fArr2[7] = AppleConvertAndroidScale;
             gradientDrawable3.setCornerRadii(fArr2);
-            gradientDrawable3.setStroke(4, -16777216);
+            gradientDrawable3.setStroke(4, ViewCompat.MEASURED_STATE_MASK);
             StateListDrawable stateListDrawable = new StateListDrawable();
             stateListDrawable.addState(new int[]{16842912}, gradientDrawable2);
             stateListDrawable.addState(new int[]{-16842912}, gradientDrawable3);
             radioButton.setBackground(stateListDrawable);
-            radioButton.setTextColor(new ColorStateList(new int[][]{new int[]{16842912}, new int[]{-16842912}}, new int[]{-1, -16777216}));
+            radioButton.setTextColor(new ColorStateList(new int[][]{new int[]{16842912}, new int[]{-16842912}}, new int[]{-1, ViewCompat.MEASURED_STATE_MASK}));
             radioButton.setChecked(i5 == i4);
             radioButton.setPadding(32, 8, 32, 8);
             i5++;
@@ -351,7 +383,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         });
         TextView textView = new TextView(this.m_activity);
         this._headerTextView = textView;
-        textView.setGravity(8388611);
+        textView.setGravity(GravityCompat.START);
         this._headerTextView.setTextIsSelectable(true);
         this._headerTextView.setBackgroundColor(0);
         SetMarginsH(this._headerTextView, -2, -2, 0, 0, 8388659);
@@ -360,7 +392,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         layoutParams3.topMargin = dp2px(16.0f);
         layoutParams3.bottomMargin = dp2px(16.0f);
         this.mTextField.setLayoutParams(layoutParams3);
-        this.mTextField.setTextColor(-16777216);
+        this.mTextField.setTextColor(ViewCompat.MEASURED_STATE_MASK);
         this.mTextField.setTypeface(systemUI_android.DefaultFont(), Typeface.NORMAL);
         this.mTextField.setTextSize(20.0f);
         this.mTextField.setOnEditorActionListener(this);
@@ -371,7 +403,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         gradientDrawable4.setColor(-1);
         gradientDrawable4.setAlpha(76);
         this.mTextField.setInputType(524289);
-        this.mTextField.setGravity(8388611);
+        this.mTextField.setGravity(GravityCompat.START);
         this.mTextField.setPadding(dp2px(16.0f), dp2px(8.0f), dp2px(16.0f), dp2px(8.0f));
         EditText editText = this.mTextField;
         editText.setImeOptions(editText.getImeOptions() | 6);
@@ -449,7 +481,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         constraintSet.connect(this._deleteButton.getId(), 1, this._closeButton.getId(), 2);
         constraintSet.connect(this._actionButton.getId(), 1, this._deleteButton.getId(), 2);
         constraintSet.connect(this._actionButton.getId(), 2, 0, 2);
-        constraintSet.createHorizontalChain(0, 1, 0, 2, new int[]{this._closeButton.getId(), this._deleteButton.getId(), this._actionButton.getId()}, (float[]) null, 1);
+        constraintSet.createHorizontalChain(0, 1, 0, 2, new int[]{this._closeButton.getId(), this._deleteButton.getId(), this._actionButton.getId()}, null, 1);
         constraintSet.applyTo(constraintLayout);
         RelativeLayout.LayoutParams layoutParams5 = new RelativeLayout.LayoutParams(-1, -2);
         layoutParams5.addRule(9, -1);
@@ -478,11 +510,11 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         });
     }
 
-
     public void viewWillAppear() {
         this.m_activity.addOnKeyboardListener(this);
     }
 
+    @Override // com.tgc.sky.GameActivity.OnKeyboardListener
     public void onKeyboardChange(boolean z, int i) {
         if (z) {
             keyboardDidShow(i);
@@ -491,10 +523,11 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         }
     }
 
+    @Override // com.tgc.sky.ui.panels.BasePanel, android.widget.PopupWindow
     public void dismiss() {
         if (this._closeButton.isEnabled()) {
             dismissInternal();
-            this.mHandler.run((String) null, ResultOptions.kCodeScanner_UserClosedPanel.ordinal(), true);
+            this.mHandler.run(null, ResultOptions.kCodeScanner_UserClosedPanel.ordinal(), true);
         }
     }
 
@@ -508,38 +541,40 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
     }
 
     public void updateView() {
-        int i = this.mMode.getValue();
+        int i = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$Mode[this.mMode.ordinal()];
         if (i == 1) {
             stopReading();
-            int i2 = this.mEnterState.getValue();
+            int i2 = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$EnterState[this.mEnterState.ordinal()];
             if (i2 == 1) {
                 this.mSegmentedControl.setEnabled(true);
                 this._headerTextView.setText(getAttributedString("code_scanner_enter_code_manually"), TextView.BufferType.SPANNABLE);
                 this.mActivityIndicatorView.setVisibility(View.GONE);
-                this.mTextField.postDelayed(new Runnable() {
+                this.mTextField.postDelayed(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.11
+                    @Override // java.lang.Runnable
                     public void run() {
                         CodeScanner.this.mTextField.setVisibility(View.VISIBLE);
                         CodeScanner.this.mTextField.setEnabled(true);
                     }
-                }, 500);
-                this.mImageScannerView.setInviteLink((String) null, false);
+                }, 500L);
+                this.mImageScannerView.setInviteLink(null, false);
                 String str = this.mCodeInput;
                 setButton(this._actionButton, str != null && str.trim().length() > 2, "system_button_check", false);
-                setButton(this._deleteButton, false, (String) null, false);
+                setButton(this._deleteButton, false, null, false);
                 setButton(this._closeButton, true, "system_button_close", false);
             } else if (i2 == 2) {
                 this.mSegmentedControl.setEnabled(false);
                 this._headerTextView.setText(getAttributedString("code_scanner_checking_code"), TextView.BufferType.SPANNABLE);
                 this.mActivityIndicatorView.setVisibility(View.VISIBLE);
-                this.mTextField.postDelayed(new Runnable() {
+                this.mTextField.postDelayed(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.12
+                    @Override // java.lang.Runnable
                     public void run() {
                         CodeScanner.this.mTextField.setVisibility(View.VISIBLE);
                         CodeScanner.this.mTextField.setEnabled(false);
                     }
-                }, 500);
-                this.mImageScannerView.setInviteLink((String) null, false);
+                }, 500L);
+                this.mImageScannerView.setInviteLink(null, false);
                 setButton(this._actionButton, false, "system_button_check", false);
-                setButton(this._deleteButton, false, (String) null, false);
+                setButton(this._deleteButton, false, null, false);
                 setButton(this._closeButton, true, "system_button_close", false);
             } else if (i2 == 3) {
                 this.mSegmentedControl.setEnabled(true);
@@ -547,9 +582,9 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                 this.mActivityIndicatorView.setVisibility(View.GONE);
                 this.mTextField.setVisibility(View.VISIBLE);
                 this.mTextField.setEnabled(true);
-                this.mImageScannerView.setInviteLink((String) null, false);
+                this.mImageScannerView.setInviteLink(null, false);
                 setButton(this._actionButton, true, "system_button_confirm", false);
-                setButton(this._deleteButton, false, (String) null, true);
+                setButton(this._deleteButton, false, null, true);
                 setButton(this._closeButton, true, "system_button_close", false);
             } else if (i2 == 4) {
                 this.mSegmentedControl.setEnabled(true);
@@ -557,27 +592,30 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                 this.mActivityIndicatorView.setVisibility(View.GONE);
                 this.mTextField.setVisibility(View.VISIBLE);
                 this.mTextField.setEnabled(true);
-                this.mImageScannerView.setInviteLink((String) null, false);
+                this.mImageScannerView.setInviteLink(null, false);
                 setButton(this._actionButton, false, "system_button_check", false);
-                setButton(this._deleteButton, false, (String) null, true);
+                setButton(this._deleteButton, false, null, true);
                 setButton(this._closeButton, true, "system_button_close", false);
-            } else if (i2 == 5) {
+            } else if (i2 != 5) {
+            } else {
                 this.mSegmentedControl.setEnabled(true);
                 this._headerTextView.setText(getAttributedString(this.mCodeInputError), TextView.BufferType.SPANNABLE);
                 this.mActivityIndicatorView.setVisibility(View.GONE);
-                this.mTextField.postDelayed(new Runnable() {
+                this.mTextField.postDelayed(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.13
+                    @Override // java.lang.Runnable
                     public void run() {
                         CodeScanner.this.mTextField.setVisibility(View.VISIBLE);
                         CodeScanner.this.mTextField.setEnabled(true);
                     }
-                }, 500);
-                this.mImageScannerView.setInviteLink((String) null, false);
+                }, 500L);
+                this.mImageScannerView.setInviteLink(null, false);
                 setButton(this._actionButton, false, "system_button_check", false);
-                setButton(this._deleteButton, false, (String) null, true);
+                setButton(this._deleteButton, false, null, true);
                 setButton(this._closeButton, true, "system_button_close", false);
             }
-       /* } else if (i == 2) {
-            switch (this.mImportState.getValue()) {
+        } else if (i != 2) {
+        } else {
+            switch (AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$ImportState[this.mImportState.ordinal()]) {
                 case 1:
                     this.mSegmentedControl.setEnabled(true);
                     stopReading();
@@ -585,7 +623,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                     this.mActivityIndicatorView.setVisibility(View.GONE);
                     this.mTextField.setVisibility(View.GONE);
                     this.mTextField.setEnabled(false);
-                    this.mImageScannerView.setInviteLink((String) null, true);
+                    this.mImageScannerView.setInviteLink(null, true);
                     setButton(this._actionButton, true, "system_button_import", false);
                     setButton(this._deleteButton, true, "system_button_ask", false);
                     setButton(this._closeButton, true, "system_button_close", false);
@@ -597,7 +635,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                     this.mActivityIndicatorView.setVisibility(View.GONE);
                     this.mTextField.setVisibility(View.GONE);
                     this.mTextField.setEnabled(false);
-                    this.mImageScannerView.setInviteLink((String) null, true);
+                    this.mImageScannerView.setInviteLink(null, true);
                     setButton(this._actionButton, true, "system_button_import", false);
                     setButton(this._deleteButton, true, "system_button_settings", false);
                     setButton(this._closeButton, true, "system_button_close", false);
@@ -608,9 +646,9 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                     this.mActivityIndicatorView.setVisibility(View.GONE);
                     this.mTextField.setVisibility(View.GONE);
                     this.mTextField.setEnabled(false);
-                    this.mImageScannerView.setInviteLink((String) null, true);
+                    this.mImageScannerView.setInviteLink(null, true);
                     setButton(this._actionButton, true, "system_button_import", false);
-                    setButton(this._deleteButton, false, (String) null, false);
+                    setButton(this._deleteButton, false, null, false);
                     setButton(this._closeButton, true, "system_button_close", false);
                     startReading();
                     return;
@@ -618,27 +656,29 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                     this.mSegmentedControl.setEnabled(true);
                     stopReading();
                     this._headerTextView.setText(getAttributedString("invite_incoming_picking_00"), TextView.BufferType.SPANNABLE);
-                    this.mActivityIndicatorView.postDelayed(new Runnable() {
+                    this.mActivityIndicatorView.postDelayed(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.14
+                        @Override // java.lang.Runnable
                         public void run() {
                             CodeScanner.this.mActivityIndicatorView.setVisibility(View.VISIBLE);
                         }
-                    }, 500);
+                    }, 500L);
                     this.mTextField.setVisibility(View.GONE);
                     this.mTextField.setEnabled(false);
-                    this.mImageScannerView.setInviteLink((String) null, true);
+                    this.mImageScannerView.setInviteLink(null, true);
                     setButton(this._actionButton, false, "system_button_import", false);
-                    setButton(this._deleteButton, false, (String) null, false);
+                    setButton(this._deleteButton, false, null, false);
                     setButton(this._closeButton, false, "system_button_close", false);
                     return;
                 case 5:
                     this.mSegmentedControl.setEnabled(true);
                     stopReading();
                     this._headerTextView.setText(getAttributedString("code_scanner_verifying_code"), TextView.BufferType.SPANNABLE);
-                    this.mActivityIndicatorView.postDelayed(new Runnable() {
+                    this.mActivityIndicatorView.postDelayed(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.15
+                        @Override // java.lang.Runnable
                         public void run() {
                             CodeScanner.this.mActivityIndicatorView.setVisibility(View.VISIBLE);
                         }
-                    }, 500);
+                    }, 500L);
                     this.mTextField.setVisibility(View.GONE);
                     this.mTextField.setEnabled(false);
                     this.mImageScannerView.setInviteLink(this.mCodeInput, true);
@@ -655,7 +695,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                     this.mTextField.setEnabled(false);
                     this.mImageScannerView.setInviteLink(this.mCodeInput, true);
                     setButton(this._actionButton, true, "system_button_check", false);
-                    setButton(this._deleteButton, false, (String) null, true);
+                    setButton(this._deleteButton, false, null, true);
                     setButton(this._closeButton, true, "system_button_close", false);
                     return;
                 case 7:
@@ -667,18 +707,19 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                     this.mTextField.setEnabled(false);
                     this.mImageScannerView.setInviteLink(this.mCodeInput, true);
                     setButton(this._actionButton, true, "system_button_confirm", false);
-                    setButton(this._deleteButton, false, (String) null, true);
+                    setButton(this._deleteButton, false, null, true);
                     setButton(this._closeButton, true, "system_button_close", false);
                     return;
                 default:
                     return;
-            }*/
+            }
         }
     }
 
     /* JADX INFO: Access modifiers changed from: package-private */
-    /* renamed from: com.tgc.sky.ui.panels.CodeScanner$20 */
-    public static /* synthetic */ class init{
+    /* renamed from: com.tgc.sky.ui.panels.CodeScanner$20  reason: invalid class name */
+    /* loaded from: classes2.dex */
+    public static /* synthetic */ class AnonymousClass20 {
         static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$ui$panels$CodeScanner$CodeScannerState;
         static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$ui$panels$CodeScanner$EnterState;
         static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$ui$panels$CodeScanner$ImportState;
@@ -772,7 +813,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         }
     }
 
-
+    @SuppressLint("RestrictedApi")
     public void setButton(PanelButton panelButton, boolean z, String str, boolean z2) {
         if (str != null) {
             String str2 = (String) this.mButtonLocalizedStrings.get(str);
@@ -781,7 +822,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                 this.mButtonLocalizedStrings.put(str, str2);
             }
             if (z2) {
-                panelButton.setEnabledText(str2, -65536);
+                panelButton.setEnabledText(str2, SupportMenu. CATEGORY_MASK);
                 panelButton.setDisabledText(str2);
             } else {
                 panelButton.setText(str2);
@@ -796,12 +837,12 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
 
     public Spannable getAttributedString(String str) {
         Spannable spannable = (Spannable) this.mTextAttributedStrings.get(str);
-        if (spannable != null) {
-            return spannable;
+        if (spannable == null) {
+            SpannableStringBuilder GetMarkedUpString = this.m_systemUI.GetMarkedUpString(this.m_systemUI.LocalizeString(str), new ArrayList<>(Arrays.asList(this.m_markup.DefaultFontGame(14.0f))), false);
+            this.mTextAttributedStrings.put(str, GetMarkedUpString);
+            return GetMarkedUpString;
         }
-        SpannableStringBuilder GetMarkedUpString = this.m_systemUI.GetMarkedUpString(this.m_systemUI.LocalizeString(str), new ArrayList(Arrays.asList(this.m_markup.DefaultFontGame(14.0f))), false);
-        this.mTextAttributedStrings.put(str, GetMarkedUpString);
-        return GetMarkedUpString;
+        return spannable;
     }
 
     public void onSegmentAction(RadioGroup radioGroup, int i) {
@@ -817,56 +858,58 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                 i2++;
             }
         }
-        int i3 = this.mMode.getValue();
-        if (i3 != 1) {
-            if (i3 == 2 && i2 == 1) {
+        int i3 = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$Mode[this.mMode.ordinal()];
+        if (i3 == 1) {
+            if (i2 == 0) {
                 this.mMode = Mode.kCodeScannerMode_Scan;
                 setCodeScannerState(CodeScannerState.kCodeScannerState_Idle, null);
             }
-        } else if (i2 == 0) {
+        } else if (i3 == 2 && i2 == 1) {
             this.mMode = Mode.kCodeScannerMode_Type;
             setCodeScannerState(CodeScannerState.kCodeScannerState_Idle, null);
         }
     }
 
-
     public void onActionButton() {
         this.view.performHapticFeedback(3);
-        int i = CodeScanner.this.mMode.getValue();
-        if (i != 1) {
-            if (i == 2) {
-                if (this.mCodeInput != null) {
-                    int i2 = CodeScanner.this.mImportState.getValue();
-                    if (i2 == 6) {
-                        dismissInternal();
-                        this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_FinishedWithUrl.ordinal(), true);
-                    } else if (i2 == 7) {
-                        dismissInternal();
-                        this.mHandler.run((String) null, ResultOptions.kCodeScanner_UserClosedPanel.ordinal(), true);
-                    }
-                } else if (CodeScanner.this.mImportState.getValue() != 7) {
-                    this.mImagePickerActive = true;
-                    updateState();
-                    updateView();
-                    this.m_activity.AddOnActivityResultListener(this);
-                    this.m_activity.startActivityForResult(this.mImagePicker, GameActivity.ActivityRequestCode.IMAGE_PICKER);
+        int i = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$Mode[this.mMode.ordinal()];
+        if (i == 1) {
+            if (this.mCodeInput != null) {
+                int i2 = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$EnterState[this.mEnterState.ordinal()];
+                if (i2 == 1) {
+                    setCodeScannerState(CodeScannerState.kCodeScannerState_Parsing, null);
+                    this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_ValidateShortCode.ordinal(), false);
+                } else if (i2 != 3) {
                 } else {
-                    setCodeScannerState(CodeScannerState.kCodeScannerState_Idle, (String) null);
+                    dismissInternal();
+                    this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_FinishedWithUrl.ordinal(), true);
                 }
             }
-        } else if (this.mCodeInput != null) {
-            int i3 = this.mEnterState.getValue();
-            if (i3 == 1) {
-                setCodeScannerState(CodeScannerState.kCodeScannerState_Parsing, (String) null);
-                this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_ValidateShortCode.ordinal(), false);
-            } else if (i3 == 3) {
-                dismissInternal();
-                this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_FinishedWithUrl.ordinal(), true);
+        } else if (i != 2) {
+        } else {
+            if (this.mCodeInput != null) {
+                int i3 = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$ImportState[this.mImportState.ordinal()];
+                if (i3 == 6) {
+                    dismissInternal();
+                    this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_FinishedWithUrl.ordinal(), true);
+                } else if (i3 != 7) {
+                } else {
+                    dismissInternal();
+                    this.mHandler.run(null, ResultOptions.kCodeScanner_UserClosedPanel.ordinal(), true);
+                }
+            } else if (AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$ImportState[this.mImportState.ordinal()] == 7) {
+                setCodeScannerState(CodeScannerState.kCodeScannerState_Idle, null);
+            } else {
+                this.mImagePickerActive = true;
+                updateState();
+                updateView();
+                this.m_activity.AddOnActivityResultListener(this);
+                this.m_activity.startActivityForResult(this.mImagePicker, GameActivity.ActivityRequestCode.IMAGE_PICKER);
             }
         }
     }
 
-
+    @Override // com.tgc.sky.GameActivity.OnActivityResultListener
     public void onActivityResult(int i, int i2, Intent intent) {
         if (i == 130) {
             if (intent != null) {
@@ -880,7 +923,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
 
     public void onDeleteButton() {
         this.view.performHapticFeedback(7);
-        int i = CodeScanner.this.mMode.getValue();
+        int i = AnonymousClass20.$SwitchMap$com$tgc$sky$ui$panels$CodeScanner$Mode[this.mMode.ordinal()];
         if (i == 1 || i == 2) {
             if (this.mCodeInput != null) {
                 dismissInternal();
@@ -920,13 +963,13 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         }
     }
 
-
     public void onCloseButton() {
         this.view.performHapticFeedback(7);
         dismissInternal();
-        this.mHandler.run((String) null, ResultOptions.kCodeScanner_UserClosedPanel.ordinal(), true);
+        this.mHandler.run(null, ResultOptions.kCodeScanner_UserClosedPanel.ordinal(), true);
     }
 
+    @Override // android.widget.TextView.OnEditorActionListener
     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
         if (i == 6 && this.mMode == Mode.kCodeScannerMode_Type && this._actionButton.isEnabled()) {
             setCodeScannerState(CodeScannerState.kCodeScannerState_Parsing, textView.getText().toString());
@@ -947,7 +990,8 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         setPreviewOrientation();
     }
 
-    public void onLayoutChange(View view2, int i, int i2, int i3, int i4, int i5, int i6, int i7, int i8) {
+    @Override // android.view.View.OnLayoutChangeListener
+    public void onLayoutChange(View view, int i, int i2, int i3, int i4, int i5, int i6, int i7, int i8) {
         viewWillLayoutSubviews();
     }
 
@@ -955,45 +999,69 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         setPreviewOrientation();
     }
 
-    /* JADX WARNING: Removed duplicated region for block: B:15:0x0068  */
-    /* Code decompiled incorrectly, please refer to instructions dump. */
-    public void imagePickerController(final int n, final int n2, final Intent intent) {
-        final ContentResolver contentResolver = this.m_activity.getContentResolver();
-        final Uri data = intent.getData();
-        boolean scanImage = false;
-        Label_0105: {
-            try {
-                final StringBuilder sb = new StringBuilder();
-                sb.append("Opening ");
-                sb.append(data.toString());
-                Log.d("InvitationPanel", sb.toString());
-                final Bitmap decodeStream = BitmapFactory.decodeStream(contentResolver.openInputStream(data));
-                if (decodeStream != null) {
-                    scanImage = false;
-                    break Label_0105;
-                }
-                Log.d("InvitationPanel", "PickedImage was null");
-            }
-            catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            scanImage = false;
-        }
-        this.mImagePickerActive = false;
-        if (!scanImage) {
-            //this.mIncomingInvitationLinkError = this.m_systemUI.LocalizeString("invite_incoming_error_image_parsing");
-            //this.mIncomingInvitationLinkState = IncomingState.kIncomingState_Error;
-
-            //setCodeScannerState(CodeScannerState.kCodeScannerState_Error, this.m_systemUI.LocalizeString("invite_incoming_error_image_parsing"));
-            setCodeScannerState(CodeScannerState.kCodeScannerState_Error, this.m_systemUI.LocalizeString("invite_incoming_error_image_parsing"));
-
-
-        }
-        this.updateState();
-        this.updateView();
+    /* JADX WARN: Removed duplicated region for block: B:17:0x0064  */
+    /*
+        Code decompiled incorrectly, please refer to instructions dump.
+        To view partially-correct code enable 'Show inconsistent code' option in preferences
+    */
+    public void imagePickerController(int r4, int r5, android.content.Intent r6) {
+        /*
+            r3 = this;
+            java.lang.String r4 = "Opening "
+            com.tgc.sky.GameActivity r5 = r3.m_activity
+            android.content.ContentResolver r5 = r5.getContentResolver()
+            android.net.Uri r6 = r6.getData()
+            java.lang.String r0 = "InvitationPanel"
+            r1 = 0
+            if (r6 == 0) goto L55
+            java.lang.StringBuilder r2 = new java.lang.StringBuilder     // Catch: java.io.IOException -> L5b
+            r2.<init>(r4)     // Catch: java.io.IOException -> L5b
+            java.lang.String r4 = r6.toString()     // Catch: java.io.IOException -> L5b
+            java.lang.StringBuilder r4 = r2.append(r4)     // Catch: java.io.IOException -> L5b
+            java.lang.String r4 = r4.toString()     // Catch: java.io.IOException -> L5b
+            android.util.Log.d(r0, r4)     // Catch: java.io.IOException -> L5b
+            java.io.InputStream r4 = r5.openInputStream(r6)     // Catch: java.io.IOException -> L5b
+            android.graphics.Bitmap r4 = android.graphics.BitmapFactory.decodeStream(r4)     // Catch: java.io.IOException -> L5b
+            if (r4 == 0) goto L4f
+            com.tgc.sky.GameActivity r5 = r3.m_activity     // Catch: java.io.IOException -> L5b
+            android.content.Context r5 = r5.getApplicationContext()     // Catch: java.io.IOException -> L5b
+            java.lang.String r4 = com.tgc.sky.QrScanner.scanImage(r5, r4)     // Catch: java.io.IOException -> L5b
+            if (r4 == 0) goto L5f
+            com.tgc.sky.ui.panels.CodeScanner$CodeScannerState r5 = com.tgc.sky.ui.panels.CodeScanner.CodeScannerState.kCodeScannerState_Parsing     // Catch: java.io.IOException -> L5b
+            r3.setCodeScannerState(r5, r4)     // Catch: java.io.IOException -> L5b
+            com.tgc.sky.ui.panels.CodeScanner$Handle r4 = r3.mHandler     // Catch: java.io.IOException -> L5b
+            java.lang.String r5 = r3.mCodeInput     // Catch: java.io.IOException -> L5b
+            com.tgc.sky.ui.panels.CodeScanner$ResultOptions r6 = com.tgc.sky.ui.panels.CodeScanner.ResultOptions.kCodeScanner_ValidateUrl     // Catch: java.io.IOException -> L5b
+            int r6 = r6.ordinal()     // Catch: java.io.IOException -> L5b
+            r4.run(r5, r6, r1)     // Catch: java.io.IOException -> L5b
+            r4 = 1
+            goto L60
+        L4f:
+            java.lang.String r4 = "PickedImage was null"
+            android.util.Log.d(r0, r4)     // Catch: java.io.IOException -> L5b
+            goto L5f
+        L55:
+            java.lang.String r4 = "Uri was null"
+            android.util.Log.d(r0, r4)     // Catch: java.io.IOException -> L5b
+            goto L5f
+        L5b:
+            r4 = move-exception
+            r4.printStackTrace()
+        L5f:
+            r4 = r1
+        L60:
+            r3.mImagePickerActive = r1
+            if (r4 != 0) goto L6b
+            com.tgc.sky.ui.panels.CodeScanner$CodeScannerState r4 = com.tgc.sky.ui.panels.CodeScanner.CodeScannerState.kCodeScannerState_Error
+            java.lang.String r5 = "code_scanner_error_image_parsing"
+            r3.setCodeScannerState(r4, r5)
+        L6b:
+            r3.updateState()
+            r3.updateView()
+            return
+        */
+        throw new UnsupportedOperationException("Method not decompiled: com.tgc.sky.ui.panels.CodeScanner.imagePickerController(int, int, android.content.Intent):void");
     }
-
-
 
     public void imagePickerControllerDidCancel() {
         this.mImagePickerActive = false;
@@ -1002,17 +1070,70 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
     }
 
     public boolean startReading() {
+        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.18
+            @Override // java.lang.Runnable
+            public void run() {
+                if (CodeScanner.this.mCaptureSession || CodeScanner.this._containerContentView == null) {
+                    return;
+                }
+                CodeScanner codeScanner = CodeScanner.this;
+                codeScanner.mVideoPreview = codeScanner._containerContentView;
+                CodeScanner.this.mCaptureSession = true;
+                CodeScanner.this._containerContentView.post(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.18.1
+                    @Override // java.lang.Runnable
+                    public void run() {
+                        if (CodeScanner.this.mCaptureSession) {
+                            CodeScanner.this.mVideoPreviewLayer = new QRCodeReaderView(CodeScanner.this.m_activity);
+                            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(CodeScanner.this.mVideoPreview.getWidth(), CodeScanner.this.mVideoPreview.getHeight());
+                            layoutParams.addRule(14);
+                            layoutParams.addRule(13);
+                            layoutParams.addRule(15);
+                            CodeScanner.this.mVideoPreviewLayer.setLayoutParams(layoutParams);
+                            CodeScanner.this.mVideoPreviewLayer.setForegroundGravity(17);
+                            CodeScanner.this.mVideoPreviewLayer.setZ(-2.0f);
+                            CodeScanner.this.mVideoPreviewLayer.setAlpha(0.2f);
+                            CodeScanner.this.mVideoPreviewLayer.setRadius(((GradientDrawable) CodeScanner.this.mVideoPreview.getBackground()).getCornerRadius());
+                            CodeScanner.this.mVideoPreview.addView(CodeScanner.this.mVideoPreviewLayer);
+                            CodeScanner.this.mVideoPreviewLayer.setOnQRCodeReadListener(CodeScanner.this);
+                            CodeScanner.this.mOverlay = new QRCodeBoundsView(CodeScanner.this.m_activity);
+                            CodeScanner.this.mOverlay.setLayoutParams(new RelativeLayout.LayoutParams(CodeScanner.this.mVideoPreview.getWidth(), CodeScanner.this.mVideoPreview.getHeight()));
+                            CodeScanner.this._containerContentView.addView(CodeScanner.this.mOverlay);
+                            CodeScanner.this.mOverlay.setZ(-1.0f);
+                            CodeScanner.this.view.invalidate();
+                        }
+                    }
+                });
+            }
+        });
         return true;
     }
 
     public void stopReading() {
-
+        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.ui.panels.CodeScanner.19
+            @Override // java.lang.Runnable
+            public void run() {
+                if (CodeScanner.this.mCaptureSession) {
+                    if (CodeScanner.this.mVideoPreviewLayer != null) {
+                        CodeScanner.this.mVideoPreviewLayer.stopCamera();
+                        ((RelativeLayout) CodeScanner.this.mVideoPreviewLayer.getParent()).removeView(CodeScanner.this.mVideoPreviewLayer);
+                    }
+                    CodeScanner.this.mCaptureSession = false;
+                    CodeScanner.this.mVideoPreviewLayer = null;
+                    if (CodeScanner.this.mOverlay != null) {
+                        ((RelativeLayout) CodeScanner.this.mOverlay.getParent()).removeView(CodeScanner.this.mOverlay);
+                        CodeScanner.this.mOverlay = null;
+                    }
+                }
+            }
+        });
     }
 
+    @Override // com.tgc.sky.ui.qrcodereaderview.QRCodeReaderTextureView.OnQRCodeReadListener
     public void onBeginDetect() {
         this.mOverlay.clear();
     }
 
+    @Override // com.tgc.sky.ui.qrcodereaderview.QRCodeReaderTextureView.OnQRCodeReadListener
     public boolean onQRCodeRead(String str, RectF rectF) {
         try {
             captureOutput(str, rectF);
@@ -1024,91 +1145,15 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
     }
 
     public boolean captureOutput(String str, RectF rectF) throws UnsupportedEncodingException {
-        if (rectF == null) {
-            return false;
+        if (rectF != null) {
+            boolean z = str != null && str.startsWith("https://sky") && str.indexOf(".thatg.co/?") >= 0;
+            this.mOverlay.addBounds(rectF, z);
+            if (z && this.mCodeInput == null) {
+                setCodeScannerState(CodeScannerState.kCodeScannerState_Parsing, str);
+                this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_ValidateUrl.ordinal(), false);
+            }
+            return z;
         }
-        boolean z = str != null && str.startsWith("https://sky") && str.indexOf(".thatg.co/?") >= 0;
-        this.mOverlay.addBounds(rectF, z);
-        if (z && this.mCodeInput == null) {
-            setCodeScannerState(CodeScannerState.kCodeScannerState_Parsing, str);
-            this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_ValidateUrl.ordinal(), false);
-        }
-        return z;
-    }
-
-
-    enum CodeScannerState {
-        kCodeScannerState_Idle(1),
-        kCodeScannerState_Parsing(2),
-        kCodeScannerState_Parsed(3),
-        kCodeScannerState_Throttled(4),
-        kCodeScannerState_Error(5);
-        final int value;
-        CodeScannerState(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
-    enum EnterState {
-        kEnterState_WaitingForUser(1),
-        kEnterState_CheckingCode(2),
-        kEnterState_CheckedCode(3),
-        kEnterState_RateLimited(4),
-        kEnterState_Error(5);
-        final int value;
-        EnterState(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
-
-
-    enum ImportState {
-        kImportState_CameraAskPermission(1),
-        kImportState_CameraNoPermission(2),
-        kImportState_CameraActive(3),
-        kImportState_PickerActive(4),
-        kImportState_ParsingLink(5),
-        kImportState_ParsedLink(6),
-        kImportState_Error(7);
-        final int value;
-
-        ImportState(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
-    public enum Mode {
-        kCodeScannerMode_Scan(1),
-        kCodeScannerMode_Type(2);
-        final int value;
-
-        Mode(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
-    public enum ResultOptions {
-        kCodeScanner_UserClosedPanel,
-        kCodeScanner_ValidateShortCode,
-        kCodeScanner_ValidateUrl,
-        kCodeScanner_FinishedWithUrl,
-
+        return false;
     }
 }

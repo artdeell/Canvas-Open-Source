@@ -6,7 +6,7 @@
 
 namespace Canvas {
 
-
+    PRIVATE_API DeviceInfo deviceInfo;
     PRIVATE_API const char* libName;
     PRIVATE_API std::uintptr_t libBase;
 
@@ -31,6 +31,8 @@ namespace Canvas {
     PRIVATE_API int gameType;
     PRIVATE_API bool frameRateLimited;
     PRIVATE_API JavaVM *javaVM;
+    PRIVATE_API JNIEnv *jniEnv;
+    PRIVATE_API jclass MainActivity;
     PRIVATE_API const char *configsPath;
 
     PRIVATE_API std::vector<void (*)(std::string)> onKeyboardCompleteListeners;

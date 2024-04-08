@@ -25,20 +25,16 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
-/* renamed from: com.tgc.sky.ui.text.TextLabelManager */
+/* loaded from: classes2.dex */
 public class TextLabelManager {
-    private static int kMaxArgs = (128 * 8);
-    private static int kMaxLabels = 128;
-    /* access modifiers changed from: private */
-    public GameActivity m_activity;
-    /* access modifiers changed from: private */
-    public ConcurrentLinkedQueue<TextLabelArgs> m_argsPool;
-    /* access modifiers changed from: private */
-    public List<TextLabel> m_labels;
-    /* access modifiers changed from: private */
-    public LocalizationManager m_localizationManager;
-    private ReentrantLock m_lock = new ReentrantLock();
+    private static int kMaxArgs = 256 * 8;
+    private static int kMaxLabels = 256;
+    private GameActivity m_activity;
+    private ConcurrentLinkedQueue<TextLabelArgs> m_argsPool;
+    private LocalizationManager m_localizationManager;
     private Markup m_markup;
+    private ReentrantLock m_lock = new ReentrantLock();
+    private List<TextLabel> m_labels = Collections.synchronizedList(new ArrayList(kMaxLabels));
 
     public native boolean FreeLabelId(int i);
 
@@ -46,7 +42,6 @@ public class TextLabelManager {
         this.m_activity = gameActivity;
         this.m_localizationManager = localizationManager;
         this.m_markup = markup;
-        this.m_labels = Collections.synchronizedList(new ArrayList(kMaxLabels));
         for (int i = 0; i < kMaxLabels; i++) {
             this.m_labels.add(new TextLabel());
         }
@@ -69,7 +64,8 @@ public class TextLabelManager {
     }
 
     public void AddTextLabel(final int i) {
-        this.m_activity.runOnUiThread(new Runnable() {
+        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.ui.text.TextLabelManager.1
+            @Override // java.lang.Runnable
             public void run() {
                 TextLabel textLabel = (TextLabel) TextLabelManager.this.m_labels.get(TextLabelManager.this.GetAllocatedLabelIdx(i));
                 TextAttributes textAttributes = textLabel.attrs;
@@ -95,7 +91,7 @@ public class TextLabelManager {
                 transformRectToSystem.right += transformWidthToSystem;
                 transformRectToSystem.bottom += transformHeightToSystem;
                 TextLabelManager.ApplyTextPositioningAnchorPoint(textPositioning, transformRectToSystem);
-                TextLabelManager.this.m_activity.transformPointToSystem(textPositioning.f1049x, textPositioning.f1050y, transformRectToSystem);
+                TextLabelManager.this.m_activity.transformPointToSystem(textPositioning.x, textPositioning.y, transformRectToSystem);
                 RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams((int) transformRectToSystem.width(), (int) transformRectToSystem.height());
                 layoutParams.leftMargin = (int) transformRectToSystem.left;
                 layoutParams.topMargin = (int) transformRectToSystem.top;
@@ -117,7 +113,6 @@ public class TextLabelManager {
         });
     }
 
-
     public float[] GetTextLabelSize(int i) {
         this.m_lock.lock();
         try {
@@ -138,7 +133,7 @@ public class TextLabelManager {
         }
     }
 
-    /* access modifiers changed from: private */
+    /* JADX INFO: Access modifiers changed from: private */
     public void UpdateCachedSize(TextLabel textLabel, RectF rectF) {
         try {
             int makeMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
@@ -146,8 +141,8 @@ public class TextLabelManager {
             this.m_lock.lock();
             textLabel.actualWidth = rectF.width();
             textLabel.actualHeight = rectF.height();
-            textLabel.unconstrainedWidth = this.m_activity.transformWidthToProgram((float) textLabel.view.getMeasuredWidth());
-            textLabel.unconstrainedHeight = this.m_activity.transformHeightToProgram((float) textLabel.view.getMeasuredHeight());
+            textLabel.unconstrainedWidth = this.m_activity.transformWidthToProgram(textLabel.view.getMeasuredWidth());
+            textLabel.unconstrainedHeight = this.m_activity.transformHeightToProgram(textLabel.view.getMeasuredHeight());
         } finally {
             this.m_lock.unlock();
         }
@@ -212,7 +207,7 @@ public class TextLabelManager {
                     transformRectToSystem.bottom += transformHeightToSystem;
                     ApplyTextPositioningAnchorPoint(pos, transformRectToSystem);
 
-                    TextLabelManager.this.m_activity.transformPointToSystem(pos.f1049x, pos.f1050y, transformRectToSystem);
+                    TextLabelManager.this.m_activity.transformPointToSystem(pos.x, pos.y, transformRectToSystem);
 
                     final RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams((int)transformRectToSystem.width(), (int)transformRectToSystem.height());
                     layoutParams.leftMargin = (int)transformRectToSystem.left;
@@ -232,7 +227,7 @@ public class TextLabelManager {
                     transformRectToSystem = new RectF(0.0f, 0.0f, (float)layoutParams2.width, (float)layoutParams2.height);
                     ApplyTextPositioningAnchorPoint(pos, transformRectToSystem);
 
-                        TextLabelManager.this.m_activity.transformPointToSystem(pos.f1049x, pos.f1050y, transformRectToSystem);
+                    TextLabelManager.this.m_activity.transformPointToSystem(pos.x, pos.y, transformRectToSystem);
 
                     layoutParams2.leftMargin = (int)transformRectToSystem.left;
                     layoutParams2.topMargin = (int)transformRectToSystem.top;
@@ -258,7 +253,8 @@ public class TextLabelManager {
         try {
             final int GetAllocatedLabelIdx = GetAllocatedLabelIdx(i);
             if (GetAllocatedLabelIdx < kMaxLabels) {
-                this.m_activity.runOnUiThread(new Runnable() {
+                this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.ui.text.TextLabelManager.3
+                    @Override // java.lang.Runnable
                     public void run() {
                         TextView textView = ((TextLabel) TextLabelManager.this.m_labels.get(GetAllocatedLabelIdx)).view;
                         if (textView != null) {
@@ -277,7 +273,7 @@ public class TextLabelManager {
         }
     }
 
-    /* access modifiers changed from: private */
+    /* JADX INFO: Access modifiers changed from: private */
     public int GetAllocatedLabelIdx(int i) {
         return i != -1 ? i & 255 : kMaxLabels;
     }
@@ -294,7 +290,7 @@ public class TextLabelManager {
                 if (indexOf == -1) {
                     break;
                 }
-                spannableStringBuilder.replace(indexOf, indexOf + 5, str);
+                spannableStringBuilder.replace(indexOf, indexOf + 5, (CharSequence) str);
             }
             if (arrayList.size() > 1) {
                 String str2 = (String) arrayList.get(1);
@@ -303,7 +299,7 @@ public class TextLabelManager {
                     if (indexOf2 == -1) {
                         break;
                     }
-                    spannableStringBuilder.replace(indexOf2, indexOf2 + 5, str2);
+                    spannableStringBuilder.replace(indexOf2, indexOf2 + 5, (CharSequence) str2);
                 }
                 if (arrayList.size() > 2) {
                     String str3 = (String) arrayList.get(2);
@@ -312,7 +308,7 @@ public class TextLabelManager {
                         if (indexOf3 == -1) {
                             break;
                         }
-                        spannableStringBuilder.replace(indexOf3, indexOf3 + 5, str3);
+                        spannableStringBuilder.replace(indexOf3, indexOf3 + 5, (CharSequence) str3);
                     }
                 }
             }
@@ -320,7 +316,7 @@ public class TextLabelManager {
         return spannableStringBuilder;
     }
 
-    /* access modifiers changed from: private */
+    /* JADX INFO: Access modifiers changed from: private */
     public SpannableStringBuilder ProcessLabelText(LocalizedStringArgs localizedStringArgs, TextAttributes textAttributes) {
         if (localizedStringArgs.compounded == null) {
             SpannableStringBuilder ProcessLabelText = ProcessLabelText(localizedStringArgs.localizedString, textAttributes);
@@ -330,19 +326,19 @@ public class TextLabelManager {
             return ApplyTextArgs(ProcessLabelText, localizedStringArgs.args);
         }
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
-        for (int valueOf : localizedStringArgs.compounded) {
-            LocalizedStringArgs GetLocalizedStringArgs = this.m_localizationManager.GetLocalizedStringArgs(Integer.valueOf(valueOf).intValue());
+        for (int i : localizedStringArgs.compounded) {
+            LocalizedStringArgs GetLocalizedStringArgs = this.m_localizationManager.GetLocalizedStringArgs(Integer.valueOf(i).intValue());
             SpannableStringBuilder ProcessLabelText2 = ProcessLabelText(GetLocalizedStringArgs, textAttributes);
             if (GetLocalizedStringArgs.refresh != null) {
                 localizedStringArgs.refresh = (localizedStringArgs.refresh == null || !localizedStringArgs.refresh.before(GetLocalizedStringArgs.refresh)) ? GetLocalizedStringArgs.refresh : localizedStringArgs.refresh;
             }
-            spannableStringBuilder.append(ProcessLabelText2);
+            spannableStringBuilder.append((CharSequence) ProcessLabelText2);
         }
         return spannableStringBuilder;
     }
 
     private SpannableStringBuilder ProcessLabelText(String str, TextAttributes textAttributes) {
-        ArrayList arrayList = new ArrayList();
+        ArrayList<Object> arrayList = new ArrayList<>();
         arrayList.add(new ForegroundColorSpan(GetColor(Math.min(textAttributes.textColor[0], 1.0f), Math.min(textAttributes.textColor[1], 1.0f), Math.min(textAttributes.textColor[2], 1.0f), 1.0f)));
         arrayList.add(new CustomTypefaceSpan(this.m_markup.DefaultFont()));
         arrayList.add(new AbsoluteSizeSpan(Utils.dp2px((textAttributes.fontSize * 22.0f) / 12.0f), false));
@@ -352,22 +348,22 @@ public class TextLabelManager {
         return this.m_markup.GetMarkedUpString(str, arrayList, textAttributes.ignoreMarkupOptimization);
     }
 
-    /* access modifiers changed from: private */
+    /* JADX INFO: Access modifiers changed from: private */
     public static void AdjustTextRect(TextPositioning textPositioning, TextView textView, RectF rectF) {
         if (textPositioning.maxWidth == 0.0f || textPositioning.maxHeight == 0.0f || textPositioning.shrinkBoxToText) {
             textView.setLayoutParams(new ViewGroup.LayoutParams(-2, -2));
             textView.setPadding(0, 0, 0, 0);
             textView.measure(View.MeasureSpec.makeMeasureSpec((int) rectF.width(), View.MeasureSpec.AT_MOST), 0);
             if (textPositioning.maxWidth == 0.0f || textPositioning.shrinkBoxToText) {
-                rectF.right = rectF.left + ((float) textView.getMeasuredWidth()) + 1.0f;
+                rectF.right = rectF.left + textView.getMeasuredWidth() + 1.0f;
             }
             if (textPositioning.maxHeight == 0.0f || textPositioning.shrinkBoxToText) {
-                rectF.bottom = rectF.top + ((float) textView.getMeasuredHeight());
+                rectF.bottom = rectF.top + textView.getMeasuredHeight();
             }
         }
     }
 
-    /* access modifiers changed from: private */
+    /* JADX INFO: Access modifiers changed from: private */
     public static void ApplyTextPositioningAnchorPoint(TextPositioning textPositioning, RectF rectF) {
         float width = rectF.width();
         float height = rectF.height();
@@ -378,7 +374,7 @@ public class TextLabelManager {
             rectF.bottom = rectF.top + height;
             return;
         }
-        int i = textPositioning.f1047h.getValue();
+        int i = AnonymousClass4.$SwitchMap$com$tgc$sky$ui$text$SystemHAlignment[textPositioning.h.ordinal()];
         if (i == 1) {
             rectF.left = 0.0f;
         } else if (i == 2) {
@@ -387,7 +383,7 @@ public class TextLabelManager {
             rectF.left = -width;
         }
         rectF.right = rectF.left + width;
-        int i2 = textPositioning.f1048v.getValue();
+        int i2 = AnonymousClass4.$SwitchMap$com$tgc$sky$ui$text$SystemVAlignment[textPositioning.v.ordinal()];
         if (i2 == 1) {
             rectF.top = 0.0f;
         } else if (i2 == 2) {
@@ -398,10 +394,49 @@ public class TextLabelManager {
         rectF.bottom = rectF.top + height;
     }
 
-    /* access modifiers changed from: private */
+    /* JADX INFO: Access modifiers changed from: package-private */
+    /* renamed from: com.tgc.sky.ui.text.TextLabelManager$4  reason: invalid class name */
+    /* loaded from: classes2.dex */
+    public static /* synthetic */ class AnonymousClass4 {
+        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$ui$text$SystemHAlignment;
+        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$ui$text$SystemVAlignment;
+
+        static {
+            int[] iArr = new int[SystemVAlignment.values().length];
+            $SwitchMap$com$tgc$sky$ui$text$SystemVAlignment = iArr;
+            try {
+                iArr[SystemVAlignment.ALIGN_V_TOP.ordinal()] = 1;
+            } catch (NoSuchFieldError unused) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$ui$text$SystemVAlignment[SystemVAlignment.ALIGN_V_CENTER.ordinal()] = 2;
+            } catch (NoSuchFieldError unused2) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$ui$text$SystemVAlignment[SystemVAlignment.ALIGN_V_BOTTOM.ordinal()] = 3;
+            } catch (NoSuchFieldError unused3) {
+            }
+            int[] iArr2 = new int[SystemHAlignment.values().length];
+            $SwitchMap$com$tgc$sky$ui$text$SystemHAlignment = iArr2;
+            try {
+                iArr2[SystemHAlignment.ALIGN_H_LEFT.ordinal()] = 1;
+            } catch (NoSuchFieldError unused4) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$ui$text$SystemHAlignment[SystemHAlignment.ALIGN_H_CENTER.ordinal()] = 2;
+            } catch (NoSuchFieldError unused5) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$ui$text$SystemHAlignment[SystemHAlignment.ALIGN_H_RIGHT.ordinal()] = 3;
+            } catch (NoSuchFieldError unused6) {
+            }
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
     public void UpdateRemainingAttrsAndPos(TextView textView, TextAttributes textAttributes, TextAttributes textAttributes2, TextPositioning textPositioning, TextPositioning textPositioning2) {
         if (textAttributes == null || textAttributes.textAlignment != textAttributes2.textAlignment) {
-            int i = textAttributes2.textAlignment.getValue();
+            int i = AnonymousClass4.$SwitchMap$com$tgc$sky$ui$text$SystemHAlignment[textAttributes2.textAlignment.ordinal()];
             if (i == 1) {
                 textView.setGravity(3);
             } else if (i == 2) {
@@ -420,22 +455,22 @@ public class TextLabelManager {
                 gradientDrawable = new GradientDrawable();
                 textView.setBackground(gradientDrawable);
             }
-            if (!(textAttributes != null && textAttributes.bgColor[0] == textAttributes2.bgColor[0] && textAttributes.bgColor[1] == textAttributes2.bgColor[1] && textAttributes.bgColor[2] == textAttributes2.bgColor[2] && textAttributes.bgColor[3] == textAttributes2.bgColor[3])) {
+            if (textAttributes == null || textAttributes.bgColor[0] != textAttributes2.bgColor[0] || textAttributes.bgColor[1] != textAttributes2.bgColor[1] || textAttributes.bgColor[2] != textAttributes2.bgColor[2] || textAttributes.bgColor[3] != textAttributes2.bgColor[3]) {
                 gradientDrawable.setColor(GetColor(textAttributes2.bgColor[0], textAttributes2.bgColor[1], textAttributes2.bgColor[2], textAttributes2.bgColor[3]));
             }
             if (textAttributes == null || textAttributes.bgCornerRadius != textAttributes2.bgCornerRadius) {
-                gradientDrawable.setCornerRadius((float) Utils.dp2px(textAttributes2.bgCornerRadius));
+                gradientDrawable.setCornerRadius(Utils.dp2px(textAttributes2.bgCornerRadius));
             }
         }
         if (textAttributes == null || textAttributes.textColor[3] != textAttributes2.textColor[3]) {
             textView.setAlpha(textAttributes2.textColor[3]);
         }
-        if (textPositioning == null || textPositioning.f1051z != textPositioning2.f1051z) {
-            textView.setZ(textPositioning2.f1051z);
+        if (textPositioning == null || textPositioning.z != textPositioning2.z) {
+            textView.setZ(textPositioning2.z);
         }
     }
 
-    /* access modifiers changed from: private */
+    /* JADX INFO: Access modifiers changed from: private */
     public void DoClipping(TextView textView, RectF rectF, TextPositioning textPositioning) {
         if (textPositioning.clip) {
             RectF rectF2 = new RectF(0.0f, 0.0f, textPositioning.clipMaxX - textPositioning.clipMinX, textPositioning.clipMaxY - textPositioning.clipMinY);

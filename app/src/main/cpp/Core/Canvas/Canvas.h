@@ -11,9 +11,22 @@ namespace Canvas {
     struct UserLib {
         bool UIEnabled = false;
         bool UISelfManaged;
-        const char* Name;
+        std::string Name;
+        std::string Description;
+        std::string Version;
         void (*Draw)();
     };
+
+    struct DeviceInfo {
+        float xdpi;
+        float ydpi;
+        float density;
+        std::string deviceName;
+        std::string deviceManufacturer;
+        std::string deviceModel;
+    };
+
+    extern DeviceInfo deviceInfo;
 
 
     extern const char* libName;
@@ -34,6 +47,8 @@ namespace Canvas {
     extern int gameType;
     extern bool frameRateLimited;
     extern JavaVM *javaVM;
+    extern JNIEnv *jniEnv;
+    extern jclass MainActivity;
     extern const char *configsPath;
 
     extern std::vector<void (*)(std::string)> onKeyboardCompleteListeners;

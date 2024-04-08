@@ -840,7 +840,7 @@ public class GameActivity extends TGCNativeActivity {
     public String getDeviceModel() {
         String str = Build.MANUFACTURER;
         String str2 = Build.MODEL;
-        if (str.length() > 0) {
+        if (!str.isEmpty()) {
             str = str + " ";
         }
         return str + str2;

@@ -272,5 +272,9 @@ void Cipher::addOnKeyboardCompleteListener(void (*_listener)(std::string)) {
     Canvas::onKeyboardCompleteListeners.push_back(_listener);
 }
 
-
+DeviceInfo Cipher::get_DeviceInfo() {
+    DeviceInfo deviceInfo;
+    std::memcpy(&deviceInfo, &Canvas::deviceInfo, sizeof(deviceInfo));
+    return deviceInfo;
+}
 

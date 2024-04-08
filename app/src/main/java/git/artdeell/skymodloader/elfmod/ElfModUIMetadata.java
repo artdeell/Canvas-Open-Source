@@ -16,8 +16,6 @@ public class ElfModUIMetadata extends ElfModMetadata {
 
     public Activity activity;
 
-    public String description;
-
     public Bitmap icon;
 
     public ElfUIBackbone loader;

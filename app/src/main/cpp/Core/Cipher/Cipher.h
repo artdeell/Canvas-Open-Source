@@ -1,7 +1,19 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
+/**
+ * @brief Struct representing device information.
+ */
+struct DeviceInfo {
+    float xdpi;                         /**< X-axis dots per inch (dpi) of the device screen. */
+    float ydpi;                         /**< Y-axis dots per inch (dpi) of the device screen. */
+    float density;                      /**< Pixel density of the device screen. */
+    std::string deviceName;             /**< Name of the device. */
+    std::string deviceManufacturer;     /**< Manufacturer of the device. */
+    std::string deviceModel;            /**< Model of the device. */
+};
 
 /**
  * @brief Specifies the type of the game.
@@ -74,6 +86,12 @@ public:
      * @param _listener The listener function to be added.
      */
     static void addOnKeyboardCompleteListener(void (*_listener)(std::string _message));
+
+    /**
+    * @brief Adds a message to the user's chat.
+    * @param _message The string to be added.
+    */
+    static DeviceInfo get_DeviceInfo();
 
 public:
     /**
