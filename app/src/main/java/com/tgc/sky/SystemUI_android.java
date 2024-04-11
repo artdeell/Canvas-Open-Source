@@ -42,10 +42,9 @@ import com.google.android.play.core.review.ReviewManagerFactory;
 import com.google.android.play.core.tasks.OnCompleteListener;
 import com.google.android.play.core.tasks.Task;
 import com.tgc.sky.GameActivity;
-
-import git.artdeell.skymodloader.R;
-import git.artdeell.skymodloader.auth.Facebook;
+//import com.tgc.sky.accounts.Facebook;
 import com.tgc.sky.accounts.SystemAccountType;
+import com.tgc.sky.ui.QRCameraHandler;
 import com.tgc.sky.ui.TextField;
 import com.tgc.sky.ui.TextFieldLimiter;
 import com.tgc.sky.ui.Utils;
@@ -63,7 +62,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,7 +69,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.TimeZone;
 
 /* loaded from: classes2.dex */
@@ -87,21 +84,22 @@ public class SystemUI_android {
     private boolean m_keyboardIsShowing;
     private LocalizationManager m_localizationManager;
     private Markup m_markup;
+    private QRCameraHandler m_qrCameraHandler;
     private DialogResult m_result;
     private TextField m_textField;
     private TextFieldLimiter m_textFieldLimiter;
-    private TextFieldState m_textFieldState;
     private TextLabelManager m_textLabelManager;
     private String pasteStr = "";
     private boolean m_usingGamepad = false;
     private boolean m_enableHaptics = true;
-    private String m_textBuffer = "";
-    private int m_cursorPos = -1;
-    private int m_selectPos = -1;
     private String CHANNEL_ID = "sky";
     private int notificationId = 0;
 
     public void PressDialogButton(int i) {
+    }
+
+    public boolean SupportsQRCamera() {
+        return true;
     }
 
     /* JADX INFO: Access modifiers changed from: package-private */
@@ -116,8 +114,13 @@ public class SystemUI_android {
         this.m_textFieldLimiter = new TextFieldLimiter();
         this.m_keyboardIsShowing = false;
         this.m_keyboardHeight = 0.0f;
-        this.m_textFieldState = TextFieldState.kTextFieldState_Hidden;
         this.m_result = new DialogResult();
+        this.m_qrCameraHandler = new QRCameraHandler(gameActivity, new QRCameraHandler.HandlerCb() { // from class: com.tgc.sky.SystemUI_android$$ExternalSyntheticLambda0
+            @Override // com.tgc.sky.ui.QRCameraHandler.HandlerCb
+            public final void run(String str, int i, boolean z) {
+                SystemUI_android.this.SetResult(str, i, z);
+            }
+        });
         this.m_currentId = 0;
         this.m_activity.addOnKeyboardListener(new GameActivity.OnKeyboardListener() { // from class: com.tgc.sky.SystemUI_android.1
             @Override // com.tgc.sky.GameActivity.OnKeyboardListener
@@ -183,7 +186,8 @@ public class SystemUI_android {
         return i;
     }
 
-    synchronized void SetResult(String str, int i, boolean z) {
+    /* JADX INFO: Access modifiers changed from: package-private */
+    public synchronized void SetResult(String str, int i, boolean z) {
         this.m_result.stringBuffer = str;
         this.m_result.option = i;
         this.m_result.response = z ? DialogResult.Response.kClosed : DialogResult.Response.kResponded;
@@ -193,52 +197,59 @@ public class SystemUI_android {
         return !this.m_activity.getBrigeView().hasWindowFocus();
     }
 
-    boolean ShowTextField(final String str, final int i, final int i2) {
-        if (this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
-            return false;
+    int ShowTextField(final String str, final int i, final int i2) {
+        int TryActivate;
+        if (this.m_textField.getState() == TextField.State.kTextFieldState_Hidden && (TryActivate = this.m_textField.TryActivate()) != -1) {
+            this.m_textField.setState(TextField.State.kTextFieldState_RequestShow);
+            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.3
+                @Override // java.lang.Runnable
+                public void run() {
+                    SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
+                    SystemUI_android.this.m_textField.setState(TextField.State.kTextFieldState_Showing);
+                }
+            });
+            return TryActivate;
         }
-        this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.3
-            @Override // java.lang.Runnable
-            public void run() {
-                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
-                SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
-            }
-        });
-        return true;
+        return -1;
     }
 
-    boolean ShowTextField(final String str, final String str2, final int i, final int i2, final boolean z) {
-        if (this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
-            return false;
+    int ShowTextField(final String str, final String str2, final int i, final int i2, final boolean z) {
+        int TryActivate;
+        if (this.m_textField.getState() == TextField.State.kTextFieldState_Hidden && (TryActivate = this.m_textField.TryActivate()) != -1) {
+            this.m_textField.setState(TextField.State.kTextFieldState_RequestShow);
+            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.4
+                @Override // java.lang.Runnable
+                public void run() {
+                    SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), str2, i, i2, z);
+                    SystemUI_android.this.m_textField.setState(TextField.State.kTextFieldState_Showing);
+                }
+            });
+            return TryActivate;
         }
-        this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.4
-            @Override // java.lang.Runnable
-            public void run() {
-                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), str2, i, i2, z);
-                SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
-            }
-        });
-        return true;
+        return -1;
     }
 
     void HideTextField() {
-        if (this.m_textFieldState == TextFieldState.kTextFieldState_RequestHide || this.m_textFieldState == TextFieldState.kTextFieldState_Hidden) {
+        if (this.m_textField.getState() == TextField.State.kTextFieldState_RequestHide || this.m_textField.getState() == TextField.State.kTextFieldState_Hidden) {
             return;
         }
-        this.m_textFieldState = TextFieldState.kTextFieldState_RequestHide;
+        this.m_textField.setState(TextField.State.kTextFieldState_RequestHide);
         this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.5
             @Override // java.lang.Runnable
             public void run() {
                 SystemUI_android.this.m_textField.hideTextField();
-                SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Hidden;
+                SystemUI_android.this.m_textField.setState(TextField.State.kTextFieldState_Hidden);
             }
         });
+        this.m_textField.clearId();
+    }
+
+    boolean IsTextFieldIdActive(int i) {
+        return this.m_textField.IsActiveId(i);
     }
 
     boolean IsTextFieldShowing() {
-        return this.m_textFieldState == TextFieldState.kTextFieldState_Showing;
+        return this.m_textField.getState() == TextField.State.kTextFieldState_Showing;
     }
 
     float GetTextFieldHeight() {
@@ -249,28 +260,16 @@ public class SystemUI_android {
         return this.m_keyboardIsShowing;
     }
 
-    int UpdateCursorPosUTF8(int i, String str) {
-        return str.substring(0, i).getBytes(StandardCharsets.UTF_8).length;
-    }
-
-    void GetKeyboardTextInfo() {
-        this.m_textBuffer = this.m_textField.getEditText().getText().toString();
-        int selectionStart = this.m_textField.getEditText().getSelectionStart();
-        int selectionEnd = this.m_textField.getEditText().getSelectionEnd();
-        this.m_cursorPos = UpdateCursorPosUTF8(selectionStart, this.m_textBuffer);
-        this.m_selectPos = selectionStart != selectionEnd ? UpdateCursorPosUTF8(selectionEnd, this.m_textBuffer) : -1;
-    }
-
     String GetTextEditBuffer() {
-        return this.m_textBuffer;
+        return this.m_textField.getTextBuffer();
     }
 
     int GetTextEditCursor() {
-        return this.m_cursorPos;
+        return this.m_textField.getCursorPos();
     }
 
     int GetTextEditSelect() {
-        return this.m_selectPos;
+        return this.m_textField.getSelectPos();
     }
 
     float GetKeyboardHeight() {
@@ -518,6 +517,7 @@ public class SystemUI_android {
                 }
                 if (max > 0) {
                     new CountDownTimer(max * 1000, 1000L) { // from class: com.tgc.sky.SystemUI_android.8.4
+                        @SuppressLint("RestrictedApi")
                         @Override // android.os.CountDownTimer
                         public void onTick(long j) {
                             int i4 = (int) (max - (j / 1000));
@@ -535,6 +535,7 @@ public class SystemUI_android {
                             textView2.setText(SystemUI_android.this.GetMarkedUpString(LocalizeString3.replace("{{1}}", Integer.toString(i - i4)), new ArrayList<>(Arrays.asList(SystemUI_android.this.m_markup.DefaultFontGame(13.0f))), false), TextView.BufferType.SPANNABLE);
                         }
 
+                        @SuppressLint("RestrictedApi")
                         @Override // android.os.CountDownTimer
                         public void onFinish() {
                             if (i >= 0) {
@@ -786,17 +787,82 @@ public class SystemUI_android {
         }
     }
 
+    public int GetQRCameraPermissionState() {
+        return this.m_qrCameraHandler.getPermissionState().ordinal();
+    }
+
+    public void RequestPermissionAndStartQRCamera() {
+        this.m_qrCameraHandler.requestPermissionAndStartCamera();
+    }
+
+    public void StopQRCamera() {
+        this.m_qrCameraHandler.stopCamera();
+    }
+
+    public boolean IsQRCameraRunning() {
+        return this.m_qrCameraHandler.isRunning();
+    }
+
+    public int GetQRCameraVideoFormat() {
+        return this.m_qrCameraHandler.getFormat().ordinal();
+    }
+
+    public int GetQRCameraWidth() {
+        return this.m_qrCameraHandler.getWidth();
+    }
+
+    public int GetQRCameraHeight() {
+        return this.m_qrCameraHandler.getHeight();
+    }
+
+    public byte[] LockQRCameraImageBuffer() {
+        return this.m_qrCameraHandler.lockImageBuffer().array();
+    }
+
+    public void UnlockQRCameraImageBuffer() {
+        this.m_qrCameraHandler.unlockImageBuffer();
+    }
+
+    public int StartListeningForQRScanEvent() {
+        if (IsQRCameraRunning()) {
+            int TryActivate = TryActivate();
+            if (TryActivate != -1) {
+                this.m_qrCameraHandler.startListeningForQRScanEvent();
+            }
+            return TryActivate;
+        }
+        return -1;
+    }
+
+    public boolean StopListeningForQRScanEvent(int i) {
+        if (i == this.m_currentId) {
+            this.m_qrCameraHandler.stopListeningForQRScanEvent();
+            this.m_result = new DialogResult();
+            return true;
+        }
+        return false;
+    }
+
+    public int ShowQRImagePicker() {
+        int TryActivate = TryActivate();
+        if (TryActivate != -1) {
+            this.m_qrCameraHandler.showQRImagePicker();
+        }
+        return TryActivate;
+    }
+
     boolean ShowFacebookFriendFinder() {
-        LaunchURL(String.format("https://fb.gg/me/friendfinder/%s", this.m_activity.getString(git.artdeell.skymodloader.R.string.facebook_app_id)));
+        //LaunchURL(String.format("https://fb.gg/me/friendfinder/%s", this.m_activity.getString(R.string.facebook_app_id)));
         return true;
     }
 
     int PresentFacebookFriendFinder() {
-        int TryActivate;
+        return -1;
+/*        int TryActivate;
         if (GetMainWindowAttachedSheet() || (TryActivate = TryActivate()) == -1) {
             return -1;
         }
-/*        ((Facebook) SystemAccounts_android.getInstance().GetSystemAccount(SystemAccountType.kSystemAccountType_Facebook)).ShowFriendFinderDialog(new Facebook.OnCallback() { // from class: com.tgc.sky.SystemUI_android.13
+        ((Facebook) SystemAccounts_android.getInstance().GetSystemAccount(SystemAccountType.kSystemAccountType_Facebook)).ShowFriendFinderDialog(new Facebook.OnCallback() { // from class: com.tgc.sky.SystemUI_android.13
             @Override // com.tgc.sky.accounts.Facebook.OnCallback
             public void onCallback(boolean z, String str) {
                 if (str != null) {
@@ -805,20 +871,22 @@ public class SystemUI_android {
                     SystemUI_android.this.SetResult(null, z ? 1 : 0, true);
                 }
             }
-        });*/
-        return TryActivate;
+        });
+        return TryActivate;*/
     }
 
     boolean HasFacebookFriendGraphPermission() {
-        return ((Facebook) SystemAccounts_android.getInstance().GetSystemAccount(SystemAccountType.kSystemAccountType_Facebook)).HasAppFriendsPermission();
+       // return ((Facebook) SystemAccounts_android.getInstance().GetSystemAccount(SystemAccountType.kSystemAccountType_Facebook)).HasAppFriendsPermission();
+        return false;
     }
 
     int RequestFacebookFriendGraphPermission() {
-        int TryActivate;
+        return -1;
+/*        int TryActivate;
         if (GetMainWindowAttachedSheet() || (TryActivate = TryActivate()) == -1) {
             return -1;
         }
-/*        if (!((Facebook) SystemAccounts_android.getInstance().GetSystemAccount(SystemAccountType.kSystemAccountType_Facebook)).GetAppFriendsPermission(new Facebook.OnCallback() { // from class: com.tgc.sky.SystemUI_android.14
+        if (!((Facebook) SystemAccounts_android.getInstance().GetSystemAccount(SystemAccountType.kSystemAccountType_Facebook)).GetAppFriendsPermission(new Facebook.OnCallback() { // from class: com.tgc.sky.SystemUI_android.14
             @Override // com.tgc.sky.accounts.Facebook.OnCallback
             public void onCallback(boolean z, String str) {
                 if (str != null) {
@@ -829,8 +897,8 @@ public class SystemUI_android {
             }
         })) {
             SetResult("Another request is already pending", 2, true);
-        }*/
-        return TryActivate;
+        }
+        return TryActivate;*/
     }
 
     public int ShareURL(String str, String str2) throws UnsupportedEncodingException {
@@ -1028,7 +1096,7 @@ public class SystemUI_android {
                 }
             });
             AlertDialog create = builder.create();
-            GameActivity.hideNavigationFullScreen(Objects.requireNonNull(create.getWindow()).getDecorView());
+            GameActivity.hideNavigationFullScreen(create.getWindow().getDecorView());
             create.getWindow().setFlags(8, 8);
             create.setCanceledOnTouchOutside(false);
             create.show();
@@ -1308,12 +1376,7 @@ public class SystemUI_android {
 
     boolean HapticFeedbackImpactLight() {
         if (!this.m_usingGamepad && this.m_enableHaptics) {
-            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.24
-                @Override // java.lang.Runnable
-                public void run() {
-                    SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(3);
-                }
-            });
+            this.m_activity.runOnUiThread(() -> SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(3));
         }
         return false;
     }
@@ -1412,18 +1475,18 @@ public class SystemUI_android {
     private void createNotificationChannel() {
         NotificationChannel notificationChannel = new NotificationChannel(this.CHANNEL_ID, "Channel name", NotificationManager.IMPORTANCE_DEFAULT);
         notificationChannel.setDescription("Channel description");
-        this.m_activity.getSystemService(NotificationManager.class).createNotificationChannel(notificationChannel);
+        ((NotificationManager) this.m_activity.getSystemService(NotificationManager.class)).createNotificationChannel(notificationChannel);
     }
 
     public void PresentNotificationNow(String str, String str2, String str3) {
         createNotificationChannel();
-        NotificationManagerCompat.from(this.m_activity).notify(this.notificationId, new NotificationCompat.Builder(this.m_activity, this.CHANNEL_ID).setSmallIcon(R.drawable.icon_fg).setContentTitle(str).setContentText(str2).setPriority(0).build());
+        //NotificationManagerCompat.from(this.m_activity).notify(this.notificationId, new NotificationCompat.Builder(this.m_activity, this.CHANNEL_ID).setSmallIcon(R.drawable.ic_notification).setContentTitle(str).setContentText(str2).setPriority(0).build());
         this.notificationId++;
     }
 
     public int[] GetTime(String str) {
         TimeZone timeZone;
-        if (str != null && !str.isEmpty()) {
+        if (str != null && str.length() > 0) {
             timeZone = TimeZone.getTimeZone(str);
         } else {
             timeZone = TimeZone.getDefault();

@@ -4,35 +4,82 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.view.ViewCompat;
 
 import com.tgc.sky.GameActivity;
 import com.tgc.sky.SystemUI_android;
 
-import git.artdeell.skymodloader.MainActivity;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
+/* loaded from: classes2.dex */
 public class TextField {
+    public static final int kInvalidTextFieldId = -1;
     private GameActivity m_activity;
     private boolean m_isCallbackTextfield;
-    private boolean m_onKeyboardCompleteAlreadyCalled;
     private SystemUI_android m_systemUI;
     private EditText m_textField;
     private TextFieldLimiter m_textFieldLimiter;
     private String m_userText;
+    private int m_id = -1;
+    private int m_counter = -1;
+    private String m_textBuffer = "";
+    private int m_cursorPos = -1;
+    private int m_selectPos = -1;
+    private boolean m_submitted = false;
+    private State m_state = State.kTextFieldState_Hidden;
+    private boolean m_init = false;
+
+    /* loaded from: classes2.dex */
+    public enum State {
+        kTextFieldState_Hidden,
+        kTextFieldState_RequestHide,
+        kTextFieldState_RequestShow,
+        kTextFieldState_Showing
+    }
 
     public void initWithParams(GameActivity gameActivity, SystemUI_android systemUI_android) {
         this.m_activity = gameActivity;
         this.m_systemUI = systemUI_android;
-        EditText editText = new EditText(this.m_activity);
-        this.m_textField = editText;
-        editText.setTextColor(ViewCompat.MEASURED_STATE_MASK);
+        AppCompatEditText appCompatEditText = new AppCompatEditText(this.m_activity) {
+            @Override // android.widget.TextView
+            protected void onSelectionChanged(int i, int i2) {
+                super.onSelectionChanged(i, i2);
+                if (!TextField.this.m_init || TextField.this.m_textField.getVisibility() == View.INVISIBLE) {
+                    return;
+                }
+                TextField.this.updateCursorPos(i, i2, Objects.requireNonNull(getText()).toString());
+            }
+        };
+        this.m_textField = appCompatEditText;
+        appCompatEditText.addTextChangedListener(new TextWatcher() { // from class: com.tgc.sky.ui.TextField.2
+            @Override // android.text.TextWatcher
+            public void afterTextChanged(Editable editable) {
+            }
+
+            @Override // android.text.TextWatcher
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+            }
+
+            @Override // android.text.TextWatcher
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                if (!TextField.this.m_init || TextField.this.m_textField.getVisibility() == View.INVISIBLE) {
+                    return;
+                }
+                TextField.this.updateBuffer(TextField.this.m_textField.getText().toString());
+            }
+        });
+        this.m_textField.setTextColor(ViewCompat.MEASURED_STATE_MASK);
         this.m_textField.setTextSize(18.0f);
         this.m_textField.setFitsSystemWindows(true);
         this.m_textFieldLimiter = new TextFieldLimiter();
@@ -49,6 +96,7 @@ public class TextField {
         this.m_textField.setVisibility(View.INVISIBLE);
         this.m_textField.setFocusable(true);
         this.m_textField.setFocusableInTouchMode(true);
+
         this.m_textField.setOnEditorActionListener((textView, imeAction, keyEvent) -> {
             if (imeAction == EditorInfo.IME_ACTION_SEND || imeAction == EditorInfo.IME_ACTION_UNSPECIFIED) {
                 TextField.this.m_activity.onKeyboardCompleteNative(
@@ -56,37 +104,32 @@ public class TextField {
                         TextField.this.m_isCallbackTextfield,
                         TextField.this.m_isCallbackTextfield
                 );
-
-                // Run Canvas message listeners
-                MainActivity.onKeyboardCompleteNative(textView.getText().toString());
+                git.artdeell.skymodloader.MainActivity.onKeyboardCompleteNative(textView.getText().toString());
                 textView.setText("");
-                if (TextField.this.m_isCallbackTextfield) {
-                    TextField.this.m_onKeyboardCompleteAlreadyCalled = true;
-                    TextField.this.hideTextField();
-                }
+                TextField.this.m_submitted = true;
                 return true;
             }
             return false;
         });
         this.m_textField.setFilters(new InputFilter[]{this.m_textFieldLimiter});
         this.m_activity.getBrigeView().addView(this.m_textField);
-
         this.m_activity.addOnKeyboardListener((z, i) -> {
             if (z) {
                 TextField.this.resizeTextField(false, i);
                 return;
             }
-            if (!TextField.this.m_isCallbackTextfield || !TextField.this.m_onKeyboardCompleteAlreadyCalled) {
-                TextField.this.m_activity.onKeyboardCompleteNative(TextField.this.m_isCallbackTextfield ? TextField.this.m_userText : "", TextField.this.m_isCallbackTextfield, true);
+            if (!TextField.this.m_submitted) {
+                TextField.this.m_activity.onKeyboardCompleteNative("", TextField.this.m_isCallbackTextfield, true);
             }
             TextField.this.hideTextField();
         });
+        this.m_init = true;
     }
 
     public void showTextFieldWithPrompt(String str, int i, int i2) {
-        this.m_userText = null;
+        updateBuffer(null);
         this.m_isCallbackTextfield = false;
-        this.m_onKeyboardCompleteAlreadyCalled = false;
+        this.m_submitted = false;
         this.m_textFieldLimiter.maxByteSize = i2;
         this.m_textFieldLimiter.maxCharacters = i;
         this.m_textField.setText("");
@@ -97,12 +140,13 @@ public class TextField {
         this.m_textField.setVisibility(View.VISIBLE);
         this.m_textField.requestFocus();
         ((InputMethodManager) this.m_activity.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(this.m_textField, 0);
+        setState(State.kTextFieldState_Showing);
     }
 
     public void showTextFieldWithPrompt(String str, String str2, int i, int i2, boolean z) {
-        this.m_userText = str2;
+        updateBuffer(str2);
         this.m_isCallbackTextfield = z;
-        this.m_onKeyboardCompleteAlreadyCalled = false;
+        this.m_submitted = false;
         this.m_textFieldLimiter.maxByteSize = i2;
         this.m_textFieldLimiter.maxCharacters = i;
         this.m_textField.setText(str2);
@@ -115,12 +159,15 @@ public class TextField {
         this.m_textField.setVisibility(View.VISIBLE);
         this.m_textField.requestFocus();
         ((InputMethodManager) this.m_activity.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(this.m_textField, 0);
+        setState(State.kTextFieldState_Showing);
     }
 
     public void hideTextField() {
         ((InputMethodManager) this.m_activity.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(this.m_textField.getWindowToken(), 0);
         GameActivity.hideNavigationFullScreen(this.m_activity.getBrigeView());
         this.m_textField.setVisibility(View.INVISIBLE);
+        setState(State.kTextFieldState_Hidden);
+        clearId();
     }
 
     /* JADX INFO: Access modifiers changed from: private */
@@ -147,7 +194,57 @@ public class TextField {
         return this.m_textField.getHeight();
     }
 
-    public EditText getEditText() {
-        return this.m_textField;
+    private int updateCursorPosUTF8(int i, String str) {
+        return str.substring(0, i).getBytes(StandardCharsets.UTF_8).length;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public void updateCursorPos(int i, int i2, String str) {
+        this.m_cursorPos = updateCursorPosUTF8(i, str);
+        this.m_selectPos = i != i2 ? updateCursorPosUTF8(i2, str) : -1;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public void updateBuffer(String str) {
+        this.m_userText = str;
+        this.m_textBuffer = str;
+    }
+
+    public String getTextBuffer() {
+        return this.m_textBuffer;
+    }
+
+    public int getCursorPos() {
+        return this.m_cursorPos;
+    }
+
+    public int getSelectPos() {
+        return this.m_selectPos;
+    }
+
+    public int TryActivate() {
+        if (this.m_id != -1) {
+            return -1;
+        }
+        int i = this.m_counter + 1;
+        this.m_counter = i;
+        this.m_id = i;
+        return i;
+    }
+
+    public boolean IsActiveId(int i) {
+        return i != -1 && i == this.m_id;
+    }
+
+    public void clearId() {
+        this.m_id = -1;
+    }
+
+    public State getState() {
+        return this.m_state;
+    }
+
+    public void setState(State state) {
+        this.m_state = state;
     }
 }
