@@ -13,8 +13,8 @@ android {
         applicationId "git.artdeell.skymodloader"
         minSdk 26
         targetSdk 34
-        versionCode 30
-        versionName "1.4.7"
+        versionCode 32
+        versionName "1.4.9"
         manifestPlaceholders = [
                 'appAuthRedirectScheme': 'com.googleusercontent.apps.704988078112-46vk837uhg8n7qf3lb8dut52o7ugm7v4'
         ]
@@ -76,14 +76,10 @@ dependencies {
     implementation 'com.google.android.gms:play-services-drive:17.0.0'
     implementation 'com.google.android.gms:play-services-measurement-api:21.6.2'
 
-    implementation 'com.singular.sdk:singular_sdk:12.5.4'
     implementation 'com.google.android.gms:play-services-appset:16.0.2'
     implementation 'com.adjust.sdk:adjust-android:4.38.3'
     implementation 'com.android.installreferrer:installreferrer:2.2'
-/*     implementation 'com.facebook.android:facebook-android-sdk:17.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.6.3'
-    implementation 'com.android.billingclient:billing:6.2.0'
-    implementation 'com.google.gms:google-services:4.4.1'*/
+
 
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'androidx.constraintlayout:constraintlayout-core:1.0.4'
