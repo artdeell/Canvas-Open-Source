@@ -1,5 +1,3 @@
-#include "CipherPatch.h"
-
 #include "Cipher.h"
 
 CipherPatch *CipherPatch::set_Opcode(std::string _hex) {

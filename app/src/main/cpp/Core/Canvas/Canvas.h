@@ -12,6 +12,7 @@ namespace Canvas {
         bool UIEnabled = false;
         bool UISelfManaged;
         std::string Name;
+        std::string Author;
         std::string Description;
         std::string Version;
         void (*Draw)();

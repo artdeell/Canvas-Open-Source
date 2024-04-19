@@ -10,6 +10,8 @@ public class ElfModMetadata {
     public boolean modIsValid = false;
     public String name;
     public String displayName;
+
+    public String author;
     public int majorVersion;
     public int minorVersion;
     public int patchVersion;

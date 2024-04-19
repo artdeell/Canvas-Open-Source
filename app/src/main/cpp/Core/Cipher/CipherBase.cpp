@@ -1,5 +1,3 @@
-#include "CipherBase.h"
-
 #include <dlfcn.h>
 
 #include "Cipher.h"

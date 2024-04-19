@@ -14,7 +14,6 @@
 #include "include/misc/visibility.h"
 #include "iconloader/IconLoader.h"
 #include "FileSelector/fileselector.h"
-#include "Cipher/CipherHook.h"
 #include <android/asset_manager_jni.h>
 
 
@@ -85,12 +84,15 @@ PRIVATE_API void DrawMods() {
 }
 
 #include <sstream>
-std::string formatUserLibInfo(const Canvas::UserLib& userLib) {
+std::string formatUserLibInfo(const Canvas::UserLib& _userLib) {
     std::ostringstream oss;
-    oss << userLib.Name << ": " << userLib.Version << "\n";
-    if (!userLib.Description.empty()) {
-        oss << "-----\n";
-        oss << "Description:\n" << userLib.Description << "\n";
+    oss << _userLib.Name << ": " << _userLib.Version << "\n";
+    if (!_userLib.Author.empty()) {
+        oss << "Author: " << _userLib.Author << "\n";
+    }
+
+    if (!_userLib.Description.empty()) {
+        oss << "Description: " << _userLib.Description << "\n";
     }
     return oss.str();
 }
@@ -197,6 +199,7 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
         jstring _path,
         jboolean _isDraw,
         jstring _displayName,
+        jstring _author,
         jstring _description,
         jstring _version,
         jboolean _selfManagedUI
@@ -220,6 +223,7 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
     Canvas::UserLib* pUserLib = new Canvas::UserLib;
     pUserLib->UISelfManaged = _selfManagedUI;
     pUserLib->Name = env->GetStringUTFChars(_displayName, 0);
+    pUserLib->Author = env->GetStringUTFChars(_author, 0);
     pUserLib->Description = env->GetStringUTFChars(_description, 0);
     pUserLib->Version = env->GetStringUTFChars(_version, 0);
     pUserLib->Draw = (void (*)(void))(Start);
@@ -257,7 +261,4 @@ Java_git_artdeell_skymodloader_MainActivity_setDeviceInfoNative(
     Canvas::deviceInfo.deviceName = env->GetStringUTFChars(_deviceName, nullptr);
     Canvas::deviceInfo.deviceManufacturer = env->GetStringUTFChars(_manufacturer, nullptr);
     Canvas::deviceInfo.deviceModel = env->GetStringUTFChars(_model, nullptr);
-
-    LOGI("%s", Canvas::deviceInfo.deviceName.c_str());
-
 }

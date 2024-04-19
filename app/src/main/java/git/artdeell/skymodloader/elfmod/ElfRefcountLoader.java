@@ -64,6 +64,7 @@ public class ElfRefcountLoader extends ElfLoader{
                     absolutePath,
                     metadata.displaysUI,
                     Optional.ofNullable(metadata.displayName).orElse(metadata.name),
+                    Optional.ofNullable(metadata.author).orElse(""),
                     Optional.ofNullable(metadata.description).orElse(""),
                     metadata.majorVersion + "." + metadata.minorVersion + "." + metadata.patchVersion,
                     metadata.selfManagedUI
@@ -97,6 +98,7 @@ public class ElfRefcountLoader extends ElfLoader{
             JSONObject jsonConfig = new JSONObject(new String(config, 0, config.length));
             ElfModMetadata modMetadata = new ElfModMetadata();
             modMetadata.name = jsonConfig.getString("name");
+            modMetadata.author = jsonConfig.optString("author");
             modMetadata.description = jsonConfig.getString("description");
             modMetadata.majorVersion = jsonConfig.getInt("majorVersion");
             modMetadata.minorVersion = jsonConfig.getInt("minorVersion");
@@ -111,6 +113,7 @@ public class ElfRefcountLoader extends ElfLoader{
                 ElfModMetadata dependency = new ElfModMetadata();
                 dependency.modIsValid = true;
                 dependency.name = jsonDependency.getString("name");
+                dependency.author = jsonDependency.optString("author");
                 dependency.majorVersion = jsonDependency.getInt("majorVersion");
                 dependency.minorVersion = jsonDependency.getInt("minorVersion");
                 dependency.patchVersion = jsonDependency.getInt("patchVersion");

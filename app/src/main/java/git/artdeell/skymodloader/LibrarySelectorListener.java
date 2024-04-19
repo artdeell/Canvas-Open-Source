@@ -5,6 +5,7 @@ public class LibrarySelectorListener{
             String _path,
             boolean _isDraw,
             String _displayName,
+            String _author,
             String _description,
             String _version,
             boolean _selfManagedUI

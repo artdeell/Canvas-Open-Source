@@ -1,7 +1,6 @@
-#include "CipherHook.h"
+#include "Cipher.h"
 
 #include "Canvas/Canvas.h"
-#include "Cipher.h"
 #include <KittyMemory/MemoryBackup.hpp>
 
 #include "../include/misc/Logger.h"

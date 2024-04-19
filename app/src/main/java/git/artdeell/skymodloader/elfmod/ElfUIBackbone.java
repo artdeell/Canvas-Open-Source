@@ -141,6 +141,7 @@ public class ElfUIBackbone {
                 System.arraycopy(elfFile, (int) secoff_config, config, 0, config.length);
                 JSONObject jsonConfig = new JSONObject(new String(config, 0, config.length));
                 defaultMeta.name = jsonConfig.getString("name");
+                defaultMeta.author = jsonConfig.optString("author");
                 defaultMeta.description = jsonConfig.optString("description");
                 defaultMeta.majorVersion = jsonConfig.getInt("majorVersion");
                 defaultMeta.minorVersion = jsonConfig.getInt("minorVersion");
@@ -155,6 +156,7 @@ public class ElfUIBackbone {
                     ElfModMetadata dependency = new ElfModMetadata();
                     dependency.modIsValid = true;
                     dependency.name = jsonDependency.getString("name");
+                    dependency.author = jsonDependency.optString("author");
                     dependency.description = jsonDependency.getString("description");
                     dependency.majorVersion = jsonDependency.getInt("majorVersion");
                     dependency.minorVersion = jsonDependency.getInt("minorVersion");
