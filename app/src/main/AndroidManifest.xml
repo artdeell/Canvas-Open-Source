@@ -56,14 +56,16 @@
             tools:ignore="ForegroundServicePermission" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".elfmod.ModManagerActivity"
             android:exported="true"
-            android:screenOrientation="sensorLandscape">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="com.tgc.sky.GameActivity"
             android:colorMode="wideColorGamut"
@@ -75,6 +77,12 @@
             android:theme="@style/SkyFullscreenTheme" />
         <activity android:name="com.tgc.sky.TGCNativeActivity" />
         <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape">
+        </activity>
+
+        <!--<activity
             android:name=".elfmod.ModManagerActivity"
             android:exported="true"
             android:label="@string/mod_manager"
@@ -85,7 +93,8 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity> -->
+
 
         <provider
             android:name="git.artdeell.skymodloader.updater.Updater"

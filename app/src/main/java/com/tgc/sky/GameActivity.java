@@ -793,32 +793,29 @@ public class GameActivity extends TGCNativeActivity {
     }
 
     public float getDisplayXdpi() {
-        return getResources().getDisplayMetrics().xdpi;
+        return SMLApplication.skyRes.getDisplayMetrics().xdpi;
     }
 
     public float getDisplayYdpi() {
-        return getResources().getDisplayMetrics().ydpi;
+        return SMLApplication.skyRes.getDisplayMetrics().ydpi;
     }
 
     public float getDisplayDensity() {
-        return getResources().getDisplayMetrics().density;
+        return SMLApplication.skyRes.getDisplayMetrics().density;
     }
 
     public boolean isScreenHdr() {
-        return getResources().getConfiguration().isScreenHdr();
+        return SMLApplication.skyRes.getConfiguration().isScreenHdr();
     }
 
-    // sky live 0.22.6 (229119)
     public boolean isScreenWideColorGamut() {
-        return getResources().getConfiguration().isScreenWideColorGamut();
+        return SMLApplication.skyRes.getConfiguration().isScreenWideColorGamut();
     }
 
-    // beta 0.23.0
     public float getDesiredMinLum() {
         return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMinLuminance();
     }
 
-    // beta 0.23.0
     public float getDesiredMaxLum() {
         return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMaxLuminance();
     }

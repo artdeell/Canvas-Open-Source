@@ -19,6 +19,10 @@ public class TextAttributes {
     public SystemHAlignment textAlignment = SystemHAlignment.ALIGN_H_CENTER;
     public float[] textColor;
 
+    public boolean trilinearMinification = false;
+    public boolean forceBold = false;
+
+
     TextAttributes() {
     }
 
@@ -38,5 +42,8 @@ public class TextAttributes {
         this.bgCornerRadius = textAttributes.bgCornerRadius;
         this.shadowColor = textAttributes.shadowColor;
         this.shadowOffset = textAttributes.shadowOffset;
+        this.forceBold = textAttributes.forceBold;
+        this.trilinearMinification = textAttributes.trilinearMinification;
+
     }
 }

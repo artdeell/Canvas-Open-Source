@@ -44,107 +44,13 @@ public class LocalizationManager {
         this.m_enableHaptics = z7;
     }
 
-    /* JADX WARNING: Removed duplicated region for block: B:26:0x0066  */
-    /* JADX WARNING: Removed duplicated region for block: B:38:0x0084 A[EDGE_INSN: B:38:0x0084->B:34:0x0084 ?: BREAK  , SYNTHETIC] */
-    /* Code decompiled incorrectly, please refer to instructions dump. */
-    public java.lang.String LocalizeString(java.lang.String r10) {
-        /*
-            r9 = this;
-            r0 = 0
-            if (r10 != 0) goto L_0x0004
-            return r0
-        L_0x0004:
-            java.lang.String r1 = "dev:"
-            boolean r1 = r10.startsWith(r1)
-            if (r1 == 0) goto L_0x0011
-            r2 = 4
-            java.lang.String r10 = r10.substring(r2)
-        L_0x0011:
-            java.lang.String r2 = "tutorial_"
-            boolean r2 = r10.startsWith(r2)
-            java.lang.String r3 = "string"
-            if (r2 == 0) goto L_0x0084
-            java.lang.String r2 = "!"
-            boolean r2 = r10.endsWith(r2)
-            r4 = 1
-            r5 = 0
-            if (r2 == 0) goto L_0x0030
-            int r2 = r10.length()
-            int r2 = r2 - r4
-            java.lang.String r10 = r10.substring(r5, r2)
-        L_0x002e:
-            r2 = r0
-            goto L_0x0063
-        L_0x0030:
-            boolean r2 = r9.m_gamepad
-            if (r2 == 0) goto L_0x0042
-            java.lang.Object[] r2 = new java.lang.Object[r4]
-            r2[r5] = r10
-            java.lang.String r4 = "%s_ps"
-            java.lang.String r2 = java.lang.String.format(r4, r2)
-        L_0x003e:
-            r8 = r2
-            r2 = r0
-            r0 = r8
-            goto L_0x0063
-        L_0x0042:
-            boolean r2 = r9.m_touchControls
-            if (r2 == 0) goto L_0x002e
-            boolean r2 = r9.m_proControls
-            if (r2 == 0) goto L_0x002e
-            boolean r2 = r9.m_leftHanded
-            if (r2 == 0) goto L_0x0058
-            java.lang.Object[] r0 = new java.lang.Object[r4]
-            r0[r5] = r10
-            java.lang.String r2 = "%s_pro_lh"
-            java.lang.String r0 = java.lang.String.format(r2, r0)
-        L_0x0058:
-            java.lang.Object[] r2 = new java.lang.Object[r4]
-            r2[r5] = r10
-            java.lang.String r4 = "%s_pro"
-            java.lang.String r2 = java.lang.String.format(r4, r2)
-            goto L_0x003e
-        L_0x0063:
-            r4 = 2
-            if (r5 >= r4) goto L_0x0084
-            if (r5 != 0) goto L_0x006a
-            r4 = r2
-            goto L_0x006b
-        L_0x006a:
-            r4 = r0
-        L_0x006b:
-            if (r4 == 0) goto L_0x0081
-            com.tgc.sky.GameActivity r6 = r9.m_activity
-            android.content.res.Resources r6 = r6.getResources()
-            com.tgc.sky.GameActivity r7 = r9.m_activity
-            java.lang.String r7 = r7.getPackageName()
-            int r6 = r6.getIdentifier(r4, r3, r7)
-            if (r6 == 0) goto L_0x0081
-            r10 = r4
-            goto L_0x0084
-        L_0x0081:
-            int r5 = r5 + 1
-            goto L_0x0063
-        L_0x0084:
-            if (r1 != 0) goto L_0x009e
-            com.tgc.sky.GameActivity r0 = r9.m_activity
-            android.content.res.Resources r0 = r0.getResources()
-            com.tgc.sky.GameActivity r1 = r9.m_activity
-            java.lang.String r1 = r1.getPackageName()
-            int r0 = r0.getIdentifier(r10, r3, r1)
-            if (r0 == 0) goto L_0x009e
-            com.tgc.sky.GameActivity r10 = r9.m_activity
-            java.lang.String r10 = r10.getString(r0)
-        L_0x009e:
-            return r10
-        */
+    public String LocalizeString(String r10) {
         if(r10 == null) return null;
         int id = SMLApplication.skyRes.getIdentifier(r10, "string", SMLApplication.skyPName);
         if(id != 0) {
             return SMLApplication.skyRes.getString(id);
         }
         return r10;
-        //throw new UnsupportedOperationException("Method not decompiled: com.tgc.sky.p018ui.text.LocalizationManager.LocalizeString(java.lang.String):java.lang.String");
     }
 
     public LocalizedStringArgs GetLocalizedStringArgs(int i) {

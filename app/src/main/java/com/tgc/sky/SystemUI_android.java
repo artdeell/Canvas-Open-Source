@@ -108,6 +108,9 @@ public class SystemUI_android {
     /* access modifiers changed from: private */
     public TextFieldLimiter m_textFieldLimiter;
     private TextLabelManager m_textLabelManager;
+
+    private boolean m_useSensorOrientation;
+
     private boolean m_usingGamepad = false;
     private int notificationId = 0;
     /* access modifiers changed from: private */
@@ -147,6 +150,7 @@ public class SystemUI_android {
                 }
             }
         });
+        SetUseSensorOrientation(false);
         sInstance = this;
     }
 
@@ -178,7 +182,6 @@ public class SystemUI_android {
         return this.m_textLabelManager.ApplyTextArgs(this.m_markup.GetMarkedUpString(LocalizeString(str), arrayList2, z), arrayList);
     }
 
-    /* access modifiers changed from: package-private */
     public synchronized int TryActivate() {
         if (this.m_result.response != DialogResult.Response.kInvalid) {
             return -1;
@@ -189,31 +192,39 @@ public class SystemUI_android {
         return i;
     }
 
-    /* access modifiers changed from: package-private */
     public synchronized void SetResult(String stringBuffer, int option, boolean isClosed) {
         this.m_result.stringBuffer = stringBuffer;
         this.m_result.option = option;
         this.m_result.response = isClosed ? DialogResult.Response.kClosed : DialogResult.Response.kResponded;
     }
 
-    /* access modifiers changed from: package-private */
     public boolean GetMainWindowAttachedSheet() {
         return !this.m_activity.getBrigeView().hasWindowFocus();
     }
 
-    // ------------------------------
-    public boolean ShowTextField(final String str, final int i, final int i2) {
-        if (this.m_textFieldState != TextFieldState.kTextFieldState_Hidden) {
-            return false;
+    @SuppressLint("WrongConstant")
+    void SetUseSensorOrientation(boolean z) {
+        this.m_useSensorOrientation = z;
+        final int i = z ? 4 : 6;
+        if (i != this.m_activity.getRequestedOrientation()) {
+            this.m_activity.runOnUiThread(new Runnable() {
+                @Override
+                public final void run() {
+                    SystemUI_android.this.SetUseSensorOrientation(i);
+                }
+            });
         }
-        this.m_textFieldState = TextFieldState.kTextFieldState_RequestShow;
-        this.m_activity.runOnUiThread(new Runnable() {
-            public void run() {
-                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
-                TextFieldState unused = SystemUI_android.this.m_textFieldState = TextFieldState.kTextFieldState_Showing;
-            }
-        });
-        return true;
+    }
+
+    void SetUseSensorOrientation(int i) {
+        if (this.m_activity.portraitOnResume) {
+            return;
+        }
+        this.m_activity.setRequestedOrientation(i);
+    }
+
+    public boolean GetUseSensorOrientation() {
+        return this.m_useSensorOrientation;
     }
 
     public boolean ShowTextField(String str, String str2, int i, int i2) {
@@ -721,10 +732,6 @@ public class SystemUI_android {
         return TryActivate;
     }
 
-    /* JADX WARNING: Code restructure failed: missing block: B:15:0x0032, code lost:
-        return r3;
-     */
-    /* Code decompiled incorrectly, please refer to instructions dump. */
     public synchronized DialogResult TryGetDialogResult(int n) {
         // monitorenter(this)
         if (n != -1) {
@@ -1150,44 +1157,47 @@ public class SystemUI_android {
         this.m_enableHaptics = z7;
     }
 
-    public void AddTextLabel(int i, boolean z, boolean z2, boolean z3, boolean z4, float f, float f2, int i2, int i3, float[] fArr, float[] fArr2, float f3, float[] fArr3, float[] fArr4, float f4, float f5, float f6, int i4, int i5, boolean z5, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, boolean z6, boolean z7, int i6, boolean z8) {
-        int i7 = i;
+    public void AddTextLabel(int i, boolean z, boolean z2, boolean z3, boolean z4, boolean z5, float f, float f2, boolean z6, int i2, boolean z7, int i3, float[] fArr, float[] fArr2, float f3, float[] fArr3, float[] fArr4, float f4, float f5, float f6, int i4, int i5, boolean z8, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, boolean z9, boolean z10, int i6, boolean z11) {
         TextLabel GetTextLabel = this.m_textLabelManager.GetTextLabel(i);
-        if (GetTextLabel != null) {
-            GetTextLabel.attrs.fontName = "";
-            GetTextLabel.attrs.hasBackground = z;
-            GetTextLabel.attrs.hasShadow = z2;
-            GetTextLabel.attrs.adjustFontSizeToFitWidth = z3;
-            GetTextLabel.attrs.ignoreMarkupOptimization = z4;
-            GetTextLabel.attrs.fontSize = f;
-            GetTextLabel.attrs.scale = f2;
-            GetTextLabel.attrs.maxNumberOfLines = i2;
-            GetTextLabel.attrs.textAlignment = SystemHAlignment.values()[i3];
-            GetTextLabel.attrs.textColor = fArr;
-            GetTextLabel.attrs.bgColor = fArr2;
-            GetTextLabel.attrs.bgCornerRadius = f3;
-            GetTextLabel.attrs.shadowColor = fArr3;
-            GetTextLabel.attrs.shadowOffset = fArr4;
-            GetTextLabel.pos.f1049x = f4;
-            GetTextLabel.pos.f1050y = f5;
-            GetTextLabel.pos.f1051z = f6;
-            GetTextLabel.pos.f1047h = SystemHAlignment.values()[i4];
-            GetTextLabel.pos.f1048v = SystemVAlignment.values()[i5];
-            GetTextLabel.pos.shrinkBoxToText = z5;
-            GetTextLabel.pos.maxWidth = f7;
-            GetTextLabel.pos.maxHeight = f8;
-            GetTextLabel.pos.padWidth = f9;
-            GetTextLabel.pos.padHeight = f10;
-            GetTextLabel.pos.clipMinX = f11;
-            GetTextLabel.pos.clipMinY = f12;
-            GetTextLabel.pos.clipMaxX = f13;
-            GetTextLabel.pos.clipMaxY = f14;
-            GetTextLabel.pos.clip = z6;
-            GetTextLabel.pos.autoAnchor = z7;
-            GetTextLabel.textId = i6;
-            GetTextLabel.autoFreeTextId = z8;
-            this.m_textLabelManager.AddTextLabel(i);
+        if (GetTextLabel == null) {
+            return;
         }
+        GetTextLabel.attrs.fontName = "";
+        GetTextLabel.attrs.hasBackground = z;
+        GetTextLabel.attrs.hasShadow = z2;
+        GetTextLabel.attrs.forceBold = z3;
+        GetTextLabel.attrs.adjustFontSizeToFitWidth = z4;
+        GetTextLabel.attrs.ignoreMarkupOptimization = z5;
+        GetTextLabel.attrs.fontSize = f;
+        GetTextLabel.attrs.scale = f2;
+        GetTextLabel.attrs.trilinearMinification = z6;
+        GetTextLabel.attrs.maxNumberOfLines = i2;
+        GetTextLabel.attrs.truncateWithEllipses = z7;
+        GetTextLabel.attrs.textAlignment = SystemHAlignment.values()[i3];
+        GetTextLabel.attrs.textColor = fArr;
+        GetTextLabel.attrs.bgColor = fArr2;
+        GetTextLabel.attrs.bgCornerRadius = f3;
+        GetTextLabel.attrs.shadowColor = fArr3;
+        GetTextLabel.attrs.shadowOffset = fArr4;
+        GetTextLabel.pos.f1049x = f4;
+        GetTextLabel.pos.f1050y = f5;
+        GetTextLabel.pos.f1051z = f6;
+        GetTextLabel.pos.f1047h = SystemHAlignment.values()[i4];
+        GetTextLabel.pos.f1048v = SystemVAlignment.values()[i5];
+        GetTextLabel.pos.shrinkBoxToText = z8;
+        GetTextLabel.pos.maxWidth = f7;
+        GetTextLabel.pos.maxHeight = f8;
+        GetTextLabel.pos.padWidth = f9;
+        GetTextLabel.pos.padHeight = f10;
+        GetTextLabel.pos.clipMinX = f11;
+        GetTextLabel.pos.clipMinY = f12;
+        GetTextLabel.pos.clipMaxX = f13;
+        GetTextLabel.pos.clipMaxY = f14;
+        GetTextLabel.pos.clip = z9;
+        GetTextLabel.pos.autoAnchor = z10;
+        GetTextLabel.textId = i6;
+        GetTextLabel.autoFreeTextId = z11;
+        this.m_textLabelManager.AddTextLabel(i);
     }
 
     public void AddTextLabel(int i, boolean z, boolean z2, boolean z3, boolean z4, float f, float f2, int i2, boolean z5, int i3, float[] fArr, float[] fArr2, float f3, float[] fArr3, float[] fArr4, float f4, float f5, float f6, int i4, int i5, boolean z6, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, boolean z7, boolean z8, int i6, boolean z9) {
