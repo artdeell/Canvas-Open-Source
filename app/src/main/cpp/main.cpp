@@ -72,7 +72,7 @@ PRIVATE_API void DrawMods() {
                 ImGui::Begin(userLib.Name.c_str());
             }
 
-            userLib.Draw();
+            userLib.Draw(&userLib.UIEnabled);
 
             if (userLib.UISelfManaged) {
                 ImGui::PopID();
@@ -92,7 +92,7 @@ std::string formatUserLibInfo(const Canvas::UserLib& _userLib) {
     }
 
     if (!_userLib.Description.empty()) {
-        oss << "Description: " << _userLib.Description << "\n";
+        oss << "---------\nDescription: " << _userLib.Description << "\n";
     }
     return oss.str();
 }
@@ -159,6 +159,7 @@ Java_git_artdeell_skymodloader_MainActivity_settle(
         jclass clazz,
         jint _gameVersion,
         jint _gameType,
+        jstring _hostName,
         jstring _configDir,
         jobject _gameAssets
 ) {
@@ -175,9 +176,9 @@ Java_git_artdeell_skymodloader_MainActivity_settle(
 typedef void (*func)();
 PRIVATE_API void *UserThread(void *Ulib){
     Canvas::UserLib *pUserLib = (Canvas::UserLib *)Ulib;
-    func (*Start)() = (func(*)())pUserLib->Draw;
-    pUserLib->Draw = Start();
-    if(!pUserLib->Name.empty() && pUserLib->Draw){
+    func (*Start)() = (func(*)())pUserLib->Start;
+    pUserLib->Draw = (void (*)(bool *))Start();
+    if (!pUserLib->Name.empty() && pUserLib->Draw){
         Canvas::pushUserLib(*pUserLib);
     }
     delete pUserLib;
@@ -226,7 +227,7 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
     pUserLib->Author = env->GetStringUTFChars(_author, 0);
     pUserLib->Description = env->GetStringUTFChars(_description, 0);
     pUserLib->Version = env->GetStringUTFChars(_version, 0);
-    pUserLib->Draw = (void (*)(void))(Start);
+    pUserLib->Start = (void (*)(void))(Start);
     pthread_t pid;
     pthread_create(&pid, nullptr, UserThread, (void *)pUserLib);
 }

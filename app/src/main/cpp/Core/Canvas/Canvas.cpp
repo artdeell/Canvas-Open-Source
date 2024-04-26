@@ -7,6 +7,7 @@
 namespace Canvas {
 
     PRIVATE_API DeviceInfo deviceInfo;
+    PRIVATE_API const char* gameHost;
     PRIVATE_API const char* libName;
     PRIVATE_API std::uintptr_t libBase;
 

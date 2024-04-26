@@ -15,7 +15,9 @@ namespace Canvas {
         std::string Author;
         std::string Description;
         std::string Version;
-        void (*Draw)();
+        void (*InitLate)();
+        void (*Draw)(bool*);
+        void (*Start)();
     };
 
     struct DeviceInfo {
@@ -28,6 +30,7 @@ namespace Canvas {
     };
 
     extern DeviceInfo deviceInfo;
+    extern const char* gameHost;
 
 
     extern const char* libName;

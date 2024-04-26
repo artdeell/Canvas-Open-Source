@@ -80,20 +80,23 @@ public class MainActivity extends Activity {
             );
 
             IconLoader.findIcons();
-            MainActivity.settle(
-                    BuildConfig.VERSION_CODE,
-                    skyPackages.getOrDefault(SKY_PACKAGE_NAME, 0),
-                    configDir.getAbsolutePath(),
-                    SMLApplication.skyRes.getAssets()
-            );
-            new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
             if (SKY_PACKAGE_NAME.equals("com.tgc.sky.android.test.gold")) {
                 SKY_PACKAGE_NAME = "com.tgc.sky.android.test.";
                 BuildConfig.SKY_SERVER_HOSTNAME = "beta.radiance.thatgamecompany.com";
                 BuildConfig.SKY_BRANCH_NAME = "Test";
                 BuildConfig.SKY_STAGE_NAME = "Test";
-                BuildConfig.VERSION_CODE = sharedPreferences.getBoolean("skip_updates", false) ? 0x99999 : info.versionCode;
             }
+            BuildConfig.VERSION_CODE = sharedPreferences.getBoolean("skip_updates", false) ? 0x99999 : info.versionCode;
+
+            MainActivity.settle(
+                    info.versionCode,
+                    skyPackages.getOrDefault(SKY_PACKAGE_NAME, 0),
+                    BuildConfig.SKY_SERVER_HOSTNAME,
+                    configDir.getAbsolutePath(),
+                    SMLApplication.skyRes.getAssets()
+            );
+
+            new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
             BuildConfig.APPLICATION_ID = SKY_PACKAGE_NAME;
             startActivity(new Intent(this, GameActivity.class));
         } catch (PackageManager.NameNotFoundException e) {
@@ -145,7 +148,7 @@ public class MainActivity extends Activity {
         return deviceInfo;
     }
 
-    public static native void settle(int _gameVersion, int _gameType, String _configDir, AssetManager _gameAssets);
+    public static native void settle(int _gameVersion, int _gameType, String _hostName, String _configDir, AssetManager _gameAssets);
     public static native void setDeviceInfoNative(float _xdpi, float _ydpi, float _density, String _deviceName, String _manufacturer, String _model);
     public static native void onKeyboardCompleteNative(String message);
 
