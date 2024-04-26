@@ -178,7 +178,7 @@ public class Facebook implements SystemAccountInterface {
     }
 
     private static JSONObject doGraphRequest(String call) throws IOException, JSONException {
-        URLConnection connection = new URL("https://graph.fb.gg/v7.0/"+call).openConnection();
+        URLConnection connection = new URL("https://graph.fb.gg/v17.0/"+call).openConnection();
         connection.connect();
         try (InputStream rd = connection.getInputStream()) {
             StringBuilder ret = new StringBuilder();

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.hardware.HardwareBuffer;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -37,6 +38,9 @@ public class SystemIO_android {
     private Lock mNotificationMessagesLock;
     public GameActivity m_activity;
     private boolean m_batteryCharging;
+    private ExoplayerService mExoplayer;
+    private int mExoplayerVideoCounter = 0;
+
     public float m_batteryLevel;
     private boolean m_isOtherAudioPlaying;
     private boolean m_isPhonecallActive;
@@ -878,6 +882,96 @@ public class SystemIO_android {
     void EndWriteAudioFrame() {
         this.m_videoRecorder.endWriteAudioFrame();
     }
+
+    int RequestNewStreamId() {
+        int i = this.mExoplayerVideoCounter + 1;
+        this.mExoplayerVideoCounter = i;
+        return i;
+    }
+
+    int CreateMediaPlayerForUrl(final String str) {
+        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemIO_android.4
+            @Override // java.lang.Runnable
+            public void run() {
+                if (SystemIO_android.this.mExoplayer == null) {
+                    SystemIO_android.this.mExoplayer = new ExoplayerService();
+                }
+                SystemIO_android.this.mExoplayer.Initialize(SystemIO_android.this.m_activity.getApplicationContext());
+                SystemIO_android.this.mExoplayer.LoadUrl(str);
+                SystemIO_android.this.mExoplayer.Play();
+                SystemIO_android.this.mExoplayer.Update();
+            }
+        });
+        return RequestNewStreamId();
+    }
+
+    public native void ReceiveVideoBufferNative(HardwareBuffer hardwareBuffer, double d);
+
+    public native void ReceiveVideoMetadataNative(int i, int i2, double d);
+
+    void UpdateMediaPlayer() {
+        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemIO_android.5
+            @Override // java.lang.Runnable
+            public void run() {
+                SystemIO_android.this.mExoplayer.Update();
+                ExoplayerVideoMetadata GetMetadata = SystemIO_android.this.mExoplayer.GetMetadata();
+                if (GetMetadata != null) {
+                    SystemIO_android.this.ReceiveVideoMetadataNative(GetMetadata.width, GetMetadata.height, GetMetadata.framesPerSecond);
+                }
+                double GetPlaybackPositionMs = SystemIO_android.this.mExoplayer.GetPlaybackPositionMs() / 1000.0d;
+                HardwareBuffer GetNextHardwareBuffer = SystemIO_android.this.mExoplayer.GetNextHardwareBuffer();
+                if (GetNextHardwareBuffer != null) {
+                    SystemIO_android.this.ReceiveVideoBufferNative(GetNextHardwareBuffer, GetPlaybackPositionMs);
+                }
+            }
+        });
+    }
+
+    void PauseMediaPlayer() {
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override // java.lang.Runnable
+            public void run() {
+                SystemIO_android.this.mExoplayer.Pause();
+            }
+        });
+    }
+
+    void UnpauseMediaPlayer() {
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override // java.lang.Runnable
+            public void run() {
+                SystemIO_android.this.mExoplayer.Play();
+            }
+        });
+    }
+
+    void SeekMediaPlayer(final float f) {
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override // java.lang.Runnable
+            public void run() {
+                SystemIO_android.this.mExoplayer.Seek(Math.round(f * 1000.0d));
+            }
+        });
+    }
+
+    void DestroyMediaPlayer() {
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override // java.lang.Runnable
+            public void run() {
+                SystemIO_android.this.mExoplayer.EndVideo();
+            }
+        });
+    }
+
+    void MediaPlayerSetVolume(final float f) {
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override // java.lang.Runnable
+            public void run() {
+                SystemIO_android.this.mExoplayer.SetVolume(f);
+            }
+        });
+    }
+
 
     public boolean IsDebuggerConnected() {
         return Debug.isDebuggerConnected();

@@ -627,7 +627,7 @@ public class GameActivity extends TGCNativeActivity {
         if (!this.mGameControllerIds.isEmpty()) {
             onGamepadConnectedNative();
         }
-        InputManager inputManager = (InputManager) getBaseContext().getSystemService("input");
+        InputManager inputManager = (InputManager) getBaseContext().getSystemService(Context.INPUT_SERVICE);
         if (inputManager != null) {
             inputManager.registerInputDeviceListener(new InputManager.InputDeviceListener() { // from class: com.tgc.sky.GameActivity.5
                 @Override
