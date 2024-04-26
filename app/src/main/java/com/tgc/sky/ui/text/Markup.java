@@ -17,9 +17,6 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.NotificationCompat;
-import androidx.core.text.HtmlCompat;
 
 import com.tgc.sky.GameActivity;
 import com.tgc.sky.ui.NtRange;
@@ -28,9 +25,7 @@ import com.tgc.sky.ui.spans.CustomTypefaceSpan;
 import com.tgc.sky.ui.spans.EmbeddedImageSpan;
 import com.tgc.sky.ui.spans.ShadowSpan;
 import com.tgc.sky.ui.spans.StrokeSpan;
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1093,7 +1088,7 @@ public class Markup {
     private Drawable CreateAttachment(String resName) {
         Drawable drawable;
         try {
-            drawable = SMLApplication.skyRes.getDrawable(SMLApplication.skyRes.getIdentifier(resName, "drawable", SMLApplication.skyPName), null);
+            drawable = SMLApplication.SkyResources.getDrawable(SMLApplication.SkyResources.getIdentifier(resName, "drawable", SMLApplication.skyPName), null);
         }catch (Exception e) {
             drawable = new ColorDrawable(Color.WHITE);
         }
@@ -1121,11 +1116,11 @@ public class Markup {
                 }
                 i3++;
             }
-            int identifier = SMLApplication.skyRes.getIdentifier(String.format("%s%02d", new Object[]{str, Integer.valueOf(i)}), "drawable", SMLApplication.skyPName);
+            int identifier = SMLApplication.SkyResources.getIdentifier(String.format("%s%02d", new Object[]{str, Integer.valueOf(i)}), "drawable", SMLApplication.skyPName);
             if (identifier == 0) {
                 break;
             }
-            drawable = SMLApplication.skyRes.getDrawable(identifier, null);
+            drawable = SMLApplication.SkyResources.getDrawable(identifier, null);
             hashMap.put(String.valueOf(i2), drawable);
             i2++;
         }

@@ -44,6 +44,17 @@
                     android:text="@{_item.name}"
                     tools:text="ModuleName" />
 
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/module_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/modNameTextView"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+
+                    android:checked="@={_item.enabled}" />
+
                 <TextView
                     android:id="@+id/authorTextView"
                     android:layout_width="wrap_content"
@@ -78,16 +89,6 @@
                     android:text="@{_item.description}"
                     tools:text="Description" />
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/module_indicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@id/descriptionTextView"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-
-                    android:checked="@={_item.enabled}" />
 
                 <Space
                     android:id="@+id/divided"

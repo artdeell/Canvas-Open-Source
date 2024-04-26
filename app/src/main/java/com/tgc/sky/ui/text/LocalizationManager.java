@@ -137,9 +137,9 @@ public class LocalizationManager {
             return r9
         */
         if(r9 == null) return null;
-        @SuppressLint("DiscouragedApi") int id = SMLApplication.skyRes.getIdentifier(r9, "string", SMLApplication.skyPName);
+        @SuppressLint("DiscouragedApi") int id = SMLApplication.SkyResources.getIdentifier(r9, "string", SMLApplication.skyPName);
         if(id != 0) {
-            return SMLApplication.skyRes.getString(id);
+            return SMLApplication.SkyResources.getString(id);
         }
         return r9;
         //throw new UnsupportedOperationException("Method not decompiled: com.tgc.sky.ui.text.LocalizationManager.LocalizeString(java.lang.String):java.lang.String");

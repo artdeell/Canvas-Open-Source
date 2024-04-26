@@ -1,31 +1,25 @@
 package com.tgc.sky;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ClipboardManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.input.InputManager;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
-import android.os.Process;
-import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.DisplayCutout;
 import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -42,10 +36,10 @@ import android.widget.RelativeLayout;
 import androidx.core.view.InputDeviceCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.play.core.splitcompat.SplitCompat;
 import com.tgc.sky.io.AudioDeviceType;
 import com.tgc.sky.ui.panels.BasePanel;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Timer;
@@ -138,6 +132,10 @@ public class GameActivity extends TGCNativeActivity {
         return com.tgc.sky.BuildConfig.SKY_VERSION;
     }
 
+    public String getPlatformName() {
+        return "android";
+    }
+
     public native void onAudioDeviceTypeChangedNative(int i);
 
     public native void onBackPressedNative();
@@ -155,6 +153,7 @@ public class GameActivity extends TGCNativeActivity {
     public native void onInternetReachabilityNative(boolean z, boolean z2);
 
     public native void onKeyboardCompleteNative(String str, boolean z, boolean z2);
+
     public native void onNFCTagScannedNative(String str, int i, String str2, String str3);
 
     public native void onOpenedWithURLNative(String str, boolean z);
@@ -183,6 +182,37 @@ public class GameActivity extends TGCNativeActivity {
 
     public void attachBaseContext(Context context) {
         super.attachBaseContext(context);
+        SplitCompat.install(this);
+    }
+
+    private boolean isTextRenderingBrokenForDevice() {
+        if (Build.VERSION.SDK_INT == 31 || Build.VERSION.SDK_INT == 32) {
+            String[] strArr = {"OPD2102", "X21N2", "PFUM10", "TB128FU", "RMX3478", "RMX3471", "RMX3472", "2201116SC", "22101317C"};
+            for (int i = 0; i < 9; i++) {
+                if (Build.MODEL.compareToIgnoreCase(strArr[i]) == 0) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    @SuppressLint("WrongConstant")
+    private void fixTextRenderingOnProblemDevices_HACK() {
+        if (isTextRenderingBrokenForDevice()) {
+            Log.i(TAG, "Detected problematic text rendering on this device - applying workaround");
+            for (int i = 0; i < 29; i++) {
+                View view = new View(this);
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.width = 2;
+                layoutParams.height = 2;
+                layoutParams.flags = 1064;
+                layoutParams.format = PixelFormat.RGBA_8888;
+                layoutParams.gravity = Gravity.BOTTOM;
+                ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).addView(view, layoutParams);
+            }
+        }
     }
 
     public void runUpdater() {
@@ -199,7 +229,7 @@ public class GameActivity extends TGCNativeActivity {
         getWindow().addFlags(2097280);
         tryEnablingDisplayCutoutMode();
         setContentView(R.layout.tgc_logo);
-        this.m_relativeLayout = (RelativeLayout) findViewById(R.id.sml_relLayout);
+        this.m_relativeLayout = findViewById(R.id.sml_relLayout);
         ((SurfaceView)findViewById(R.id.surfaceView)).getHolder().addCallback(this);
         FileSelector.setActivity(this);
         if(imgui == null) imgui = new ImGUI();
@@ -223,21 +253,28 @@ public class GameActivity extends TGCNativeActivity {
         if (intent != null) {
             HandleNewIntent(intent);
         }
-        getWindow().getDecorView().setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            public android.view.WindowInsets onApplyWindowInsets(android.view.View r5, android.view.WindowInsets r6) {
-                int safeInset = Integer.max(r6.getStableInsetTop(), r6.getStableInsetBottom());
-                if(Build.VERSION.SDK_INT > 28 && r6.getDisplayCutout() != null) {
-                    DisplayCutout cutout = r6.getDisplayCutout();
-                    safeInset = Integer.max(0, Integer.max(cutout.getSafeInsetLeft(), cutout.getSafeInsetRight()));
+        getWindow().getDecorView().setOnApplyWindowInsetsListener((view, windowInsets) -> {
+            try {
+                int max = Integer.max(windowInsets.getStableInsetTop(), windowInsets.getStableInsetBottom());
+                if (Build.VERSION.SDK_INT >= 27) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            if (windowInsets.getDisplayCutout() != null) {
+                                max = Integer.max(max, Integer.max(windowInsets.getDisplayCutout().getSafeInsetLeft(), windowInsets.getDisplayCutout().getSafeInsetRight()));
+                            }
+                        }
+                    } catch (NoSuchMethodError ignored) {
+                    }
                 }
-                GameActivity gameActivity = GameActivity.this;
-                gameActivity.mSafeAreaInsets.left = safeInset;
-                gameActivity.mSafeAreaInsets.right = safeInset;
-                gameActivity.mSafeAreaInsets.top = 0;
-                gameActivity.mSafeAreaInsets.bottom = 0;
-                gameActivity.transformHeightToProgram((float)safeInset);
-                gameActivity.onSafeAreaInsetsChanged(new float[] {safeInset, 0, safeInset, 0});
-                return r5.onApplyWindowInsets(r6);
+                GameActivity.this.mSafeAreaInsets.left = max;
+                GameActivity.this.mSafeAreaInsets.top = 0;
+                GameActivity.this.mSafeAreaInsets.right = max;
+                GameActivity.this.mSafeAreaInsets.bottom = 0;
+                float transformWidthToProgram = GameActivity.this.transformWidthToProgram(max);
+                GameActivity.this.onSafeAreaInsetsChanged(new float[]{transformWidthToProgram, 0.0f, transformWidthToProgram, 0.0f});
+                return view.onApplyWindowInsets(windowInsets);
+            } catch (Exception | NoSuchMethodError unused2) {
+                return windowInsets;
             }
         });
     }
@@ -245,7 +282,7 @@ public class GameActivity extends TGCNativeActivity {
         return Build.BRAND;
     }
 
-    /* access modifiers changed from: protected */
+    @Override
     public void onDestroy() {
         FMOD.close();
         FileSelector.unsetActivity();
@@ -253,19 +290,33 @@ public class GameActivity extends TGCNativeActivity {
         super.onDestroy();
     }
 
-    /* access modifiers changed from: protected */
+    @Override // com.tgc.sky.TGCNativeActivity, android.app.Activity
     public void onResume() {
+        if (this.portraitOnResume) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        }
         this.m_systemIO.onResume();
         this.m_systemAccounts.onResume();
         super.onResume();
+        if (this.portraitOnResume) {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (GameActivity.this.portraitOnResume) {
+                    GameActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                }
+            }, 1000L);
+        }
     }
 
-    /* access modifiers changed from: protected */
+    @Override
     public void onPause() {
+        if (this.portraitOnResume) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        }
         this.m_systemIO.onPause();
         super.onPause();
     }
 
+    @Override
     public void onWindowFocusChanged(boolean z) {
         RelativeLayout relativeLayout;
         super.onWindowFocusChanged(z);
@@ -274,6 +325,7 @@ public class GameActivity extends TGCNativeActivity {
         }
     }
 
+    @Override
     public void onBackPressed() {
         onBackPressedNative();
     }
@@ -317,7 +369,7 @@ public class GameActivity extends TGCNativeActivity {
                     //if (!str.startsWith(Constants.REFERRER_API_GOOGLE) && !str.equalsIgnoreCase(Constants.MessagePayloadKeys.FROM) && !str.equalsIgnoreCase(Constants.MessagePayloadKeys.COLLAPSE_KEY)) {
                         jSONObject.put(str, JSONObject.wrap(extras.get(str)));
                     //}
-                } catch (JSONException unused) {
+                } catch (JSONException ignored) {
                 }
             }
             SystemIO_android.getInstance().OnAppLaunchNotificationMessage(jSONObject.toString());
@@ -354,27 +406,24 @@ public class GameActivity extends TGCNativeActivity {
         super.onActivityResult(i, i2, intent);
         ArrayList<OnActivityResultListener> arrayList = this.mOnActivityResultListeners;
         if (arrayList != null) {
-            Iterator<OnActivityResultListener> it = arrayList.iterator();
-            while (it.hasNext()) {
-                it.next().onActivityResult(i, i2, intent);
+            for (OnActivityResultListener onActivityResultListener : arrayList) {
+                onActivityResultListener.onActivityResult(i, i2, intent);
             }
         }
     }
 
     public boolean checkSelfPermissions(String[] strArr) {
-        int length = strArr.length;
         boolean z = true;
-        for (int i = 0; i < length; i++) {
-            z &= checkSelfPermission(strArr[i]) == PackageManager.PERMISSION_GRANTED;
+        for (String str : strArr) {
+            z &= checkSelfPermission(str) == PackageManager.PERMISSION_GRANTED;
         }
         return z;
     }
 
     public boolean checkResultPermissions(int[] iArr) {
         boolean z = iArr.length > 0;
-        int length = iArr.length;
-        for (int i = 0; i < length; i++) {
-            z &= iArr[i] == 0;
+        for (int i : iArr) {
+            z &= i == PackageManager.PERMISSION_GRANTED;
         }
         return z;
     }
@@ -394,8 +443,8 @@ public class GameActivity extends TGCNativeActivity {
 
     public boolean shouldShowRequestPermissionsRationale(String[] strArr) {
         boolean z = false;
-        for (String shouldShowRequestPermissionRationale : strArr) {
-            z |= shouldShowRequestPermissionRationale(shouldShowRequestPermissionRationale);
+        for (String str : strArr) {
+            z |= shouldShowRequestPermissionRationale(str);
         }
         return z;
     }
@@ -411,19 +460,24 @@ public class GameActivity extends TGCNativeActivity {
         }
     }
 
+    @Override
     public void onRequestPermissionsResult(int i, String[] strArr, int[] iArr) {
         PermissionCallback permissionCallback;
         super.onRequestPermissionsResult(i, strArr, iArr);
-        if (i == 100 && (permissionCallback = this.mPermissionCallback) != null) {
-            permissionCallback.onPermissionResult(strArr, iArr);
-            this.mPermissionCallback = null;
+        if (i != 100 || (permissionCallback = this.mPermissionCallback) == null) {
+            return;
         }
+        permissionCallback.onPermissionResult(strArr, iArr);
+        this.mPermissionCallback = null;
     }
+
 
     public void requestPermissionsThroughSettings(final String[] strArr, final PermissionCallback permissionCallback) {
         runOnUiThread(new Runnable() {
+            @Override
             public void run() {
-                GameActivity.this.AddOnActivityResultListener(new OnActivityResultListener() {
+                GameActivity.this.AddOnActivityResultListener(new OnActivityResultListener() { // from class: com.tgc.sky.GameActivity.3.1
+                    @Override
                     public void onActivityResult(int i, int i2, Intent intent) {
                         if (i == 100) {
                             permissionCallback.onPermissionResult(strArr, GameActivity.this.getSelfPermissions(strArr));
@@ -431,27 +485,34 @@ public class GameActivity extends TGCNativeActivity {
                         }
                     }
                 });
-                GameActivity.this.startActivityForResult(new Intent("android.settings.APPLICATION_DETAILS_SETTINGS", Uri.fromParts("package", BuildConfig.APPLICATION_ID, (String) null)), 100);
+                GameActivity.this.startActivityForResult(new Intent("android.settings.APPLICATION_DETAILS_SETTINGS", Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)), 100);
             }
         });
     }
 
     public boolean onTouchEvent(MotionEvent motionEvent) {
         int actionMasked = motionEvent.getActionMasked();
-        if(actionMasked == MotionEvent.ACTION_UP || actionMasked == MotionEvent.ACTION_DOWN  || actionMasked == MotionEvent.ACTION_MOVE) {
+        if (actionMasked == MotionEvent.ACTION_UP || actionMasked == MotionEvent.ACTION_DOWN  || actionMasked == MotionEvent.ACTION_MOVE) {
             ImGUI.submitPositionEvent(motionEvent.getX(), motionEvent.getY());
-            if(actionMasked == MotionEvent.ACTION_DOWN)  ImGUI.submitButtonEvent(0, true);
-            if(actionMasked == MotionEvent.ACTION_UP)  ImGUI.submitButtonEvent(0, false);
+            if (actionMasked == MotionEvent.ACTION_DOWN) {
+                ImGUI.submitButtonEvent(0, true);
+            }
+            if (actionMasked == MotionEvent.ACTION_UP) {
+                ImGUI.submitButtonEvent(0, false);
+            }
+
             boolean wantsKeyboard = ImGUI.wantsKeyboard();
-            if(wantsKeyboard && !imguiKeybaordShowing) {
+            if (wantsKeyboard && !imguiKeybaordShowing) {
                 imguiInput.setKeyboardState(true);
                 imguiKeybaordShowing = wantsKeyboard;
             }
-            if(!wantsKeyboard && imguiKeybaordShowing) {
+            if (!wantsKeyboard && imguiKeybaordShowing) {
                 imguiInput.setKeyboardState(false);
                 imguiKeybaordShowing = wantsKeyboard;
             }
-            if(ImGUI.wantsMouse()) return true;
+            if (ImGUI.wantsMouse()) {
+                return true;
+            }
         }
         if (actionMasked == MotionEvent.ACTION_MOVE || actionMasked == MotionEvent.ACTION_CANCEL) {
             for (int i = 0; i < motionEvent.getPointerCount(); i++) {
@@ -483,20 +544,15 @@ public class GameActivity extends TGCNativeActivity {
         }
     }
 
-    /* access modifiers changed from: protected */
-    public void onShowKeyboard(int i) {
+    protected void onShowKeyboard(int i) {
         ArrayList<OnKeyboardListener> arrayList = this.mOnKeyboardListeners;
-        if (arrayList != null) {
-            Iterator<OnKeyboardListener> it = arrayList.iterator();
-            while (it.hasNext()) {
-                it.next().onKeyboardChange(true, i);
-            }
-            getBrigeView().postDelayed(new Runnable() {
-                public void run() {
-                    GameActivity.hideNavigationFullScreen(GameActivity.this.getBrigeView());
-                }
-            }, 100);
+        if (arrayList == null) {
+            return;
         }
+        for (OnKeyboardListener onKeyboardListener : arrayList) {
+            onKeyboardListener.onKeyboardChange(true, i);
+        }
+        getBrigeView().postDelayed(() -> GameActivity.hideNavigationFullScreen(GameActivity.this.getBrigeView()), 100L);
     }
 
     /* access modifiers changed from: protected */
@@ -504,9 +560,8 @@ public class GameActivity extends TGCNativeActivity {
         //imguiInput.setVisibility(View.GONE);
         ArrayList<OnKeyboardListener> arrayList = this.mOnKeyboardListeners;
         if (arrayList != null) {
-            Iterator<OnKeyboardListener> it = arrayList.iterator();
-            while (it.hasNext()) {
-                it.next().onKeyboardChange(false, 0);
+            for (OnKeyboardListener onKeyboardListener : arrayList) {
+                onKeyboardListener.onKeyboardChange(false, 0);
             }
         }
     }
@@ -558,95 +613,96 @@ public class GameActivity extends TGCNativeActivity {
                 i3++;
             }
         }
-        if (!z || i3 < 4) {
-            return false;
-        }
-        return true;
+        return z && i3 >= 4;
     }
 
     private void initGameController() {
+        int[] deviceIds;
         this.mGameControllerIds = new ArrayList<>();
         for (int i : InputDevice.getDeviceIds()) {
             if (isValidGameController(i)) {
-                this.mGameControllerIds.add(Integer.valueOf(i));
+                this.mGameControllerIds.add(i);
             }
         }
-        if (this.mGameControllerIds.size() > 0) {
+        if (!this.mGameControllerIds.isEmpty()) {
             onGamepadConnectedNative();
         }
-        InputManager inputManager = (InputManager) getBaseContext().getSystemService(Context.INPUT_SERVICE);
+        InputManager inputManager = (InputManager) getBaseContext().getSystemService("input");
         if (inputManager != null) {
-            inputManager.registerInputDeviceListener(new InputManager.InputDeviceListener() {
-                public void onInputDeviceChanged(int i) {
+            inputManager.registerInputDeviceListener(new InputManager.InputDeviceListener() { // from class: com.tgc.sky.GameActivity.5
+                @Override
+                public void onInputDeviceChanged(int i2) {
                 }
 
-                public void onInputDeviceAdded(int i) {
-                    if (GameActivity.this.isValidGameController(i)) {
+                @Override
+                public void onInputDeviceAdded(int i2) {
+                    if (GameActivity.this.isValidGameController(i2)) {
                         boolean isEmpty = GameActivity.this.mGameControllerIds.isEmpty();
-                        GameActivity.this.mGameControllerIds.add(Integer.valueOf(i));
+                        GameActivity.this.mGameControllerIds.add(i2);
                         if (isEmpty) {
                             GameActivity.this.onGamepadConnectedNative();
                         }
                     }
                 }
 
-                public void onInputDeviceRemoved(int i) {
-                    if (GameActivity.this.mGameControllerIds.contains(Integer.valueOf(i))) {
-                        GameActivity.this.mGameControllerIds.remove(Integer.valueOf(i));
+                @Override
+                public void onInputDeviceRemoved(int i2) {
+                    if (GameActivity.this.mGameControllerIds.contains(i2)) {
+                        GameActivity.this.mGameControllerIds.remove(Integer.valueOf(i2));
                         if (GameActivity.this.mGameControllerIds.isEmpty()) {
                             GameActivity.this.onGamepadDisconnectedNative();
                         }
                     }
                 }
-            }, (Handler) null);
+            }, null);
         }
     }
 
     public boolean onKeyDown(int i, KeyEvent keyEvent) {
-        if((keyEvent.getSource() & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD) {
+        if ((keyEvent.getSource() & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD) {
             imgui.onKey(i, true);
         }
-        if (this.mGameControllerIds.contains(Integer.valueOf(keyEvent.getDeviceId()))) {
-            if ((keyEvent.getSource() & InputDeviceCompat.SOURCE_GAMEPAD) == 1025 || (keyEvent.getSource() & InputDeviceCompat.SOURCE_JOYSTICK) == 16777232) {
+        if (this.mGameControllerIds.contains(keyEvent.getDeviceId())) {
+            if ((keyEvent.getSource() & 1025) == 1025 || (keyEvent.getSource() & InputDeviceCompat.SOURCE_JOYSTICK) == 16777232) {
                 if (keyEvent.getRepeatCount() == 0) {
-                    onButtonPressNative(i, true, (double) keyEvent.getEventTime());
+                    onButtonPressNative(i, true, keyEvent.getEventTime());
                 }
                 return true;
             }
         } else if (i == 4 && keyEvent.getRepeatCount() == 0) {
-            onButtonPressNative(i, true, (double) keyEvent.getEventTime());
+            onButtonPressNative(i, true, keyEvent.getEventTime());
             return true;
         }
         return super.onKeyDown(i, keyEvent);
     }
 
     public boolean onKeyUp(int i, KeyEvent keyEvent) {
-        if((keyEvent.getSource() & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD) {
+        if ((keyEvent.getSource() & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD) {
             imgui.onKey(i, false);
         }
-        if (this.mGameControllerIds.contains(Integer.valueOf(keyEvent.getDeviceId()))) {
-            if ((keyEvent.getSource() & InputDeviceCompat.SOURCE_GAMEPAD) == 1025 || (keyEvent.getSource() & InputDeviceCompat.SOURCE_JOYSTICK) == 16777232) {
-                onButtonPressNative(i, false, (double) keyEvent.getEventTime());
+        if (this.mGameControllerIds.contains(keyEvent.getDeviceId())) {
+            if ((keyEvent.getSource() & 1025) == 1025 || (keyEvent.getSource() & InputDeviceCompat.SOURCE_JOYSTICK) == 16777232) {
+                onButtonPressNative(i, false, keyEvent.getEventTime());
                 return true;
             }
         } else if (i == 4) {
-            onButtonPressNative(i, false, (double) keyEvent.getEventTime());
+            onButtonPressNative(i, false, keyEvent.getEventTime());
             return true;
         }
         return super.onKeyDown(i, keyEvent);
     }
 
     public boolean onGenericMotionEvent(MotionEvent motionEvent) {
-        if (this.mGameControllerIds.contains(Integer.valueOf(motionEvent.getDeviceId()))) {
+        if (this.mGameControllerIds.contains(motionEvent.getDeviceId())) {
             int action = motionEvent.getAction();
-            if ((motionEvent.getSource() & InputDeviceCompat.SOURCE_GAMEPAD) == 1025 || (motionEvent.getSource() & InputDeviceCompat.SOURCE_JOYSTICK) == 16777232) {
+            if ((motionEvent.getSource() & 1025) == 1025 || (motionEvent.getSource() & InputDeviceCompat.SOURCE_JOYSTICK) == 16777232) {
                 if ((action & 255) == 2) {
                     onStickEventNative(motionEvent.getAxisValue(0), motionEvent.getAxisValue(1), motionEvent.getAxisValue(11), motionEvent.getAxisValue(14));
                 }
                 return true;
             } else if ((motionEvent.getSource() & InputDeviceCompat.SOURCE_DPAD) == 513) {
                 if ((action & 255) == 2) {
-                    onDpadEventNative(motionEvent.getAxisValue(0), motionEvent.getAxisValue(1), (double) motionEvent.getEventTime());
+                    onDpadEventNative(motionEvent.getAxisValue(0), motionEvent.getAxisValue(1), motionEvent.getEventTime());
                 }
                 return true;
             }
@@ -673,9 +729,8 @@ public class GameActivity extends TGCNativeActivity {
     public void dismissAllPanels() {
         ArrayList<BasePanel> arrayList = this.mActivePanels;
         if (arrayList != null) {
-            Iterator<BasePanel> it = arrayList.iterator();
-            while (it.hasNext()) {
-                it.next().dismiss();
+            for (BasePanel basePanel : arrayList) {
+                basePanel.dismiss();
             }
         }
     }
@@ -694,10 +749,6 @@ public class GameActivity extends TGCNativeActivity {
                 getWindow().setAttributes(attributes2);
             }
         }
-    }
-
-    public String getPlatformName() {
-        return "android";
     }
 
     public RelativeLayout getBrigeView() {
@@ -793,24 +844,24 @@ public class GameActivity extends TGCNativeActivity {
     }
 
     public float getDisplayXdpi() {
-        return getResources().getDisplayMetrics().xdpi;
+        return SMLApplication.SkyResources.getDisplayMetrics().xdpi;
     }
 
     public float getDisplayYdpi() {
-        return getResources().getDisplayMetrics().ydpi;
+        return SMLApplication.SkyResources.getDisplayMetrics().ydpi;
     }
 
     public float getDisplayDensity() {
-        return getResources().getDisplayMetrics().density;
+        return SMLApplication.SkyResources.getDisplayMetrics().density;
     }
 
     public boolean isScreenHdr() {
-        return getResources().getConfiguration().isScreenHdr();
+        return SMLApplication.SkyResources.getConfiguration().isScreenHdr();
     }
 
     // sky live 0.22.6 (229119)
     public boolean isScreenWideColorGamut() {
-        return getResources().getConfiguration().isScreenWideColorGamut();
+        return SMLApplication.SkyResources.getConfiguration().isScreenWideColorGamut();
     }
 
     // beta 0.23.0
@@ -831,10 +882,10 @@ public class GameActivity extends TGCNativeActivity {
 
     public String getDeviceName() {
         String string = Settings.Global.getString(getContentResolver(), "device_name");
-        if (string == null || string.length() == 0) {
+        if (string == null || string.isEmpty()) {
             string = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
         }
-        return (string == null || string.length() == 0) ? "NO_DEVICE_NAME" : string;
+        return (string == null || string.isEmpty()) ? "NO_DEVICE_NAME" : string;
     }
 
     public String getDeviceModel() {
@@ -865,19 +916,19 @@ public class GameActivity extends TGCNativeActivity {
     }
 
     public byte[] getDeviceUuid() {
-        String string = Settings.Secure.getString(getContentResolver(), "android_id");
+        @SuppressLint("HardwareIds") String string = Settings.Secure.getString(getContentResolver(), "android_id");
         if (string.length() < 16) {
             string = new String(new char[(16 - string.length())]).replace('\0', '0') + string;
         }
         byte[] bArr = new byte[(string.length() / 2)];
         for (int i = 0; i < string.length(); i += 2) {
-            bArr[i / 2] = (byte) ((Character.digit(string.charAt(i + 0), 16) << 4) + Character.digit(string.charAt(i + 1), 16));
+            bArr[i / 2] = (byte) ((Character.digit(string.charAt(i), 16) << 4) + Character.digit(string.charAt(i + 1), 16));
         }
         return bArr;
     }
 
     public void playLogoSound() {
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+/*        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         if(audioManager.isMusicActive()) return;
         MediaPlayer player = new MediaPlayer();
         try {
@@ -886,7 +937,11 @@ public class GameActivity extends TGCNativeActivity {
             (m_mediaPlayer = player).start();
         }catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        MediaPlayer create = MediaPlayer.create(this, R.raw.cnvintro_v3);
+        this.m_mediaPlayer = create;
+        create.start();
     }
 
     public boolean tryReleaseLogoSound() {
@@ -918,6 +973,8 @@ public class GameActivity extends TGCNativeActivity {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     logoView.setVisibility(View.GONE);
+                    // TODO: Don't remove!
+                    git.artdeell.skymodloader.MainActivity.lateInitUserLibs();
                 }
 
                 @Override

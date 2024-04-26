@@ -3,7 +3,6 @@ package git.artdeell.skymodloader;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.content.Context;
 
@@ -14,7 +13,7 @@ public class SMLApplication extends Application {
 
     private static SMLApplication smlApplication;
     public static String skyPName;
-    public static Resources skyRes;
+    public static Resources SkyResources;
     public static Resources smlRes;
     public static SMLApplication deez() {
         return smlApplication;

@@ -13,7 +13,7 @@ public class IconLoader {
     private static final int IMAGE_UV_LEN = "uv=\"".length();
     public static void findIcons() {
         try {
-            AssetManager skyAssets = SMLApplication.skyRes.getAssets();
+            AssetManager skyAssets = SMLApplication.SkyResources.getAssets();
             InputStream iconInputStream = skyAssets.open("Data/Resources/UIPackedAtlas.lua");
             BufferedReader reader = new BufferedReader(new InputStreamReader(iconInputStream));
             String line;

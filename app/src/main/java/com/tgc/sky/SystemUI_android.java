@@ -11,6 +11,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -50,6 +51,7 @@ import com.tgc.sky.ui.TextFieldLimiter;
 import com.tgc.sky.ui.Utils;
 import com.tgc.sky.ui.dialogs.DialogResult;
 import com.tgc.sky.ui.panels.CodeScanner;
+import com.tgc.sky.ui.panels.Starboard;
 import com.tgc.sky.ui.text.LocalizationManager;
 import com.tgc.sky.ui.text.Markup;
 import com.tgc.sky.ui.text.SystemHAlignment;
@@ -69,9 +71,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
-/* loaded from: classes2.dex */
 public class SystemUI_android {
     public static final int kInvalidDialogId = -1;
     public static final int kInvalidLabelId = -1;
@@ -86,9 +88,11 @@ public class SystemUI_android {
     private Markup m_markup;
     private QRCameraHandler m_qrCameraHandler;
     private DialogResult m_result;
+    private Starboard m_starBoard;
     private TextField m_textField;
     private TextFieldLimiter m_textFieldLimiter;
     private TextLabelManager m_textLabelManager;
+    private boolean m_useSensorOrientation;
     private String pasteStr = "";
     private boolean m_usingGamepad = false;
     private boolean m_enableHaptics = true;
@@ -102,7 +106,6 @@ public class SystemUI_android {
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: package-private */
     public SystemUI_android(GameActivity gameActivity) {
         this.m_activity = gameActivity;
         this.m_localizationManager = new LocalizationManager(gameActivity);
@@ -115,32 +118,22 @@ public class SystemUI_android {
         this.m_keyboardIsShowing = false;
         this.m_keyboardHeight = 0.0f;
         this.m_result = new DialogResult();
-        this.m_qrCameraHandler = new QRCameraHandler(gameActivity, new QRCameraHandler.HandlerCb() { // from class: com.tgc.sky.SystemUI_android$$ExternalSyntheticLambda0
-            @Override // com.tgc.sky.ui.QRCameraHandler.HandlerCb
-            public final void run(String str, int i, boolean z) {
-                SystemUI_android.this.SetResult(str, i, z);
-            }
-        });
+        this.m_qrCameraHandler = new QRCameraHandler(gameActivity, (str, i, z) -> SystemUI_android.this.SetResult(str, i, z));
         this.m_currentId = 0;
-        this.m_activity.addOnKeyboardListener(new GameActivity.OnKeyboardListener() { // from class: com.tgc.sky.SystemUI_android.1
-            @Override // com.tgc.sky.GameActivity.OnKeyboardListener
-            public void onKeyboardChange(boolean z, int i) {
-                SystemUI_android.this.m_keyboardIsShowing = z;
-                SystemUI_android.this.m_keyboardHeight = i;
-            }
+        this.m_activity.addOnKeyboardListener((z, i) -> {
+            SystemUI_android.this.m_keyboardIsShowing = z;
+            SystemUI_android.this.m_keyboardHeight = i;
         });
         final ClipboardManager clipboardManager = (ClipboardManager) gameActivity.getSystemService(Context.CLIPBOARD_SERVICE);
-        clipboardManager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() { // from class: com.tgc.sky.SystemUI_android.2
-            @Override // android.content.ClipboardManager.OnPrimaryClipChangedListener
-            public void onPrimaryClipChanged() {
-                CharSequence text;
-                ClipData primaryClip = clipboardManager.getPrimaryClip();
-                if (primaryClip == null || primaryClip.getItemCount() <= 0 || (text = primaryClip.getItemAt(0).getText()) == null) {
-                    return;
-                }
-                SystemUI_android.this.pasteStr = text.toString();
+        clipboardManager.addPrimaryClipChangedListener(() -> {
+            CharSequence text;
+            ClipData primaryClip = clipboardManager.getPrimaryClip();
+            if (primaryClip == null || primaryClip.getItemCount() <= 0 || (text = primaryClip.getItemAt(0).getText()) == null) {
+                return;
             }
+            SystemUI_android.this.pasteStr = text.toString();
         });
+        SetUseSensorOrientation(false);
         sInstance = this;
     }
 
@@ -197,16 +190,29 @@ public class SystemUI_android {
         return !this.m_activity.getBrigeView().hasWindowFocus();
     }
 
+    void SetUseSensorOrientation(boolean _useSensorOrientation) {
+        this.m_useSensorOrientation = _useSensorOrientation;
+        final int orientation = _useSensorOrientation ? ActivityInfo.SCREEN_ORIENTATION_SENSOR : ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+        if (orientation != this.m_activity.getRequestedOrientation()) {
+            this.m_activity.runOnUiThread(() -> {
+                if (!this.m_activity.portraitOnResume) {
+                    this.m_activity.setRequestedOrientation(orientation);
+                }
+            });
+        }
+    }
+
+    boolean GetUseSensorOrientation() {
+        return this.m_useSensorOrientation;
+    }
+
     int ShowTextField(final String str, final int i, final int i2) {
         int TryActivate;
         if (this.m_textField.getState() == TextField.State.kTextFieldState_Hidden && (TryActivate = this.m_textField.TryActivate()) != -1) {
             this.m_textField.setState(TextField.State.kTextFieldState_RequestShow);
-            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.3
-                @Override // java.lang.Runnable
-                public void run() {
-                    SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
-                    SystemUI_android.this.m_textField.setState(TextField.State.kTextFieldState_Showing);
-                }
+            this.m_activity.runOnUiThread(() -> {
+                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), i, i2);
+                SystemUI_android.this.m_textField.setState(TextField.State.kTextFieldState_Showing);
             });
             return TryActivate;
         }
@@ -217,12 +223,9 @@ public class SystemUI_android {
         int TryActivate;
         if (this.m_textField.getState() == TextField.State.kTextFieldState_Hidden && (TryActivate = this.m_textField.TryActivate()) != -1) {
             this.m_textField.setState(TextField.State.kTextFieldState_RequestShow);
-            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.4
-                @Override // java.lang.Runnable
-                public void run() {
-                    SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), str2, i, i2, z);
-                    SystemUI_android.this.m_textField.setState(TextField.State.kTextFieldState_Showing);
-                }
+            this.m_activity.runOnUiThread(() -> {
+                SystemUI_android.this.m_textField.showTextFieldWithPrompt(SystemUI_android.this.LocalizeString(str), str2, i, i2, z);
+                SystemUI_android.this.m_textField.setState(TextField.State.kTextFieldState_Showing);
             });
             return TryActivate;
         }
@@ -230,18 +233,14 @@ public class SystemUI_android {
     }
 
     void HideTextField() {
-        if (this.m_textField.getState() == TextField.State.kTextFieldState_RequestHide || this.m_textField.getState() == TextField.State.kTextFieldState_Hidden) {
-            return;
-        }
-        this.m_textField.setState(TextField.State.kTextFieldState_RequestHide);
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.5
-            @Override // java.lang.Runnable
-            public void run() {
+        if (this.m_textField.getState() != TextField.State.kTextFieldState_RequestHide && this.m_textField.getState() != TextField.State.kTextFieldState_Hidden) {
+            this.m_textField.setState(TextField.State.kTextFieldState_RequestHide);
+            this.m_activity.runOnUiThread(() -> {
                 SystemUI_android.this.m_textField.hideTextField();
                 SystemUI_android.this.m_textField.setState(TextField.State.kTextFieldState_Hidden);
-            }
-        });
-        this.m_textField.clearId();
+            });
+            this.m_textField.clearId();
+        }
     }
 
     boolean IsTextFieldIdActive(int i) {
@@ -285,79 +284,62 @@ public class SystemUI_android {
         final String LocalizeString2 = LocalizeString(str2);
         final String LocalizeString3 = LocalizeString(str3);
         final String LocalizeString4 = LocalizeString(str4);
-        final String str7 = (str6 == null || str6.length() <= 0) ? null : str6;
+        final String str7 = (str6 == null || str6.isEmpty()) ? null : str6;
         this.m_textFieldLimiter.maxCharacters = i;
         this.m_textFieldLimiter.maxByteSize = i2;
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.6
-            @Override // java.lang.Runnable
-            public void run() {
-                SpannableStringBuilder GetMarkedUpString = SystemUI_android.this.GetMarkedUpString(LocalizeString, new ArrayList<>(Arrays.asList(SystemUI_android.this.m_markup.DefaultFontGame(17.0f), new StyleSpan(1))), false);
-                AlertDialog.Builder builder = new AlertDialog.Builder(SystemUI_android.this.m_activity);
-                TextView textView = new TextView(SystemUI_android.this.m_activity);
-                textView.setText(GetMarkedUpString, TextView.BufferType.SPANNABLE);
-                int dp2px = Utils.dp2px(20.0f);
-                FrameLayout frameLayout = new FrameLayout(SystemUI_android.this.m_activity);
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(-1, -2);
-                layoutParams.leftMargin = dp2px;
-                layoutParams.rightMargin = dp2px;
-                layoutParams.topMargin = dp2px;
-                frameLayout.addView(textView, layoutParams);
-                builder.setCustomTitle(frameLayout);
-                final EditText editText = new EditText(SystemUI_android.this.m_activity);
-                editText.setText(str5, TextView.BufferType.SPANNABLE);
-                String str8 = str7;
-                if (str8 == null) {
-                    str8 = LocalizeString2;
-                }
-                editText.setHint(str8);
-                editText.setFilters(new InputFilter[]{SystemUI_android.this.m_textFieldLimiter});
-                editText.setImeOptions(33554438);
-                editText.setSingleLine();
-                FrameLayout frameLayout2 = new FrameLayout(SystemUI_android.this.m_activity);
-                FrameLayout.LayoutParams layoutParams2 = new FrameLayout.LayoutParams(-1, -2);
-                layoutParams2.leftMargin = dp2px;
-                layoutParams2.rightMargin = dp2px;
-                layoutParams2.topMargin = dp2px;
-                frameLayout2.addView(editText, layoutParams);
-                builder.setView(frameLayout2);
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() { // from class: com.tgc.sky.SystemUI_android.6.1
-                    @Override // android.content.DialogInterface.OnDismissListener
-                    public void onDismiss(DialogInterface dialogInterface) {
-                        GameActivity.hideNavigationFullScreen(SystemUI_android.this.m_activity.getBrigeView());
-                    }
-                });
-                builder.setPositiveButton(LocalizeString3, new DialogInterface.OnClickListener() { // from class: com.tgc.sky.SystemUI_android.6.2
-                    @Override // android.content.DialogInterface.OnClickListener
-                    public void onClick(DialogInterface dialogInterface, int i3) {
-                        String obj = editText.getText().toString();
-                        if (obj.length() == 0) {
-                            SystemUI_android.this.SetResult(str7 != null ? str7 : str5, 1, true);
-                        } else {
-                            SystemUI_android.this.SetResult(obj, 1, true);
-                        }
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setNegativeButton(LocalizeString4, new DialogInterface.OnClickListener() { // from class: com.tgc.sky.SystemUI_android.6.3
-                    @Override // android.content.DialogInterface.OnClickListener
-                    public void onClick(DialogInterface dialogInterface, int i3) {
-                        SystemUI_android.this.SetResult(null, 0, true);
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setOnCancelListener(new DialogInterface.OnCancelListener() { // from class: com.tgc.sky.SystemUI_android.6.4
-                    @Override // android.content.DialogInterface.OnCancelListener
-                    public void onCancel(DialogInterface dialogInterface) {
-                        SystemUI_android.this.SetResult(null, 0, true);
-                    }
-                });
-                AlertDialog create = builder.create();
-                GameActivity.hideNavigationFullScreen(create.getWindow().getDecorView());
-                create.getWindow().setFlags(8, 8);
-                create.setCanceledOnTouchOutside(false);
-                create.show();
-                create.getWindow().clearFlags(8);
+        this.m_activity.runOnUiThread(() -> {
+            SpannableStringBuilder GetMarkedUpString = SystemUI_android.this.GetMarkedUpString(LocalizeString, new ArrayList<>(Arrays.asList(SystemUI_android.this.m_markup.DefaultFontGame(17.0f), new StyleSpan(1))), false);
+            AlertDialog.Builder builder = new AlertDialog.Builder(SystemUI_android.this.m_activity);
+            TextView textView = new TextView(SystemUI_android.this.m_activity);
+            textView.setText(GetMarkedUpString, TextView.BufferType.SPANNABLE);
+            int dp2px = Utils.dp2px(20.0f);
+            FrameLayout frameLayout = new FrameLayout(SystemUI_android.this.m_activity);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(-1, -2);
+            layoutParams.leftMargin = dp2px;
+            layoutParams.rightMargin = dp2px;
+            layoutParams.topMargin = dp2px;
+            frameLayout.addView(textView, layoutParams);
+            builder.setCustomTitle(frameLayout);
+            final EditText editText = new EditText(SystemUI_android.this.m_activity);
+            editText.setText(str5, TextView.BufferType.SPANNABLE);
+            String str8 = str7;
+            if (str8 == null) {
+                str8 = LocalizeString2;
             }
+            editText.setHint(str8);
+            editText.setFilters(new InputFilter[]{SystemUI_android.this.m_textFieldLimiter});
+            editText.setImeOptions(33554438);
+            editText.setSingleLine();
+            FrameLayout frameLayout2 = new FrameLayout(SystemUI_android.this.m_activity);
+            FrameLayout.LayoutParams layoutParams2 = new FrameLayout.LayoutParams(-1, -2);
+            layoutParams2.leftMargin = dp2px;
+            layoutParams2.rightMargin = dp2px;
+            layoutParams2.topMargin = dp2px;
+            frameLayout2.addView(editText, layoutParams);
+            builder.setView(frameLayout2);
+            builder.setOnDismissListener(dialogInterface -> GameActivity.hideNavigationFullScreen(SystemUI_android.this.m_activity.getBrigeView()));
+            builder.setPositiveButton(LocalizeString3, (dialogInterface, i3) -> {
+                String obj = editText.getText().toString();
+                if (obj.isEmpty()) {
+                    SystemUI_android.this.SetResult(str7 != null ? str7 : str5, 1, true);
+                } else {
+                    SystemUI_android.this.SetResult(obj, 1, true);
+                }
+                dialogInterface.dismiss();
+            });
+
+            builder.setNegativeButton(LocalizeString4, (dialogInterface, i3) -> {
+                SystemUI_android.this.SetResult(null, 0, true);
+                dialogInterface.dismiss();
+            });
+
+            builder.setOnCancelListener(dialogInterface -> SystemUI_android.this.SetResult(null, 0, true));
+            AlertDialog create = builder.create();
+            GameActivity.hideNavigationFullScreen(Objects.requireNonNull(create.getWindow()).getDecorView());
+            create.getWindow().setFlags(8, 8);
+            create.setCanceledOnTouchOutside(false);
+            create.show();
+            create.getWindow().clearFlags(8);
         });
         return TryActivate;
     }
@@ -371,9 +353,9 @@ public class SystemUI_android {
         final String LocalizeString2 = LocalizeString(str2);
         final String LocalizeString3 = LocalizeString(str3);
         final String LocalizeString4 = LocalizeString(str4);
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.7
+        this.m_activity.runOnUiThread(new Runnable() {
             @SuppressLint("RestrictedApi")
-            @Override // java.lang.Runnable
+            @Override
             public void run() {
                 SpannableStringBuilder GetMarkedUpString = SystemUI_android.this.GetMarkedUpString(LocalizeString, new ArrayList<>(Arrays.asList(SystemUI_android.this.m_markup.DefaultFontGame(17.0f), new StyleSpan(1))), false);
                 SpannableStringBuilder GetMarkedUpString2 = SystemUI_android.this.GetMarkedUpString(LocalizeString2, new ArrayList<>(Arrays.asList(SystemUI_android.this.m_markup.DefaultFontGame(13.0f))), false);
@@ -397,28 +379,19 @@ public class SystemUI_android {
                 layoutParams2.topMargin = dp2px;
                 frameLayout2.addView(textView2, layoutParams2);
                 builder.setView(frameLayout2);
-                builder.setPositiveButton(LocalizeString3, new DialogInterface.OnClickListener() { // from class: com.tgc.sky.SystemUI_android.7.1
-                    @Override // android.content.DialogInterface.OnClickListener
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        SystemUI_android.this.SetResult(null, 1, true);
-                        dialogInterface.dismiss();
-                    }
+                builder.setPositiveButton(LocalizeString3, (dialogInterface, i) -> {
+                    SystemUI_android.this.SetResult(null, 1, true);
+                    dialogInterface.dismiss();
                 });
-                builder.setNegativeButton(LocalizeString4, new DialogInterface.OnClickListener() { // from class: com.tgc.sky.SystemUI_android.7.2
-                    @Override // android.content.DialogInterface.OnClickListener
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        SystemUI_android.this.SetResult(null, 0, true);
-                        dialogInterface.dismiss();
-                    }
+
+                builder.setNegativeButton(LocalizeString4, (dialogInterface, i) -> {
+                    SystemUI_android.this.SetResult(null, 0, true);
+                    dialogInterface.dismiss();
                 });
-                builder.setOnCancelListener(new DialogInterface.OnCancelListener() { // from class: com.tgc.sky.SystemUI_android.7.3
-                    @Override // android.content.DialogInterface.OnCancelListener
-                    public void onCancel(DialogInterface dialogInterface) {
-                        SystemUI_android.this.SetResult(null, 0, true);
-                    }
-                });
+
+                builder.setOnCancelListener(dialogInterface -> SystemUI_android.this.SetResult(null, 0, true));
                 AlertDialog create = builder.create();
-                GameActivity.hideNavigationFullScreen(create.getWindow().getDecorView());
+                GameActivity.hideNavigationFullScreen(Objects.requireNonNull(create.getWindow()).getDecorView());
                 create.getWindow().setFlags(8, 8);
                 create.setCanceledOnTouchOutside(false);
                 create.show();
@@ -444,10 +417,9 @@ public class SystemUI_android {
         final String LocalizeString4 = LocalizeString(str3);
         final String LocalizeString5 = LocalizeString(str4);
         final int max = Integer.max(0, Integer.max(i, i2));
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.8
-            /* JADX WARN: Type inference failed for: r9v1, types: [com.tgc.sky.SystemUI_android$8$4] */
+        this.m_activity.runOnUiThread(new Runnable() {
             @SuppressLint("RestrictedApi")
-            @Override // java.lang.Runnable
+            @Override
             public void run() {
                 int i3;
                 SpannableStringBuilder GetMarkedUpString = SystemUI_android.this.GetMarkedUpString(LocalizeString, new ArrayList<>(Arrays.asList(SystemUI_android.this.m_markup.DefaultFontGame(17.0f), new StyleSpan(1))), false);
@@ -472,35 +444,23 @@ public class SystemUI_android {
                 layoutParams2.topMargin = dp2px;
                 frameLayout2.addView(textView2, layoutParams2);
                 builder.setView(frameLayout2);
-                String str6 = LocalizeString3;
-                if (str6 != null && (i3 = i) > 0) {
-                    textView2.setText(SystemUI_android.this.GetMarkedUpString(str6.replace("{{1}}", Integer.toString(i3)), new ArrayList<>(Arrays.asList(SystemUI_android.this.m_markup.DefaultFontGame(13.0f))), false), TextView.BufferType.SPANNABLE);
+                if (LocalizeString3 != null && (i3 = i) > 0) {
+                    textView2.setText(SystemUI_android.this.GetMarkedUpString(LocalizeString3.replace("{{1}}", Integer.toString(i3)), new ArrayList<>(Arrays.asList(SystemUI_android.this.m_markup.DefaultFontGame(13.0f))), false), TextView.BufferType.SPANNABLE);
                 } else {
                     textView2.setText(GetMarkedUpString2, TextView.BufferType.SPANNABLE);
                 }
-                builder.setPositiveButton(LocalizeString4, new DialogInterface.OnClickListener() { // from class: com.tgc.sky.SystemUI_android.8.1
-                    @Override // android.content.DialogInterface.OnClickListener
-                    public void onClick(DialogInterface dialogInterface, int i4) {
-                        SystemUI_android.this.SetResult(null, 1, true);
-                        dialogInterface.dismiss();
-                    }
+                builder.setPositiveButton(LocalizeString4, (dialogInterface, i4) -> {
+                    SystemUI_android.this.SetResult(null, 1, true);
+                    dialogInterface.dismiss();
                 });
-                builder.setNegativeButton(LocalizeString5, new DialogInterface.OnClickListener() { // from class: com.tgc.sky.SystemUI_android.8.2
-                    @Override // android.content.DialogInterface.OnClickListener
-                    public void onClick(DialogInterface dialogInterface, int i4) {
-                        SystemUI_android.this.SetResult(null, 0, true);
-                        dialogInterface.dismiss();
-                    }
+                builder.setNegativeButton(LocalizeString5, (dialogInterface, i4) -> {
+                    SystemUI_android.this.SetResult(null, 0, true);
+                    dialogInterface.dismiss();
                 });
-                builder.setOnCancelListener(new DialogInterface.OnCancelListener() { // from class: com.tgc.sky.SystemUI_android.8.3
-                    @Override // android.content.DialogInterface.OnCancelListener
-                    public void onCancel(DialogInterface dialogInterface) {
-                        SystemUI_android.this.SetResult(null, 0, true);
-                    }
-                });
+                builder.setOnCancelListener(dialogInterface -> SystemUI_android.this.SetResult(null, 0, true));
                 builder.setCancelable(i2 == 0);
                 final AlertDialog create = builder.create();
-                GameActivity.hideNavigationFullScreen(create.getWindow().getDecorView());
+                GameActivity.hideNavigationFullScreen(Objects.requireNonNull(create.getWindow()).getDecorView());
                 create.getWindow().setFlags(8, 8);
                 create.setCanceledOnTouchOutside(false);
                 create.show();
@@ -516,9 +476,9 @@ public class SystemUI_android {
                     create.getButton(-2).setEnabled(false);
                 }
                 if (max > 0) {
-                    new CountDownTimer(max * 1000, 1000L) { // from class: com.tgc.sky.SystemUI_android.8.4
+                    new CountDownTimer(max * 1000L, 1000L) {
                         @SuppressLint("RestrictedApi")
-                        @Override // android.os.CountDownTimer
+                        @Override
                         public void onTick(long j) {
                             int i4 = (int) (max - (j / 1000));
                             if (i >= 0 && i <= i4) {
@@ -536,7 +496,7 @@ public class SystemUI_android {
                         }
 
                         @SuppressLint("RestrictedApi")
-                        @Override // android.os.CountDownTimer
+                        @Override
                         public void onFinish() {
                             if (i >= 0) {
                                 create.getButton(-1).setEnabled(true);
@@ -787,6 +747,30 @@ public class SystemUI_android {
         }
     }
 
+    public int ShowStarboardView(String str, String str2) {
+        int TryActivate;
+        if (GetMainWindowAttachedSheet() || (TryActivate = TryActivate()) == -1) {
+            return -1;
+        }
+
+        this.m_activity.runOnUiThread(() -> {
+            SystemUI_android systemUI_android = SystemUI_android.this;
+            GameActivity gameActivity = SystemUI_android.this.m_activity;
+            SystemUI_android systemUI_android2 = SystemUI_android.this;
+            systemUI_android.m_starBoard = new Starboard(gameActivity, systemUI_android2, systemUI_android2.m_markup, new Starboard.Handle() { // from class: com.tgc.sky.SystemUI_android.13.1
+                @Override
+                public void run(String str3, int i, boolean z) {
+                    SystemUI_android.this.SetResult(str3, i, z);
+                    if (z) {
+                        SystemUI_android.this.m_starBoard = null;
+                    }
+                }
+            });
+            SystemUI_android.this.m_starBoard.showAtLocation(SystemUI_android.this.m_activity.getWindow().getDecorView(), 19, 0, 0);
+        });
+        return TryActivate;
+    }
+
     public int GetQRCameraPermissionState() {
         return this.m_qrCameraHandler.getPermissionState().ordinal();
     }
@@ -807,6 +791,10 @@ public class SystemUI_android {
         return this.m_qrCameraHandler.getFormat().ordinal();
     }
 
+    public void LockQRCamera() {
+        this.m_qrCameraHandler.lock();
+    }
+
     public int GetQRCameraWidth() {
         return this.m_qrCameraHandler.getWidth();
     }
@@ -815,12 +803,12 @@ public class SystemUI_android {
         return this.m_qrCameraHandler.getHeight();
     }
 
-    public byte[] LockQRCameraImageBuffer() {
-        return this.m_qrCameraHandler.lockImageBuffer().array();
+    public byte[] GetQRCameraImageBuffer() {
+        return this.m_qrCameraHandler.getImageBuffer().array();
     }
 
-    public void UnlockQRCameraImageBuffer() {
-        this.m_qrCameraHandler.unlockImageBuffer();
+    public void UnlockQRCamera() {
+        this.m_qrCameraHandler.unlock();
     }
 
     public int StartListeningForQRScanEvent() {
@@ -1262,6 +1250,49 @@ public class SystemUI_android {
         this.m_textLabelManager.AddTextLabel(i);
     }
 
+    public void AddTextLabel(int i, boolean z, boolean z2, boolean z3, boolean z4, boolean z5, float f, float f2, boolean z6, int i2, boolean z7, int i3, float[] fArr, float[] fArr2, float f3, float[] fArr3, float[] fArr4, float f4, float f5, float f6, int i4, int i5, boolean z8, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, boolean z9, boolean z10, int i6, boolean z11) {
+        TextLabel GetTextLabel = this.m_textLabelManager.GetTextLabel(i);
+        if (GetTextLabel == null) {
+            return;
+        }
+        GetTextLabel.attrs.fontName = "";
+        GetTextLabel.attrs.hasBackground = z;
+        GetTextLabel.attrs.hasShadow = z2;
+        GetTextLabel.attrs.forceBold = z3;
+        GetTextLabel.attrs.adjustFontSizeToFitWidth = z4;
+        GetTextLabel.attrs.ignoreMarkupOptimization = z5;
+        GetTextLabel.attrs.fontSize = f;
+        GetTextLabel.attrs.scale = f2;
+        GetTextLabel.attrs.trilinearMinification = z6;
+        GetTextLabel.attrs.maxNumberOfLines = i2;
+        GetTextLabel.attrs.truncateWithEllipses = z7;
+        GetTextLabel.attrs.textAlignment = SystemHAlignment.values()[i3];
+        GetTextLabel.attrs.textColor = fArr;
+        GetTextLabel.attrs.bgColor = fArr2;
+        GetTextLabel.attrs.bgCornerRadius = f3;
+        GetTextLabel.attrs.shadowColor = fArr3;
+        GetTextLabel.attrs.shadowOffset = fArr4;
+        GetTextLabel.pos.x = f4;
+        GetTextLabel.pos.y = f5;
+        GetTextLabel.pos.z = f6;
+        GetTextLabel.pos.h = SystemHAlignment.values()[i4];
+        GetTextLabel.pos.v = SystemVAlignment.values()[i5];
+        GetTextLabel.pos.shrinkBoxToText = z8;
+        GetTextLabel.pos.maxWidth = f7;
+        GetTextLabel.pos.maxHeight = f8;
+        GetTextLabel.pos.padWidth = f9;
+        GetTextLabel.pos.padHeight = f10;
+        GetTextLabel.pos.clipMinX = f11;
+        GetTextLabel.pos.clipMinY = f12;
+        GetTextLabel.pos.clipMaxX = f13;
+        GetTextLabel.pos.clipMaxY = f14;
+        GetTextLabel.pos.clip = z9;
+        GetTextLabel.pos.autoAnchor = z10;
+        GetTextLabel.textId = i6;
+        GetTextLabel.autoFreeTextId = z11;
+        this.m_textLabelManager.AddTextLabel(i);
+    }
+
     public float[] GetTextLabelSize(int i) {
         return this.m_textLabelManager.GetTextLabelSize(i);
     }
@@ -1316,24 +1347,14 @@ public class SystemUI_android {
 
     boolean HapticFeedbackSuccess() {
         if (!this.m_usingGamepad && this.m_enableHaptics) {
-            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.19
-                @Override // java.lang.Runnable
-                public void run() {
-                    SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(0);
-                }
-            });
+            this.m_activity.runOnUiThread(() -> SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(0));
         }
         return false;
     }
 
     boolean HapticFeedbackSuccessStrong() {
         if (!this.m_usingGamepad && this.m_enableHaptics) {
-            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.20
-                @Override // java.lang.Runnable
-                public void run() {
-                    SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(0);
-                }
-            });
+            this.m_activity.runOnUiThread(() -> SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(0));
         }
         return false;
     }
@@ -1364,12 +1385,7 @@ public class SystemUI_android {
 
     boolean HapticFeedbackSelection() {
         if (!this.m_usingGamepad && this.m_enableHaptics) {
-            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.23
-                @Override // java.lang.Runnable
-                public void run() {
-                    SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(6);
-                }
-            });
+            this.m_activity.runOnUiThread(() -> SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(6));
         }
         return false;
     }
@@ -1383,24 +1399,14 @@ public class SystemUI_android {
 
     boolean HapticFeedbackImpact() {
         if (!this.m_usingGamepad && this.m_enableHaptics) {
-            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.25
-                @Override // java.lang.Runnable
-                public void run() {
-                    SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(1);
-                }
-            });
+            this.m_activity.runOnUiThread(() -> SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(1));
         }
         return false;
     }
 
     boolean HapticFeedbackImpactHeavy() {
         if (!this.m_usingGamepad && this.m_enableHaptics) {
-            this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.26
-                @Override // java.lang.Runnable
-                public void run() {
-                    SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(0);
-                }
-            });
+            this.m_activity.runOnUiThread(() -> SystemUI_android.this.m_activity.getBrigeView().performHapticFeedback(0));
         }
         return false;
     }
@@ -1410,12 +1416,7 @@ public class SystemUI_android {
     }
 
     public void SetPasteBufferString(final String str) {
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.27
-            @Override // java.lang.Runnable
-            public void run() {
-                ((ClipboardManager) SystemUI_android.this.m_activity.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText(null, str));
-            }
-        });
+        this.m_activity.runOnUiThread(() -> ((ClipboardManager) SystemUI_android.this.m_activity.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText(null, str)));
     }
 
     public void LaunchURL(String str) {
@@ -1486,7 +1487,7 @@ public class SystemUI_android {
 
     public int[] GetTime(String str) {
         TimeZone timeZone;
-        if (str != null && str.length() > 0) {
+        if (str != null && !str.isEmpty()) {
             timeZone = TimeZone.getTimeZone(str);
         } else {
             timeZone = TimeZone.getDefault();
@@ -1504,7 +1505,7 @@ public class SystemUI_android {
     }
 
     public long GetEpochTime(String str, int i, int i2, int i3, int i4, int i5, int i6) {
-        TimeZone timeZone = (str == null || str.length() <= 0) ? TimeZone.getDefault() : TimeZone.getTimeZone(str);
+        TimeZone timeZone = (str == null || str.isEmpty()) ? TimeZone.getDefault() : TimeZone.getTimeZone(str);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(timeZone);
         calendar.set(i, i2 - 1, i3, i4, i5, i6);

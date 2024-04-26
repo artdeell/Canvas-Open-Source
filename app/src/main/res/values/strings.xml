@@ -1,12 +1,5 @@
 <resources>
     <string name="app_name">Canvas</string>
-    <!--FOR SKY-->
-    <string name="facebook_app_id">293746044767069</string>
-    <string name="adjust_sdk_app_token">agt31ozxyo74</string>
-    <string name="singular_link_hostname">tgc-sky-beta.sng.link</string>
-    <string name="singular_sdk_key">thatgamecompany_4d2c935e</string>
-    <string name="singular_sdk_secret">cba38d05d8a351057384dc8abf691b77</string>
-    <!---->
     <string name="sky_not_installed">Open Mod Manager and choose Live/Beta/Huawei. Sky is not installed. You must have Sky installed in order to use this!</string>
     <string name="app_info"><![CDATA[<b>Canvas Mod Loader</b><br>
     <a href="https://t.me/+Hc6QeQVTH1JjNjky">Support</a><br>
@@ -74,7 +67,7 @@
     <string name="up_to_date_message">Current mod is up to date\nVersion: %1$s</string>
     <string name="remove">Remove</string>
     <string name="check_for_updates">Check For Updates</string>
-    <string name="switch_skip_updates">Skip game update (sky beta only)</string>
+    <string name="switch_skip_updates">Bypass game updates</string>
     <string name="close">Close</string>
 
 

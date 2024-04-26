@@ -41,9 +41,6 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/recordpaths" />
-            <meta-data
-                android:name="com.facebook.sdk.ApplicationId"
-                android:value="@string/facebook_app_id" />
 
         </provider>
         <activity
@@ -65,10 +62,6 @@
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="sensorLandscape">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.tgc.sky.GameActivity"
@@ -83,7 +76,7 @@
         <activity
             android:name=".elfmod.ModManagerActivity"
             android:exported="true"
-            android:label="@string/mod_manager"
+            android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:resizeableActivity="false"
             android:theme="@style/AppTheme">

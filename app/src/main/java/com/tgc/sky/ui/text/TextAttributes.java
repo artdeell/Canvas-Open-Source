@@ -9,23 +9,26 @@ public class TextAttributes {
     public float[] textColor;
     public boolean hasBackground = false;
     public boolean hasShadow = false;
+    public boolean forceBold = false;
     public boolean adjustFontSizeToFitWidth = false;
     public boolean ignoreMarkupOptimization = false;
     public float fontSize = 12.0f;
     public float scale = 1.0f;
+    public boolean trilinearMinification = false;
     public int maxNumberOfLines = 0;
     public boolean truncateWithEllipses = false;
     public SystemHAlignment textAlignment = SystemHAlignment.ALIGN_H_CENTER;
     public float bgCornerRadius = 0.0f;
 
-    /* JADX INFO: Access modifiers changed from: package-private */
     public void UpdateWith(TextAttributes textAttributes) {
         this.fontName = textAttributes.fontName;
         this.hasBackground = textAttributes.hasBackground;
         this.hasShadow = textAttributes.hasShadow;
+        this.forceBold = textAttributes.forceBold;
         this.adjustFontSizeToFitWidth = textAttributes.adjustFontSizeToFitWidth;
         this.ignoreMarkupOptimization = textAttributes.ignoreMarkupOptimization;
         this.scale = textAttributes.scale;
+        this.trilinearMinification = textAttributes.trilinearMinification;
         this.maxNumberOfLines = textAttributes.maxNumberOfLines;
         this.truncateWithEllipses = textAttributes.truncateWithEllipses;
         this.textAlignment = textAttributes.textAlignment;

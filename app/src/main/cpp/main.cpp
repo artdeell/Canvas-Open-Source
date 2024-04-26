@@ -92,7 +92,7 @@ std::string formatUserLibInfo(const Canvas::UserLib& _userLib) {
     }
 
     if (!_userLib.Description.empty()) {
-        oss << "---------\nDescription: " << _userLib.Description << "\n";
+        oss << "---------\nDescription:\n" << _userLib.Description << "\n";
     }
     return oss.str();
 }
@@ -213,13 +213,13 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
         return;
     }
 
-    func (*Start)() = (func (*)()) dlsym( dl_entry, "Start");
     env->ReleaseStringUTFChars(_path, temp);
-    if(Start == nullptr) {
+
+    func (*Start)() = (func (*)()) dlsym( dl_entry, "Start");
+    if (Start == nullptr) {
         crash(env, dlerror());
         return;
     }
-
 
     Canvas::UserLib* pUserLib = new Canvas::UserLib;
     pUserLib->UISelfManaged = _selfManagedUI;
@@ -228,6 +228,10 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
     pUserLib->Description = env->GetStringUTFChars(_description, 0);
     pUserLib->Version = env->GetStringUTFChars(_version, 0);
     pUserLib->Start = (void (*)(void))(Start);
+
+    func (*InitLate)() = (func (*)()) dlsym( dl_entry, "InitLate");
+    pUserLib->InitLate = (void (*)(void))InitLate;
+
     pthread_t pid;
     pthread_create(&pid, nullptr, UserThread, (void *)pUserLib);
 }
@@ -262,4 +266,19 @@ Java_git_artdeell_skymodloader_MainActivity_setDeviceInfoNative(
     Canvas::deviceInfo.deviceName = env->GetStringUTFChars(_deviceName, nullptr);
     Canvas::deviceInfo.deviceManufacturer = env->GetStringUTFChars(_manufacturer, nullptr);
     Canvas::deviceInfo.deviceModel = env->GetStringUTFChars(_model, nullptr);
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_git_artdeell_skymodloader_MainActivity_lateInitUserLibs(JNIEnv *env, jclass clazz) {
+    std::thread lateInitThread([]() -> void {
+        for (auto& userlib : Canvas::userLibs) {
+            if (userlib.InitLate != nullptr) {
+                userlib.InitLate();
+                LOGI("InitLate() called for %s", userlib.Name.c_str());
+            } else {
+                LOGI("%s does not adopt a InitLate() function", userlib.Name.c_str());
+            }
+        }
+    });
+    lateInitThread.detach();
 }

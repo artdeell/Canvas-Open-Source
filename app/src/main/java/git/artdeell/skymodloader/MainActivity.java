@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
             PackageInfo info;
             info = pm.getPackageInfo(SKY_PACKAGE_NAME, PackageManager.GET_SHARED_LIBRARY_FILES);
             SMLApplication.skyPName = info.packageName;
-            SMLApplication.skyRes = pm.getResourcesForApplication(info.packageName);
+            SMLApplication.SkyResources = pm.getResourcesForApplication(info.packageName);
             SMLApplication.smlRes = getResources();
             String versionName = info.versionName;
             BuildConfig.SKY_VERSION = versionName.substring(0, versionName.indexOf(' ')).trim();
@@ -93,7 +93,7 @@ public class MainActivity extends Activity {
                     skyPackages.getOrDefault(SKY_PACKAGE_NAME, 0),
                     BuildConfig.SKY_SERVER_HOSTNAME,
                     configDir.getAbsolutePath(),
-                    SMLApplication.skyRes.getAssets()
+                    SMLApplication.SkyResources.getAssets()
             );
 
             new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
@@ -152,6 +152,6 @@ public class MainActivity extends Activity {
     public static native void setDeviceInfoNative(float _xdpi, float _ydpi, float _density, String _deviceName, String _manufacturer, String _model);
     public static native void onKeyboardCompleteNative(String message);
 
-
+    public static native void lateInitUserLibs();
 
 }
