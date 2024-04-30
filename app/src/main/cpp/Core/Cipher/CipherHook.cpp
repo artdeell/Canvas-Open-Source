@@ -45,25 +45,25 @@ CipherHook* CipherHook::Fire() {
             if (pInstance->get_Lock()) {
                 return this;
             } else if (pInstance->get_address() == this->get_address()
-                && pInstance->m_type == Types::e_hook) {
+edi                       && pInstance->m_type == Types::e_hook) {
                 this->set_Address(pInstance->p_Hook, false); //hooks the hooked function instead
             }
         }
     }
-    MemoryBackup *backup = new MemoryBackup;
+    MemoryBackup *backup = new MemoryBackup();
     *backup = MemoryBackup::createBackup(this->get_address(), 8);
     this->p_Backup = (uintptr_t) (backup); //backs up original bytes
     LOGD(
-        "address: %p detour: %p callback: %p",
-        this->get_address(),
-        this->p_Hook,
-        this->p_Callback
+            "address: %p detour: %p callback: %p",
+            this->get_address(),
+            this->p_Hook,
+            this->p_Callback
     );
 
     A64HookFunction( //hooks
-        (void *)this->get_address(),
-        (void *)this->p_Hook,
-        (void **)this->p_Callback
+            (void *)this->get_address(),
+            (void *)this->p_Hook,
+            (void **)this->p_Callback
     );
 
     CipherBase::s_InstanceVec.push_back((CipherBase *)this);
