@@ -45,7 +45,7 @@ CipherHook* CipherHook::Fire() {
             if (pInstance->get_Lock()) {
                 return this;
             } else if (pInstance->get_address() == this->get_address()
-edi                       && pInstance->m_type == Types::e_hook) {
+                       && pInstance->m_type == Types::e_hook) {
                 this->set_Address(pInstance->p_Hook, false); //hooks the hooked function instead
             }
         }
