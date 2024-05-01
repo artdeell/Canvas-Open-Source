@@ -67,11 +67,11 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
             ElfModUIMetadata metadata = loader.getMod(which);
             metadata.loader = loader;
             if (metadata.bitmapIcon != null && metadata.bitmapIcon.getWidth() != 0 && metadata.bitmapIcon.getHeight() != 0) {
-                ((ImageView)myView.findViewById(R.id.iconImageView)).setImageBitmap(metadata.bitmapIcon);
+                myView.findViewById(R.id.box_icon).setBackground(null);
+                ((ImageView)myView.findViewById(R.id.image_icon)).setImageBitmap(metadata.bitmapIcon);
             }
 
             LinearLayout checkForUpdatesLayout = myView.findViewById(R.id.check_for_updates);
-
             String githubReleasesRegex = "https://api\\.github\\.com/repos/.+/releases/latest";
 
             if (metadata.githubReleasesUrl != null && metadata.githubReleasesUrl.matches(githubReleasesRegex)) {
@@ -80,12 +80,22 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
                 checkForUpdatesLayout.setVisibility(View.GONE);
             }
 
-            myView.findViewById(R.id.check_for_updates).setOnClickListener(v -> {
+            myView.findViewById(R.id.check_for_updates).setOnClickListener(v -> onCheckForUpdates(metadata));
+            binding.setItem(metadata);
+        }
+
+
+        @Override
+        public void onClick(View v) {
+        }
+
+        void onCheckForUpdates(ElfModMetadata metadata) {
+            {
                 if (ModUpdater.isDownloading()) {
                     Toast.makeText(myView.getContext(), R.string.updater_busy, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                
+
                 ModManagerActivity.dialogX = new DialogX(
                         myView.getContext(),
                         ModManagerActivity.alertDialog,
@@ -118,13 +128,7 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
                 ModManagerActivity.dialogX.buildDialog();
                 ModManagerActivity.dialogX.setCancelable(false);
                 ModManagerActivity.dialogX.show();
-            });
-            binding.setItem(metadata);
-        }
-
-
-        @Override
-        public void onClick(View v) {
+            }
         }
     }
 

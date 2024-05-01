@@ -140,6 +140,12 @@ PRIVATE_API void Canvas::CanvasMenu() {
     //SystemsTest();
 }
 
+void (*ImGuiEnd)();
+void ImGuiEndHook() {
+    do_scroll();
+    return ImGuiEnd();
+}
+
 __unused __attribute__((constructor))
 int main() {
     LOGI("Starting Sky ModMenu.. Build time: " __DATE__ " " __TIME__);
@@ -150,6 +156,10 @@ int main() {
     auto elfScanner = ElfScanner::createWithPath(Canvas::libName);
     Canvas::libBase = elfScanner.baseSegment().startAddress;
     shadowhook_init(SHADOWHOOK_MODE_UNIQUE, false);
+    (new CipherHook)->set_Hook((std::uintptr_t)ImGuiEndHook)
+    ->set_Callback((std::uintptr_t)&ImGuiEnd)
+    ->set_Address("_ZN5ImGui3EndEv")
+    ->Fire();
     return 0;
 }
 
