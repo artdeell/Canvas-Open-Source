@@ -7,6 +7,7 @@ import net.fornwall.jelf.ElfSectionHeader;
 import net.fornwall.jelf.ElfStringTable;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import git.artdeell.skymodloader.BuildConfig;
 import git.artdeell.skymodloader.ElfLoader;
 import git.artdeell.skymodloader.LibrarySelectorListener;
 
@@ -33,15 +35,15 @@ public class ElfRefcountLoader extends ElfLoader{
         }
     }
 
-    public void load() throws IOException, InvalidModException {
+    public void load() throws Exception {
         File[] modFiles = modsFolder.listFiles(new SharedObjectFileFilter());
         if(modFiles == null) return;
         for(File f : modFiles) {
             try {
-                if(f.getName().endsWith(".so")&&(!new File(f.getPath() + "_invalid.txt").exists())) {
+                if (f.getName().endsWith(".so")&&(!new File(f.getPath() + "_invalid.txt").exists())) {
                     addElf(f);
                 }
-            }catch (Exception e) {
+            } catch (InvalidModException  e) {
                 throw new InvalidModException("Failed to load mod" + f.getName());
             }
         }
@@ -103,6 +105,7 @@ public class ElfRefcountLoader extends ElfLoader{
             modMetadata.majorVersion = jsonConfig.getInt("majorVersion");
             modMetadata.minorVersion = jsonConfig.getInt("minorVersion");
             modMetadata.patchVersion = jsonConfig.getInt("patchVersion");
+            modMetadata.apiLevel = jsonConfig.optDouble("apiLevel");
             modMetadata.displayName = jsonConfig.optString("displayName");
             modMetadata.displaysUI = jsonConfig.optBoolean("displaysUI");
             modMetadata.selfManagedUI = jsonConfig.optBoolean("selfManagedUI");
@@ -117,6 +120,7 @@ public class ElfRefcountLoader extends ElfLoader{
                 dependency.majorVersion = jsonDependency.getInt("majorVersion");
                 dependency.minorVersion = jsonDependency.getInt("minorVersion");
                 dependency.patchVersion = jsonDependency.getInt("patchVersion");
+                dependency.apiLevel = jsonDependency.optDouble("apiLevel");
                 dependencies[i] = dependency;
             }
             modMetadata.dependencies = dependencies;
@@ -126,6 +130,7 @@ public class ElfRefcountLoader extends ElfLoader{
         }
         raf.close();
     }
+
     public void scanDeps() {
         ElfFileReference dummyReference = new ElfFileReference(null);
         for(ElfFileReference reference : elfFileReferences) {

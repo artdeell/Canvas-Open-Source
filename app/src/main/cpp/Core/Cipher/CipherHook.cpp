@@ -1,14 +1,14 @@
 #include "Cipher.h"
 
 #include "Canvas/Canvas.h"
-#include <KittyMemory/MemoryBackup.hpp>
 
 #include "../include/misc/Logger.h"
-#include "../Utils/And64InlineHook/And64InlineHook.hpp"
+#include <shadowhook.h>
 
 CipherHook::CipherHook()
         : p_Hook(0),
-        p_Callback(0) {
+        p_Callback(0),
+        stub(nullptr) {
     this->m_type = Types::e_hook;
     this->set_libName(Canvas::libName);
 }
@@ -33,10 +33,12 @@ CipherHook* CipherHook::set_Callback(std::uintptr_t _callback) {
 }
 
 CipherHook* CipherHook::Fire() {
+    //check if fields are set
     const bool invalidHook = this->get_address() == 0 || this->p_Hook == 0;
     const bool invalidCallback = !this->get_Lock() && this->p_Callback == 0;
-    if (invalidHook || invalidCallback) {
-        return this; //check if fields are set
+    const bool already = stub != nullptr;
+    if (invalidHook || invalidCallback || already) {
+        return this;
     }
 
     if (!this->get_Lock()) {
@@ -50,29 +52,37 @@ CipherHook* CipherHook::Fire() {
             }
         }
     }
-    MemoryBackup *backup = new MemoryBackup();
-    *backup = MemoryBackup::createBackup(this->get_address(), 8);
-    this->p_Backup = (uintptr_t) (backup); //backs up original bytes
+
     LOGD(
-            "address: %p detour: %p callback: %p",
-            this->get_address(),
-            this->p_Hook,
-            this->p_Callback
+        "address: %p detour: %p callback: %p",
+        this->get_address(),
+        this->p_Hook,
+        this->p_Callback
     );
 
-    A64HookFunction( //hooks
-            (void *)this->get_address(),
-            (void *)this->p_Hook,
-            (void **)this->p_Callback
+    this->stub = shadowhook_hook_func_addr(
+        (void *)this->get_address(),
+        (void *)this->p_Hook,
+        (void **)this->p_Callback
     );
+
+    if (this->stub == nullptr) {
+        int error_num = shadowhook_get_errno();
+        const char *error_msg = shadowhook_to_errmsg(error_num);
+        LOGE("hook failed: %d - %s", error_num, error_msg);
+    }
 
     CipherBase::s_InstanceVec.push_back((CipherBase *)this);
     return this;
 }
 
 void CipherHook::m_Restore() {
-    ((MemoryBackup *)this->p_Backup)->Restore();
-    delete ((MemoryBackup *)this->p_Backup);
+    if (this->stub == nullptr) {
+        return;
+    }
+
+    shadowhook_unhook(this->stub);
+    this->stub = nullptr;
     CipherBase::s_InstanceVec.erase(
         std::find(
             CipherBase::s_InstanceVec.begin(),
@@ -89,7 +99,9 @@ void CipherHook::m_Restore() {
         }
 
         pInstance->set_Address(this->get_address(), false);
-        ((MemoryBackup *) pInstance->p_Backup)->Restore();
+        shadowhook_unhook(pInstance->stub);
+        pInstance->stub = nullptr;
+
         CipherBase::s_InstanceVec.erase(
             std::find(
                 CipherBase::s_InstanceVec.begin(),

@@ -21,7 +21,6 @@ std::uintptr_t CipherBase::get_address() {
 
 CipherBase::CipherBase()
     : p_Address(0),
-    p_Backup(0),
     m_libName(Canvas::libName),
     m_isLocked(false) {
 
@@ -63,6 +62,3 @@ CipherBase *CipherBase::set_Lock(bool _isLocked) { //sets if multiple functions 
     this->m_isLocked = _isLocked;
     return this;
 }
-
-
-

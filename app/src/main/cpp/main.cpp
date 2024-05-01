@@ -15,6 +15,7 @@
 #include "iconloader/IconLoader.h"
 #include "FileSelector/fileselector.h"
 #include <android/asset_manager_jni.h>
+#include "shadowhook.h"
 
 
 void do_scroll();
@@ -148,7 +149,7 @@ int main() {
     } while (!Canvas::isLibLoaded(Canvas::libName));
     auto elfScanner = ElfScanner::createWithPath(Canvas::libName);
     Canvas::libBase = elfScanner.baseSegment().startAddress;
-
+    shadowhook_init(SHADOWHOOK_MODE_UNIQUE, false);
     return 0;
 }
 

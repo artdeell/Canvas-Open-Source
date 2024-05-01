@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -15,9 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import git.artdeell.skymodloader.DialogX;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.databinding.ModListElementBinding;
 import git.artdeell.skymodloader.modupdater.ModUpdater;
@@ -63,7 +66,9 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
             this.which = which;
             ElfModUIMetadata metadata = loader.getMod(which);
             metadata.loader = loader;
-            metadata.which = which;
+            if (metadata.bitmapIcon != null && metadata.bitmapIcon.getWidth() != 0 && metadata.bitmapIcon.getHeight() != 0) {
+                ((ImageView)myView.findViewById(R.id.iconImageView)).setImageBitmap(metadata.bitmapIcon);
+            }
 
             LinearLayout checkForUpdatesLayout = myView.findViewById(R.id.check_for_updates);
 
@@ -124,11 +129,6 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
     }
 
     public static String getVisibleModName(Context c, ElfModUIMetadata metadata) {
-
-        if (metadata.displayName != null) {
-            return c.getString(R.string.mod_name, metadata.displayName, metadata.name);
-        } else {
-            return metadata.name;
-        }
+        return Optional.ofNullable(metadata.displayName).orElse(metadata.name);
     }
 }

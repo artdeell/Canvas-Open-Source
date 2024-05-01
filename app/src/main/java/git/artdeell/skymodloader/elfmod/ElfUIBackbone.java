@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import git.artdeell.skymodloader.BuildConfig;
 import git.artdeell.skymodloader.modupdater.ModUpdater;
 
 public class ElfUIBackbone {
@@ -71,7 +72,7 @@ public class ElfUIBackbone {
             for (File f : files) {
                 try {
                     mods.add(getElfMetadata(f));
-                } catch (IOException e) {
+                } catch (IOException | OutdatedModApiException e) {
                     e.printStackTrace();
                     ElfModUIMetadata metadata = new ElfModUIMetadata();
                     metadata.activity = this.activity;
@@ -94,7 +95,7 @@ public class ElfUIBackbone {
         }
     }
 
-    private ElfModUIMetadata getElfMetadata(File f) throws IOException {
+    private ElfModUIMetadata getElfMetadata(File f) throws IOException, OutdatedModApiException {
         FileInputStream fis = new FileInputStream(f);
         ElfModUIMetadata defaultMeta = new ElfModUIMetadata();
         defaultMeta.activity = this.activity;
@@ -146,6 +147,7 @@ public class ElfUIBackbone {
                 defaultMeta.majorVersion = jsonConfig.getInt("majorVersion");
                 defaultMeta.minorVersion = jsonConfig.getInt("minorVersion");
                 defaultMeta.patchVersion = jsonConfig.getInt("patchVersion");
+                defaultMeta.apiLevel = jsonConfig.optDouble("apiLevel");
                 defaultMeta.displayName = jsonConfig.optString("displayName");
                 defaultMeta.githubReleasesUrl = jsonConfig.optString("githubReleasesUrl");
                 JSONArray jdeps = jsonConfig.getJSONArray("dependencies");
@@ -161,6 +163,7 @@ public class ElfUIBackbone {
                     dependency.majorVersion = jsonDependency.getInt("majorVersion");
                     dependency.minorVersion = jsonDependency.getInt("minorVersion");
                     dependency.patchVersion = jsonDependency.getInt("patchVersion");
+                    dependency.apiLevel = jsonConfig.optDouble("apiLevel");
                     dependencies[i] = dependency;
                 }
                 defaultMeta.dependencies = dependencies;
@@ -173,9 +176,9 @@ public class ElfUIBackbone {
                 try {
                     byte[] icon = new byte[(int) secsz_icon];
                     System.arraycopy(elfFile, (int) secoff_icon, icon, 0, icon.length);
-                    defaultMeta.icon = BitmapFactory.decodeByteArray(icon, 0, icon.length);
+                    defaultMeta.bitmapIcon = BitmapFactory.decodeByteArray(icon, 0, icon.length);
                 } catch (Exception e) {
-                    defaultMeta.icon = null;
+                    defaultMeta.bitmapIcon = null;
                     e.printStackTrace();
                 }
             }
@@ -204,10 +207,13 @@ public class ElfUIBackbone {
         return metadata;
     }
 
-    private void loadFileFromInputStream(InputStream inputStream) throws IOException, NoDependenciesException, InvalidModException, ModExistsException {
+    private void loadFileFromInputStream(InputStream inputStream) throws IOException, NoDependenciesException, InvalidModException, ModExistsException, OutdatedModApiException {
         byte[] elf = getBytesFromInputStream(inputStream);
         inputStream.close();
         ElfModUIMetadata metadata = getElfMetadata(elf);
+        if (Math.floor(metadata.apiLevel) != Math.floor(BuildConfig.API_LEVEL)) {
+            throw new OutdatedModApiException(metadata.apiLevel > BuildConfig.API_LEVEL);
+        }
         if (!metadata.modIsValid) throw new InvalidModException();
         ArrayList<ElfModMetadata> badDependencies = new ArrayList<>();
         for (ElfModMetadata dep : metadata.dependencies) {
@@ -347,12 +353,14 @@ public class ElfUIBackbone {
         try {
             ElfModUIMetadata elfMod = getElfMetadata(file);
             return elfMod.modIsValid;
-        } catch (IOException io) {}
+        } catch (IOException | OutdatedModApiException io) {
+
+        }
 
         return false;
     }
 
-    public ElfModUIMetadata updateElfMod(int idx, File modFile) throws IOException, InvalidModException {
+    public ElfModUIMetadata updateElfMod(int idx, File modFile) throws IOException, InvalidModException, OutdatedModApiException {
         ElfModUIMetadata elfMod = getElfMetadata(modFile);
 
         if (!elfMod.modIsValid) {

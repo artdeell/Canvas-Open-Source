@@ -138,7 +138,7 @@ public class ModUpdaterService extends Service {
 
 			listener.onModDownloadComplete(newElfMod);
 
-		} catch (IOException | InvalidModException ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			elfMod.modFile.renameTo(new File(modFilePath)); // rename back the original lib
 			listener.onModDownloadFailure(elfMod, ex);

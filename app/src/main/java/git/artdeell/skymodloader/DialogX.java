@@ -1,4 +1,4 @@
-package git.artdeell.skymodloader.elfmod;
+package git.artdeell.skymodloader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -137,10 +137,11 @@ public class DialogX {
         }
     }
 
-    public void show() {
+    public AlertDialog show() {
         if (context instanceof Activity && !((Activity) context).isFinishing()) {
             alertDialog.show();
         }
+        return alertDialog;
     }
 
     public void edit(DialogEditCallback dialogEditCallback) {

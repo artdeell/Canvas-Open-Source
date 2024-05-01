@@ -216,7 +216,6 @@ protected:
      */
     std::uintptr_t get_address();
     static std::vector<CipherBase *> s_InstanceVec; /**< Vector of cipher instances. */
-    std::uintptr_t p_Backup; /**< Backup pointer for the cipher. */
 
 public:
     /**
@@ -282,6 +281,7 @@ class CipherHook : public CipherBase {
 private:
     std::uintptr_t p_Callback; /**< Address of the callback function. */
     std::uintptr_t p_Hook; /**< Address of the hook function. */
+    void *stub;
 
     /**
      * @brief Restores the hook.

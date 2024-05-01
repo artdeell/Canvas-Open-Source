@@ -52,6 +52,8 @@ if (NOT kNO_KEYSTONE)
         target_link_libraries(ciphered ${keystone})
 endif()
 
+find_package(shadowhook REQUIRED CONFIG)
+
 target_link_libraries( # Specifies the target library.
         ciphered
         ktx_read
@@ -59,4 +61,5 @@ target_link_libraries( # Specifies the target library.
         GLESv3
         EGL
         android
+        shadowhook::shadowhook
 )

@@ -1,7 +1,5 @@
 package git.artdeell.skymodloader.elfmod;
 
-import android.util.Log;
-
 import java.util.Objects;
 import java.io.File;
 
@@ -15,6 +13,9 @@ public class ElfModMetadata {
     public int majorVersion;
     public int minorVersion;
     public int patchVersion;
+
+    public double apiLevel;
+
     public String description;
     public ElfModMetadata[] dependencies;
     public boolean displaysUI;
