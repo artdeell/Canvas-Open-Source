@@ -11,6 +11,7 @@ import android.hardware.HardwareBuffer;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.StatFs;
@@ -20,9 +21,19 @@ import com.tgc.sky.io.DeviceKey;
 import com.tgc.sky.io.NFCSessionManager;
 import com.tgc.sky.ui.NtVideoRecorder;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.nio.ByteBuffer;
@@ -40,6 +51,9 @@ public class SystemIO_android {
     private boolean m_batteryCharging;
     private ExoplayerService mExoplayer;
     private int mExoplayerVideoCounter = 0;
+
+    private Future<String> mSubtitleRequest;
+
 
     public float m_batteryLevel;
     private boolean m_isOtherAudioPlaying;
@@ -883,15 +897,28 @@ public class SystemIO_android {
         this.m_videoRecorder.endWriteAudioFrame();
     }
 
+    boolean SupportsVideoPlayback() {
+        return Build.VERSION.SDK_INT >= 28;
+    }
+
     int RequestNewStreamId() {
         int i = this.mExoplayerVideoCounter + 1;
         this.mExoplayerVideoCounter = i;
         return i;
     }
 
-    int CreateMediaPlayerForUrl(final String str) {
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemIO_android.4
-            @Override // java.lang.Runnable
+    public native void ReceiveVideoBufferNative(HardwareBuffer hardwareBuffer, double d);
+
+    public native void ReceiveVideoMetadataNative(int i, int i2, double d);
+
+    public native void ReceiveVideoSubtitlesNative(String str);
+
+    public native void nativeSetIsGameRecorder(boolean z);
+
+
+    int CreateMediaPlayerForUrl(final String str, final String str2) {
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 if (SystemIO_android.this.mExoplayer == null) {
                     SystemIO_android.this.mExoplayer = new ExoplayerService();
@@ -902,16 +929,46 @@ public class SystemIO_android {
                 SystemIO_android.this.mExoplayer.Update();
             }
         });
+        Future<String> future = this.mSubtitleRequest;
+        if (future != null) {
+            future.cancel(true);
+            this.mSubtitleRequest = null;
+        }
+        if (str2 != null && str2.length() > 0) {
+            ExecutorService newSingleThreadExecutor = Executors.newSingleThreadExecutor();
+            this.mSubtitleRequest = newSingleThreadExecutor.submit(new Callable<String>() {
+                @Override
+                public String call() throws IOException {
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(str2).openConnection();
+                    httpURLConnection.setRequestMethod("GET");
+                    try {
+                        if (httpURLConnection.getResponseCode() != 200) {
+                            return "";
+                        }
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+                        StringBuffer stringBuffer = new StringBuffer();
+                        while (true) {
+                            String readLine = bufferedReader.readLine();
+                            if (readLine != null) {
+                                stringBuffer.append(readLine + "\n");
+                            } else {
+                                bufferedReader.close();
+                                return stringBuffer.toString();
+                            }
+                        }
+                    } finally {
+                        httpURLConnection.disconnect();
+                    }
+                }
+            });
+            newSingleThreadExecutor.shutdown();
+        }
         return RequestNewStreamId();
     }
 
-    public native void ReceiveVideoBufferNative(HardwareBuffer hardwareBuffer, double d);
-
-    public native void ReceiveVideoMetadataNative(int i, int i2, double d);
-
     void UpdateMediaPlayer() {
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemIO_android.5
-            @Override // java.lang.Runnable
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 SystemIO_android.this.mExoplayer.Update();
                 ExoplayerVideoMetadata GetMetadata = SystemIO_android.this.mExoplayer.GetMetadata();
@@ -925,11 +982,21 @@ public class SystemIO_android {
                 }
             }
         });
+        Future<String> future = this.mSubtitleRequest;
+        if (future == null || !future.isDone()) {
+            return;
+        }
+        try {
+            ReceiveVideoSubtitlesNative(this.mSubtitleRequest.get());
+        } catch (InterruptedException | ExecutionException unused) {
+        }
+        this.mSubtitleRequest = null;
     }
+
 
     void PauseMediaPlayer() {
         this.m_activity.runOnUiThread(new Runnable() {
-            @Override // java.lang.Runnable
+            @Override
             public void run() {
                 SystemIO_android.this.mExoplayer.Pause();
             }
@@ -938,7 +1005,7 @@ public class SystemIO_android {
 
     void UnpauseMediaPlayer() {
         this.m_activity.runOnUiThread(new Runnable() {
-            @Override // java.lang.Runnable
+            @Override
             public void run() {
                 SystemIO_android.this.mExoplayer.Play();
             }
@@ -947,7 +1014,7 @@ public class SystemIO_android {
 
     void SeekMediaPlayer(final float f) {
         this.m_activity.runOnUiThread(new Runnable() {
-            @Override // java.lang.Runnable
+            @Override
             public void run() {
                 SystemIO_android.this.mExoplayer.Seek(Math.round(f * 1000.0d));
             }
@@ -956,7 +1023,7 @@ public class SystemIO_android {
 
     void DestroyMediaPlayer() {
         this.m_activity.runOnUiThread(new Runnable() {
-            @Override // java.lang.Runnable
+            @Override
             public void run() {
                 SystemIO_android.this.mExoplayer.EndVideo();
             }
@@ -965,13 +1032,12 @@ public class SystemIO_android {
 
     void MediaPlayerSetVolume(final float f) {
         this.m_activity.runOnUiThread(new Runnable() {
-            @Override // java.lang.Runnable
+            @Override
             public void run() {
                 SystemIO_android.this.mExoplayer.SetVolume(f);
             }
         });
     }
-
 
     public boolean IsDebuggerConnected() {
         return Debug.isDebuggerConnected();

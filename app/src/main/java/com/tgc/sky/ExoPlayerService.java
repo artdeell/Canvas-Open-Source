@@ -20,7 +20,6 @@ import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
 
-
 class ExoplayerService {
     public String TAG = "Exoplayer";
     Context m_context;
