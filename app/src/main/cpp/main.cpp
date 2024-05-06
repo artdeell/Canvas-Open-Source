@@ -152,7 +152,7 @@ PRIVATE_API void Canvas::CanvasMenu() {
     ImGui::Checkbox("Limit FPS", &Canvas::frameRateLimited);
     ImGui::End();
 
-    SystemsTest();
+    //SystemsTest();
 }
 
 void (*ImGuiEnd)();

@@ -7,9 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -68,7 +70,6 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
             metadata.which = which;
             metadata.loader = loader;
             if (metadata.bitmapIcon != null && metadata.bitmapIcon.getWidth() != 0 && metadata.bitmapIcon.getHeight() != 0) {
-                myView.findViewById(R.id.box_icon).setBackground(null);
                 ((ImageView)myView.findViewById(R.id.image_icon)).setImageBitmap(metadata.bitmapIcon);
             }
 
@@ -78,7 +79,11 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
             if (metadata.githubReleasesUrl != null && metadata.githubReleasesUrl.matches(githubReleasesRegex)) {
                 checkForUpdatesLayout.setVisibility(View.VISIBLE);
             } else {
-                checkForUpdatesLayout.setVisibility(View.GONE);
+                checkForUpdatesLayout.setEnabled(false);
+                TextView textUpdate =  ((TextView)myView.findViewById(R.id.text_update));
+                textUpdate.setText(R.string.no_update_links);
+                textUpdate.setTextColor(ContextCompat.getColor(myView.getContext(), android.R.color.darker_gray));
+                ((ImageView)myView.findViewById(R.id.image_update)).setColorFilter(ContextCompat.getColor(myView.getContext(), android.R.color.darker_gray));
             }
 
             myView.findViewById(R.id.check_for_updates).setOnClickListener(v -> onCheckForUpdates(metadata));

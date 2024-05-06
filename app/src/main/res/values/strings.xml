@@ -97,6 +97,7 @@
     <string name="switch_skip_updates">Bypass game updates</string>
     <string name="close">Close</string>
     <string name="mod_icon">mod icon</string>
+    <string name="no_update_links">No Update Links</string>
 
 
 </resources>
