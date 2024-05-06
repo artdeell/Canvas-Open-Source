@@ -105,7 +105,6 @@ public class ElfRefcountLoader extends ElfLoader{
             modMetadata.majorVersion = jsonConfig.getInt("majorVersion");
             modMetadata.minorVersion = jsonConfig.getInt("minorVersion");
             modMetadata.patchVersion = jsonConfig.getInt("patchVersion");
-            modMetadata.apiLevel = jsonConfig.optDouble("apiLevel");
             modMetadata.displayName = jsonConfig.optString("displayName");
             modMetadata.displaysUI = jsonConfig.optBoolean("displaysUI");
             modMetadata.selfManagedUI = jsonConfig.optBoolean("selfManagedUI");
@@ -120,7 +119,6 @@ public class ElfRefcountLoader extends ElfLoader{
                 dependency.majorVersion = jsonDependency.getInt("majorVersion");
                 dependency.minorVersion = jsonDependency.getInt("minorVersion");
                 dependency.patchVersion = jsonDependency.getInt("patchVersion");
-                dependency.apiLevel = jsonDependency.optDouble("apiLevel");
                 dependencies[i] = dependency;
             }
             modMetadata.dependencies = dependencies;

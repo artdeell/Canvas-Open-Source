@@ -14,8 +14,6 @@ public class ElfModMetadata {
     public int minorVersion;
     public int patchVersion;
 
-    public double apiLevel;
-
     public String description;
     public ElfModMetadata[] dependencies;
     public boolean displaysUI;

@@ -11,6 +11,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.input.InputManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -40,6 +41,7 @@ import com.google.android.play.core.splitcompat.SplitCompat;
 import com.tgc.sky.io.AudioDeviceType;
 import com.tgc.sky.ui.panels.BasePanel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Timer;
@@ -928,20 +930,16 @@ public class GameActivity extends TGCNativeActivity {
     }
 
     public void playLogoSound() {
-/*        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         if(audioManager.isMusicActive()) return;
         MediaPlayer player = new MediaPlayer();
         try {
-            player.setDataSource(SMLApplication.skyRes.openRawResourceFd(SMLApplication.skyRes.getIdentifier("tgc_logo", "raw", SMLApplication.skyPName)));
+            player.setDataSource(SMLApplication.SkyResources.openRawResourceFd(SMLApplication.SkyResources.getIdentifier("tgc_logo", "raw", SMLApplication.skyPName)));
             player.prepare();
             (m_mediaPlayer = player).start();
         }catch (IOException e) {
             e.printStackTrace();
-        }*/
-
-        MediaPlayer create = MediaPlayer.create(this, R.raw.cnvintro_v3);
-        this.m_mediaPlayer = create;
-        create.start();
+        }
     }
 
     public boolean tryReleaseLogoSound() {

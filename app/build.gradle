@@ -15,7 +15,6 @@ android {
         targetSdk 34
         versionCode 33
         versionName "1.5.0"
-        buildConfigField "double", "API_LEVEL", "1.0" // Only change by 1.0 when the api check becomes crucial
         manifestPlaceholders = [
                 'appAuthRedirectScheme': 'com.googleusercontent.apps.704988078112-46vk837uhg8n7qf3lb8dut52o7ugm7v4'
         ]

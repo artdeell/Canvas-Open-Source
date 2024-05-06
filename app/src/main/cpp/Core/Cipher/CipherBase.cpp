@@ -1,6 +1,7 @@
 #include <dlfcn.h>
 
 #include "Cipher.h"
+#include "CipherUtils.h"
 #include <Canvas/Canvas.h>
 
 #include "../../include/misc/visibility.h"
@@ -54,7 +55,7 @@ CipherBase* CipherBase::set_Address(std::uintptr_t _address, bool _isLocal) {
 }
 
 CipherBase *CipherBase::set_Address(const char* _bytes, const char* _mask) {
-    this->p_Address = Cipher::CipherScan(_bytes, _mask);
+    this->p_Address = CipherUtils::CipherScan(_bytes, _mask);
     return this;
 }
 

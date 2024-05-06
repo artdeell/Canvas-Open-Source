@@ -65,6 +65,7 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
         void bindMod(int which) {
             this.which = which;
             ElfModUIMetadata metadata = loader.getMod(which);
+            metadata.which = which;
             metadata.loader = loader;
             if (metadata.bitmapIcon != null && metadata.bitmapIcon.getWidth() != 0 && metadata.bitmapIcon.getHeight() != 0) {
                 myView.findViewById(R.id.box_icon).setBackground(null);

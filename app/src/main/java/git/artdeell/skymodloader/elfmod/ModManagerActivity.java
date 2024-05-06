@@ -420,9 +420,6 @@ public class ModManagerActivity extends Activity implements LoadingListener {
             message = e.getMessage();
         } else if (e instanceof ModExistsException) {
             message = getString(R.string.mod_add_exists);
-        } else if (e instanceof OutdatedModApiException) {
-            String apiState = ((OutdatedModApiException) e).isHigherApi ? getString(R.string.higher) : getString(R.string.lower);
-            message = getString(R.string.error_api_mismatch, apiState);
         } else {
             e.printStackTrace();
             message = e.getMessage();

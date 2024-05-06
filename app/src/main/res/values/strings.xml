@@ -96,9 +96,6 @@
     <string name="check_for_updates">Check For Updates</string>
     <string name="switch_skip_updates">Bypass game updates</string>
     <string name="close">Close</string>
-    <string name="error_api_mismatch">This mod requires API level %1$s than supported by the mod loader</string>
-    <string name="higher">higher</string>
-    <string name="lower">lower</string>
     <string name="mod_icon">mod icon</string>
 
 

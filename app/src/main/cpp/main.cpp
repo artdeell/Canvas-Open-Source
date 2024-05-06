@@ -45,8 +45,7 @@ void file_selector_cb(int fd) {
 
 PRIVATE_API void SystemsTest() {
     ImGui::Begin("System Tests");
-    ImGui::Text("Sky is Live: %s", Cipher::get_GameType() == GameType::Live ? "true" : "false");
-    ImGui::Text("Sky is Beta: %s", Cipher::get_GameType() == GameType::Beta?  "true" : "false");
+
 
     ImGui::End();
 
@@ -58,7 +57,7 @@ PRIVATE_API static void HelpMarker(const char* desc)
     if (ImGui::BeginItemTooltip())
     {
         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextWrapped(desc);
+        ImGui::TextWrapped("%s", desc);
         ImGui::PopTextWrapPos();
         ImGui::EndTooltip();
     }
