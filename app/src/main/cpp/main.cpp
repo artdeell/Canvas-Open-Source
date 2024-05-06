@@ -12,8 +12,8 @@
 #include "Canvas/Canvas.h"
 #include "Cipher/Cipher.h"
 #include "include/misc/visibility.h"
-#include "iconloader/IconLoader.h"
-#include "FileSelector/fileselector.h"
+#include "Iconloader/IconLoader.h"
+#include "fileselector/fileselector.h"
 #include <android/asset_manager_jni.h>
 #include "shadowhook.h"
 
@@ -42,11 +42,27 @@ void file_selector_cb(int fd) {
     }
 }
 
-
+void iAmHookable() {
+    ImGui::Text("Hello, I am not hooked yet!");
+}
+static void (*iAmCallback)();
+PRIVATE_API void iAmHook() {
+    ImGui::Text("Hello, I'm the hook!");
+    iAmCallback();
+}
+static CipherBase *hook = NULL;
 PRIVATE_API void SystemsTest() {
     ImGui::Begin("System Tests");
-
-
+    iAmHookable();
+    if(ImGui::Button("Hook")) {
+        if(hook != NULL) hook->Restore();
+        delete hook;
+        hook = (new CipherHook())
+            ->set_Hook((uintptr_t)iAmHook)
+            ->set_Callback((uintptr_t)&iAmCallback)
+            ->set_Address((uintptr_t)iAmHookable, false)
+            ->Fire();
+    }
     ImGui::End();
 
 }
@@ -136,7 +152,7 @@ PRIVATE_API void Canvas::CanvasMenu() {
     ImGui::Checkbox("Limit FPS", &Canvas::frameRateLimited);
     ImGui::End();
 
-    //SystemsTest();
+    SystemsTest();
 }
 
 void (*ImGuiEnd)();
