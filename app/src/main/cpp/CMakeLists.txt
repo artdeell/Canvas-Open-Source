@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.18.1)
 
 
 #set(CMAKE_BUILD_TYPE RelWithDebInfo)
-#set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Release)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -flto -fuse-linker-plugin -finline-functions -fomit-frame-pointer -falign-functions -falign-jumps")
