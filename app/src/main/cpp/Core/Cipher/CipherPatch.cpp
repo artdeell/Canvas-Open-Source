@@ -1,5 +1,9 @@
 #include "Cipher.h"
 
+#include <mutex>
+
+extern std::mutex cipher_base_mtx;
+
 CipherPatch *CipherPatch::set_Opcode(std::string _hex) {
     artpatch_set_hex(this->patch, _hex.c_str());
     return this;
@@ -14,6 +18,8 @@ CipherPatch* CipherPatch::Fire() {
     if (this->get_address() == 0 || this->get_Lock()) {
         return this;
     }
+
+    std::lock_guard<std::mutex> lock(cipher_base_mtx);
 
     for (auto& instance : CipherPatch::s_InstanceVec) {
         CipherPatch* pInstance = (CipherPatch *)instance;
@@ -40,6 +46,9 @@ CipherPatch::CipherPatch() {
 
 CipherPatch::~CipherPatch() {
     artpatch_restore(this->patch);
+
+    std::lock_guard<std::mutex> lock(cipher_base_mtx);
+
     CipherBase::s_InstanceVec.erase(
         std::find(
             CipherBase::s_InstanceVec.begin(),

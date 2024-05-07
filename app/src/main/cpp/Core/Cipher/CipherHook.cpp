@@ -1,9 +1,13 @@
 #include "Cipher.h"
 
+#include <mutex>
+
 #include "Canvas/Canvas.h"
 
 #include "../include/misc/Logger.h"
 #include <shadowhook.h>
+
+extern std::mutex cipher_base_mtx;
 
 CipherHook::CipherHook()
         : p_Hook(0),
@@ -40,6 +44,8 @@ CipherHook* CipherHook::Fire() {
     if (invalidHook || invalidCallback || already) {
         return this;
     }
+
+    std::lock_guard<std::mutex> lock(cipher_base_mtx);
 
     if (!this->get_Lock()) {
         for (auto& instance : CipherBase::s_InstanceVec) {
@@ -80,6 +86,8 @@ void CipherHook::m_Restore() {
     if (this->stub == nullptr) {
         return;
     }
+
+    std::lock_guard<std::mutex> lock(cipher_base_mtx);
 
     shadowhook_unhook(this->stub);
     this->stub = nullptr;

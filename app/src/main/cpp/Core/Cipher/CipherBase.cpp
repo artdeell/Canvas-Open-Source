@@ -1,4 +1,5 @@
 #include <dlfcn.h>
+#include <mutex>
 
 #include "Cipher.h"
 #include "CipherUtils.h"
@@ -7,6 +8,7 @@
 #include "../../include/misc/visibility.h"
 
 PRIVATE_API std::vector<CipherBase *> CipherBase::s_InstanceVec;
+PRIVATE_API std::mutex cipher_base_mtx;
 
 const char* CipherBase::get_libName() {
     return this->m_libName;
