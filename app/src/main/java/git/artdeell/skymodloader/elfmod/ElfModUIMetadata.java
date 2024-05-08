@@ -2,13 +2,9 @@ package git.artdeell.skymodloader.elfmod;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-
-import org.json.JSONException;
+import android.widget.ImageView;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import git.artdeell.skymodloader.R;
 
@@ -16,9 +12,8 @@ public class ElfModUIMetadata extends ElfModMetadata {
 
     public Activity activity;
 
-    public String description;
-
-    public Bitmap icon;
+    public Bitmap bitmapIcon;
+    public ImageView icon;
 
     public ElfUIBackbone loader;
 

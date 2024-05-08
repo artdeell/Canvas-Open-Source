@@ -232,7 +232,7 @@ public class TextLabelManager {
                     transformRectToSystem = new RectF(0.0f, 0.0f, (float)layoutParams2.width, (float)layoutParams2.height);
                     ApplyTextPositioningAnchorPoint(pos, transformRectToSystem);
 
-                        TextLabelManager.this.m_activity.transformPointToSystem(pos.f1049x, pos.f1050y, transformRectToSystem);
+                    TextLabelManager.this.m_activity.transformPointToSystem(pos.f1049x, pos.f1050y, transformRectToSystem);
 
                     layoutParams2.leftMargin = (int)transformRectToSystem.left;
                     layoutParams2.topMargin = (int)transformRectToSystem.top;

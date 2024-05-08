@@ -12,15 +12,16 @@ import java.io.File;
 
 import git.artdeell.skymodloader.SMLApplication;
 
+/* loaded from: classes2.dex */
 public abstract class TGCNativeActivity extends Activity implements SurfaceHolder.Callback2, ViewTreeObserver.OnGlobalLayoutListener {
     private static final String KEY_NATIVE_SAVED_STATE = "android:native_state";
     private SurfaceHolder m_currentSurfaceHolder;
-    private boolean m_destroyed = false;
-    private long m_handle = 0;
     int m_lastContentHeight;
     int m_lastContentWidth;
     int m_lastContentX;
     int m_lastContentY;
+    private boolean m_destroyed = false;
+    private long m_handle = 0;
     final int[] m_location = new int[2];
 
     private native void onConfigurationChangedNative(long j);
@@ -53,14 +54,14 @@ public abstract class TGCNativeActivity extends Activity implements SurfaceHolde
 
     private native void onWindowFocusChangedNative(long j, boolean z);
 
-    /* access modifiers changed from: protected */
+    @Override // android.app.Activity
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         findViewById(android.R.id.content).getRootView().getViewTreeObserver().addOnGlobalLayoutListener(this);
         this.m_handle = onCreateNative(getAbsolutePath(getFilesDir()), getAbsolutePath(getObbDir()), getAbsolutePath(getExternalFilesDir(null)), Build.VERSION.SDK_INT, SMLApplication.skyRes.getAssets(), bundle != null ? bundle.getByteArray(KEY_NATIVE_SAVED_STATE) : null);
     }
 
-    /* access modifiers changed from: protected */
+    @Override
     public void onDestroy() {
         this.m_destroyed = true;
         SurfaceHolder surfaceHolder = this.m_currentSurfaceHolder;
@@ -72,20 +73,20 @@ public abstract class TGCNativeActivity extends Activity implements SurfaceHolde
         super.onDestroy();
     }
 
-    /* access modifiers changed from: protected */
+    @Override // android.app.Activity
     public void onPause() {
         super.onPause();
         onPauseNative(this.m_handle);
     }
 
-    /* access modifiers changed from: protected */
+    @Override // android.app.Activity
     public void onResume() {
         super.onResume();
         onResumeNative(this.m_handle);
     }
 
-    /* access modifiers changed from: protected */
-    public void onSaveInstanceState(Bundle bundle) {
+    @Override // android.app.Activity
+    protected void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
         byte[] onSaveInstanceStateNative = onSaveInstanceStateNative(this.m_handle);
         if (onSaveInstanceStateNative != null) {
@@ -93,69 +94,82 @@ public abstract class TGCNativeActivity extends Activity implements SurfaceHolde
         }
     }
 
-    /* access modifiers changed from: protected */
-    public void onStart() {
+    @Override // android.app.Activity
+    protected void onStart() {
         super.onStart();
         onStartNative(this.m_handle);
     }
 
-    /* access modifiers changed from: protected */
-    public void onStop() {
+    @Override // android.app.Activity
+    protected void onStop() {
         super.onStop();
         onStopNative(this.m_handle);
     }
 
+    @Override // android.app.Activity, android.content.ComponentCallbacks
     public void onConfigurationChanged(Configuration configuration) {
         super.onConfigurationChanged(configuration);
-        if (!this.m_destroyed) {
-            onConfigurationChangedNative(this.m_handle);
+        if (this.m_destroyed) {
+            return;
         }
+        onConfigurationChangedNative(this.m_handle);
     }
 
+    @Override // android.app.Activity, android.content.ComponentCallbacks
     public void onLowMemory() {
         super.onLowMemory();
-        if (!this.m_destroyed) {
-            onLowMemoryNative(this.m_handle);
+        if (this.m_destroyed) {
+            return;
         }
+        onLowMemoryNative(this.m_handle);
     }
 
+    @Override // android.app.Activity, android.view.Window.Callback
     public void onWindowFocusChanged(boolean z) {
         super.onWindowFocusChanged(z);
-        if (!this.m_destroyed) {
-            onWindowFocusChangedNative(this.m_handle, z);
+        if (this.m_destroyed) {
+            return;
         }
+        onWindowFocusChangedNative(this.m_handle, z);
     }
 
+    @Override // android.view.SurfaceHolder.Callback
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        if (!this.m_destroyed) {
-            this.m_currentSurfaceHolder = surfaceHolder;
-            onSurfaceCreatedNative(this.m_handle, surfaceHolder.getSurface());
+        if (this.m_destroyed) {
+            return;
         }
+        this.m_currentSurfaceHolder = surfaceHolder;
+        onSurfaceCreatedNative(this.m_handle, surfaceHolder.getSurface());
     }
 
+    @Override // android.view.SurfaceHolder.Callback
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
-        if (!this.m_destroyed) {
-            this.m_currentSurfaceHolder = surfaceHolder;
-            onSurfaceChangedNative(this.m_handle, surfaceHolder.getSurface(), i, i2, i3);
+        if (this.m_destroyed) {
+            return;
         }
+        this.m_currentSurfaceHolder = surfaceHolder;
+        onSurfaceChangedNative(this.m_handle, surfaceHolder.getSurface(), i, i2, i3);
     }
 
+    @Override // android.view.SurfaceHolder.Callback2
     public void surfaceRedrawNeeded(SurfaceHolder surfaceHolder) {
-        if (!this.m_destroyed) {
-            this.m_currentSurfaceHolder = surfaceHolder;
-            onSurfaceRedrawNeededNative(this.m_handle, surfaceHolder.getSurface());
+        if (this.m_destroyed) {
+            return;
         }
+        this.m_currentSurfaceHolder = surfaceHolder;
+        onSurfaceRedrawNeededNative(this.m_handle, surfaceHolder.getSurface());
     }
 
+    @Override // android.view.SurfaceHolder.Callback
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
         this.m_currentSurfaceHolder = null;
-        if (!this.m_destroyed) {
-            onSurfaceDestroyedNative(this.m_handle, surfaceHolder.getSurface());
+        if (this.m_destroyed) {
+            return;
         }
+        onSurfaceDestroyedNative(this.m_handle, surfaceHolder.getSurface());
     }
 
     public void onGlobalLayout() {
-
         View rootView = findViewById(android.R.id.content).getRootView();
         rootView.getLocationInWindow(this.m_location);
         int width = rootView.getWidth();

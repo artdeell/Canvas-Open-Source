@@ -31,30 +31,83 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/modNameTextView"
-                    style="@style/Text.Title"
-                    android:layout_width="match_parent"
+                <RelativeLayout
+                    android:id="@+id/box_title"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/module_indicator"
-                    android:layout_toLeftOf="@id/module_indicator"
-                    android:layout_alignWithParentIfMissing="true"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp">
+
+                    <ImageView
+                        android:id="@+id/image_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/mod_icon"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/icon_black_round" />
+
+                    <TextView
+                        android:id="@+id/mod_title_header_separator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@id/image_icon"
+                        android:paddingLeft="3dp"
+                        android:paddingRight="3dp"
+                        android:text="|"
+                        android:textColor="@color/white"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/modNameTextView"
+                        style="@style/Text.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toEndOf="@id/mod_title_header_separator"
+                        android:text="@{_item.name}"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="ModuleName" />
+                </RelativeLayout>
+
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/module_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
                     android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_toEndOf="@id/box_title"
+                    android:checked="@={_item.enabled}" />
+
+                <TextView
+                    android:id="@+id/authorTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/box_title"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="@{_item.name}"
-                    tools:text="ModuleName" />
+                    android:text="@{_item.author.isEmpty() ? `Author: _____` : String.format(`Author: %s`, _item.author)}"
+                    tools:text="Author" />
 
                 <TextView
                     android:id="@+id/versionTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/modNameTextView"
+                    android:layout_below="@id/authorTextView"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="0dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="@{_item.version}"
+                    android:text="@{String.format(`Version: %s`, _item.version)}"
                     tools:text="Version" />
+
 
                 <TextView
                     android:id="@+id/descriptionTextView"
@@ -62,21 +115,11 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/versionTextView"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:text="@{_item.description}"
                     tools:text="Description" />
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/module_indicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@id/descriptionTextView"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-
-                    android:checked="@={_item.enabled}" />
 
                 <Space
                     android:id="@+id/divided"
@@ -110,12 +153,14 @@
                     android:orientation="horizontal">
 
                     <ImageView
+                        android:id="@+id/image_update"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="5dp"
                         android:src="@drawable/stat_notify_sync" />
 
                     <TextView
+                        android:id="@+id/text_update"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/check_for_updates"
@@ -130,10 +175,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/module_divider"
-                    android:layout_alignRight="@id/module_divider"
+                    android:layout_alignEnd="@id/module_divider"
                     android:layout_marginTop="10dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="20dp"
+                    android:layout_marginEnd="19dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
@@ -142,10 +186,10 @@
 
 
                     <ImageView
-                        android:id="@+id/iconImageView"
+                        android:id="@+id/binIcon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
+                        android:layout_marginEnd="5dp"
                         android:src="@drawable/ic_delete_md2" />
 
                     <TextView

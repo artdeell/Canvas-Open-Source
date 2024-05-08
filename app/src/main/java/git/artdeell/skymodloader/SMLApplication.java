@@ -3,7 +3,6 @@ package git.artdeell.skymodloader;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.content.Context;
 

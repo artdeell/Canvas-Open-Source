@@ -1,23 +1,24 @@
 package git.artdeell.skymodloader.elfmod;
 
-import android.util.Log;
-
 import java.util.Objects;
 import java.io.File;
 
 public class ElfModMetadata {
     public File modFile;
-    boolean modIsValid = false;
-    String name;
-    String displayName;
-    int majorVersion;
-    int minorVersion;
-    int patchVersion;
-    ElfModMetadata[] dependencies;
-    boolean displaysUI;
-    boolean dev;
-    boolean selfManagedUI;
-    String githubReleasesUrl;
+    public boolean modIsValid = false;
+    public String name;
+    public String displayName;
+
+    public String author;
+    public int majorVersion;
+    public int minorVersion;
+    public int patchVersion;
+
+    public String description;
+    public ElfModMetadata[] dependencies;
+    public boolean displaysUI;
+    public boolean selfManagedUI;
+    public String githubReleasesUrl;
 
     @Override
     public boolean equals(Object o) {

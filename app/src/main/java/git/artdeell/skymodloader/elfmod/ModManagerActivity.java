@@ -27,10 +27,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import git.artdeell.skymodloader.BuildConfig;
+import git.artdeell.skymodloader.DialogX;
 import git.artdeell.skymodloader.MainActivity;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.SMLApplication;
@@ -328,7 +330,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_MOD && resultCode == Activity.RESULT_OK) {
             try {
-                InputStream dataStream = getContentResolver().openInputStream(data.getData());
+                InputStream dataStream = getContentResolver().openInputStream(Objects.requireNonNull(data.getData()));
                 loader.addModSafely(dataStream);
             } catch (FileNotFoundException e) {
                 Toast.makeText(this, R.string.mod_ioe, Toast.LENGTH_SHORT).show();
@@ -403,8 +405,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
     private void handleException() {
         Exception e = loader.getException();
         if (e == null) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.mod_add_unable);
+        String message;
         if (e instanceof NoDependenciesException) {
             NoDependenciesException exc = (NoDependenciesException) e;
             StringBuilder stringBuilder = new StringBuilder();
@@ -412,20 +413,22 @@ public class ModManagerActivity extends Activity implements LoadingListener {
                 stringBuilder.append(getString(R.string.mod_add_missingdep, meta.name, meta.majorVersion, meta.minorVersion));
                 stringBuilder.append('\n');
             }
-            builder.setMessage(stringBuilder.toString());
+            message = stringBuilder.toString();
         } else if (e instanceof InvalidModException) {
-            builder.setMessage(R.string.mod_add_wrongformat);
+            message = getString(R.string.mod_add_wrongformat);
         } else if (e instanceof IOException) {
-            builder.setMessage(e.getMessage());
+            message = e.getMessage();
         } else if (e instanceof ModExistsException) {
-            builder.setMessage(getString(R.string.mod_add_exists));
+            message = getString(R.string.mod_add_exists);
         } else {
             e.printStackTrace();
-            builder.setMessage(R.string.mod_gf);
+            message = e.getMessage();
         }
-        builder.setPositiveButton(android.R.string.ok, (d, w) -> loader.resetException());
-        builder.setOnCancelListener((d) -> loader.resetException());
-        builder.show();
+
+        dialogX = new DialogX(this, alertDialog, getString(R.string.mod_add_unable), message, null, null);
+        dialogX.buildDialog();
+        dialogX.setCancelable(true);
+        dialogX.show();
     }
 
     private void handleUnsafeModRemoval() {

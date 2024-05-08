@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import git.artdeell.skymodloader.BuildConfig;
 import git.artdeell.skymodloader.modupdater.ModUpdater;
 
 public class ElfUIBackbone {
@@ -141,6 +142,7 @@ public class ElfUIBackbone {
                 System.arraycopy(elfFile, (int) secoff_config, config, 0, config.length);
                 JSONObject jsonConfig = new JSONObject(new String(config, 0, config.length));
                 defaultMeta.name = jsonConfig.getString("name");
+                defaultMeta.author = jsonConfig.optString("author");
                 defaultMeta.description = jsonConfig.optString("description");
                 defaultMeta.majorVersion = jsonConfig.getInt("majorVersion");
                 defaultMeta.minorVersion = jsonConfig.getInt("minorVersion");
@@ -155,6 +157,8 @@ public class ElfUIBackbone {
                     ElfModMetadata dependency = new ElfModMetadata();
                     dependency.modIsValid = true;
                     dependency.name = jsonDependency.getString("name");
+                    dependency.author = jsonDependency.optString("author");
+                    dependency.description = jsonDependency.getString("description");
                     dependency.majorVersion = jsonDependency.getInt("majorVersion");
                     dependency.minorVersion = jsonDependency.getInt("minorVersion");
                     dependency.patchVersion = jsonDependency.getInt("patchVersion");
@@ -170,9 +174,9 @@ public class ElfUIBackbone {
                 try {
                     byte[] icon = new byte[(int) secsz_icon];
                     System.arraycopy(elfFile, (int) secoff_icon, icon, 0, icon.length);
-                    defaultMeta.icon = BitmapFactory.decodeByteArray(icon, 0, icon.length);
+                    defaultMeta.bitmapIcon = BitmapFactory.decodeByteArray(icon, 0, icon.length);
                 } catch (Exception e) {
-                    defaultMeta.icon = null;
+                    defaultMeta.bitmapIcon = null;
                     e.printStackTrace();
                 }
             }
@@ -344,7 +348,9 @@ public class ElfUIBackbone {
         try {
             ElfModUIMetadata elfMod = getElfMetadata(file);
             return elfMod.modIsValid;
-        } catch (IOException io) {}
+        } catch (IOException io) {
+
+        }
 
         return false;
     }

@@ -1,5 +1,5 @@
-#ifndef UTILS
-#define UTILS
+#pragma once
+
 
 #include <jni.h>
 #include <unistd.h>
@@ -111,5 +111,3 @@ namespace ToastLength {
     inline const int LENGTH_LONG = 1;
     inline const int LENGTH_SHORT = 0;
 }
-
-#endif

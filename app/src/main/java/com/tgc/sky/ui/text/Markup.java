@@ -17,9 +17,6 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.NotificationCompat;
-import androidx.core.text.HtmlCompat;
 
 import com.tgc.sky.GameActivity;
 import com.tgc.sky.ui.NtRange;
@@ -28,9 +25,7 @@ import com.tgc.sky.ui.spans.CustomTypefaceSpan;
 import com.tgc.sky.ui.spans.EmbeddedImageSpan;
 import com.tgc.sky.ui.spans.ShadowSpan;
 import com.tgc.sky.ui.spans.StrokeSpan;
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;

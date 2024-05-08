@@ -7,6 +7,7 @@ import net.fornwall.jelf.ElfSectionHeader;
 import net.fornwall.jelf.ElfStringTable;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -16,7 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import git.artdeell.skymodloader.BuildConfig;
 import git.artdeell.skymodloader.ElfLoader;
 import git.artdeell.skymodloader.LibrarySelectorListener;
 
@@ -32,15 +35,15 @@ public class ElfRefcountLoader extends ElfLoader{
         }
     }
 
-    public void load() throws IOException, InvalidModException {
+    public void load() throws Exception {
         File[] modFiles = modsFolder.listFiles(new SharedObjectFileFilter());
         if(modFiles == null) return;
         for(File f : modFiles) {
             try {
-                if(f.getName().endsWith(".so")&&(!new File(f.getPath() + "_invalid.txt").exists())) {
+                if (f.getName().endsWith(".so")&&(!new File(f.getPath() + "_invalid.txt").exists())) {
                     addElf(f);
                 }
-            }catch (Exception e) {
+            } catch (InvalidModException  e) {
                 throw new InvalidModException("Failed to load mod" + f.getName());
             }
         }
@@ -53,11 +56,22 @@ public class ElfRefcountLoader extends ElfLoader{
 
     @Override
     public void loadNative(String absolutePath, String name) {
-        if(absolutePath.startsWith(modsFolder.getAbsolutePath())) {
+        if (absolutePath.startsWith(modsFolder.getAbsolutePath())) {
             ElfModMetadata metadata = metadataByName.get(name);
-            if(metadata == null) throw new IllegalStateException("WTF? No saved metadata for mod library " +name);
-            LibrarySelectorListener.onModLibrary(absolutePath, metadata.displaysUI, metadata.displayName != null?metadata.displayName:metadata.name, metadata.dev, metadata.selfManagedUI);
-        }else {
+            if (metadata == null) {
+                throw new IllegalStateException("WTF? No saved metadata for mod library " + name);
+            }
+
+            LibrarySelectorListener.onModLibrary(
+                    absolutePath,
+                    metadata.displaysUI,
+                    Optional.ofNullable(metadata.displayName).orElse(metadata.name),
+                    Optional.ofNullable(metadata.author).orElse(""),
+                    Optional.ofNullable(metadata.description).orElse(""),
+                    metadata.majorVersion + "." + metadata.minorVersion + "." + metadata.patchVersion,
+                    metadata.selfManagedUI
+            );
+        } else {
             super.loadNative(absolutePath, name);
         }
     }
@@ -86,12 +100,13 @@ public class ElfRefcountLoader extends ElfLoader{
             JSONObject jsonConfig = new JSONObject(new String(config, 0, config.length));
             ElfModMetadata modMetadata = new ElfModMetadata();
             modMetadata.name = jsonConfig.getString("name");
+            modMetadata.author = jsonConfig.optString("author");
+            modMetadata.description = jsonConfig.getString("description");
             modMetadata.majorVersion = jsonConfig.getInt("majorVersion");
             modMetadata.minorVersion = jsonConfig.getInt("minorVersion");
             modMetadata.patchVersion = jsonConfig.getInt("patchVersion");
             modMetadata.displayName = jsonConfig.optString("displayName");
             modMetadata.displaysUI = jsonConfig.optBoolean("displaysUI");
-            modMetadata.dev = jsonConfig.optBoolean("dev");
             modMetadata.selfManagedUI = jsonConfig.optBoolean("selfManagedUI");
             JSONArray jdeps = jsonConfig.getJSONArray("dependencies");
             ElfModMetadata[] dependencies = new ElfModMetadata[jdeps.length()];
@@ -100,6 +115,7 @@ public class ElfRefcountLoader extends ElfLoader{
                 ElfModMetadata dependency = new ElfModMetadata();
                 dependency.modIsValid = true;
                 dependency.name = jsonDependency.getString("name");
+                dependency.author = jsonDependency.optString("author");
                 dependency.majorVersion = jsonDependency.getInt("majorVersion");
                 dependency.minorVersion = jsonDependency.getInt("minorVersion");
                 dependency.patchVersion = jsonDependency.getInt("patchVersion");
@@ -112,6 +128,7 @@ public class ElfRefcountLoader extends ElfLoader{
         }
         raf.close();
     }
+
     public void scanDeps() {
         ElfFileReference dummyReference = new ElfFileReference(null);
         for(ElfFileReference reference : elfFileReferences) {

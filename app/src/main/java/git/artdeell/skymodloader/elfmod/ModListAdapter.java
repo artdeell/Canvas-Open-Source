@@ -5,19 +5,24 @@ import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import git.artdeell.skymodloader.DialogX;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.databinding.ModListElementBinding;
 import git.artdeell.skymodloader.modupdater.ModUpdater;
@@ -62,25 +67,41 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
         void bindMod(int which) {
             this.which = which;
             ElfModUIMetadata metadata = loader.getMod(which);
-            metadata.loader = loader;
             metadata.which = which;
+            metadata.loader = loader;
+            if (metadata.bitmapIcon != null && metadata.bitmapIcon.getWidth() != 0 && metadata.bitmapIcon.getHeight() != 0) {
+                ((ImageView)myView.findViewById(R.id.image_icon)).setImageBitmap(metadata.bitmapIcon);
+            }
 
             LinearLayout checkForUpdatesLayout = myView.findViewById(R.id.check_for_updates);
-
             String githubReleasesRegex = "https://api\\.github\\.com/repos/.+/releases/latest";
 
             if (metadata.githubReleasesUrl != null && metadata.githubReleasesUrl.matches(githubReleasesRegex)) {
                 checkForUpdatesLayout.setVisibility(View.VISIBLE);
             } else {
-                checkForUpdatesLayout.setVisibility(View.GONE);
+                checkForUpdatesLayout.setEnabled(false);
+                TextView textUpdate =  ((TextView)myView.findViewById(R.id.text_update));
+                textUpdate.setText(R.string.no_update_links);
+                textUpdate.setTextColor(ContextCompat.getColor(myView.getContext(), android.R.color.darker_gray));
+                ((ImageView)myView.findViewById(R.id.image_update)).setColorFilter(ContextCompat.getColor(myView.getContext(), android.R.color.darker_gray));
             }
 
-            myView.findViewById(R.id.check_for_updates).setOnClickListener(v -> {
+            myView.findViewById(R.id.check_for_updates).setOnClickListener(v -> onCheckForUpdates(metadata));
+            binding.setItem(metadata);
+        }
+
+
+        @Override
+        public void onClick(View v) {
+        }
+
+        void onCheckForUpdates(ElfModMetadata metadata) {
+            {
                 if (ModUpdater.isDownloading()) {
                     Toast.makeText(myView.getContext(), R.string.updater_busy, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                
+
                 ModManagerActivity.dialogX = new DialogX(
                         myView.getContext(),
                         ModManagerActivity.alertDialog,
@@ -113,22 +134,11 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
                 ModManagerActivity.dialogX.buildDialog();
                 ModManagerActivity.dialogX.setCancelable(false);
                 ModManagerActivity.dialogX.show();
-            });
-            binding.setItem(metadata);
-        }
-
-
-        @Override
-        public void onClick(View v) {
+            }
         }
     }
 
     public static String getVisibleModName(Context c, ElfModUIMetadata metadata) {
-
-        if (metadata.displayName != null) {
-            return c.getString(R.string.mod_name, metadata.displayName, metadata.name);
-        } else {
-            return metadata.name;
-        }
+        return Optional.ofNullable(metadata.displayName).orElse(metadata.name);
     }
 }

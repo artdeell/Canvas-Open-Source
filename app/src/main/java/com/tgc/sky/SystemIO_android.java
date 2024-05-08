@@ -51,10 +51,7 @@ public class SystemIO_android {
     private boolean m_batteryCharging;
     private ExoplayerService mExoplayer;
     private int mExoplayerVideoCounter = 0;
-
     private Future<String> mSubtitleRequest;
-
-
     public float m_batteryLevel;
     private boolean m_isOtherAudioPlaying;
     private boolean m_isPhonecallActive;
@@ -914,7 +911,6 @@ public class SystemIO_android {
     public native void ReceiveVideoSubtitlesNative(String str);
 
     public native void nativeSetIsGameRecorder(boolean z);
-
 
     int CreateMediaPlayerForUrl(final String str, final String str2) {
         this.m_activity.runOnUiThread(new Runnable() {
