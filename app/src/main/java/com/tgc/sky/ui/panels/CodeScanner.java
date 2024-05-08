@@ -84,8 +84,6 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
     private QRCodeReaderView mVideoPreviewLayer;
     private RelativeLayout view;
 
-    /* JADX INFO: Access modifiers changed from: package-private */
-    /* loaded from: classes2.dex */
     public enum CodeScannerState {
         kCodeScannerState_Idle,
         kCodeScannerState_Parsing,
@@ -94,8 +92,6 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         kCodeScannerState_Error
     }
 
-    /* JADX INFO: Access modifiers changed from: package-private */
-    /* loaded from: classes2.dex */
     public enum EnterState {
         kEnterState_WaitingForUser,
         kEnterState_CheckingCode,
@@ -104,13 +100,10 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         kEnterState_Error
     }
 
-    /* loaded from: classes2.dex */
     public interface Handle {
         void run(String str, int i, boolean z);
     }
 
-    /* JADX INFO: Access modifiers changed from: package-private */
-    /* loaded from: classes2.dex */
     public enum ImportState {
         kImportState_CameraAskPermission,
         kImportState_CameraNoPermission,
@@ -121,13 +114,11 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         kImportState_Error
     }
 
-    /* loaded from: classes2.dex */
     public enum Mode {
         kCodeScannerMode_Scan,
         kCodeScannerMode_Type
     }
 
-    /* loaded from: classes2.dex */
     public enum ResultOptions {
         kCodeScanner_UserClosedPanel,
         kCodeScanner_ValidateShortCode,
@@ -725,9 +716,6 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: package-private */
-    /* renamed from: com.tgc.sky.ui.panels.CodeScanner$20  reason: invalid class name */
-    /* loaded from: classes2.dex */
     public static /* synthetic */ class AnonymousClass20 {
         static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$ui$panels$CodeScanner$CodeScannerState;
         static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$ui$panels$CodeScanner$EnterState;
@@ -1008,11 +996,6 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         setPreviewOrientation();
     }
 
-    /* JADX WARN: Removed duplicated region for block: B:17:0x0064  */
-    /*
-        Code decompiled incorrectly, please refer to instructions dump.
-        To view partially-correct code enable 'Show inconsistent code' option in preferences
-    */
     public void imagePickerController(int r4, int r5, Intent intent) {
         boolean z;
         ContentResolver contentResolver = this.m_activity.getContentResolver();
@@ -1022,7 +1005,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
             Bitmap decodeStream = null;
             try {
                 decodeStream = BitmapFactory.decodeStream(contentResolver.openInputStream(data));
-            } catch (IOException e) {
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
             if (decodeStream != null) {
