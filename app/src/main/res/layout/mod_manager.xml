@@ -104,7 +104,7 @@
                     android:paddingLeft="3dp"
                     android:paddingRight="3dp"
                     android:text="|"
-                    android:textColor="@color/white"
+                    android:textColor="@color/text"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
