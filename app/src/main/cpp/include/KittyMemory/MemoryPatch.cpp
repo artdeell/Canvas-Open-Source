@@ -71,62 +71,7 @@ MemoryPatch MemoryPatch::createWithHex(uintptr_t absolute_address, std::string h
   return patch;
 }
 
-#ifndef kNO_KEYSTONE
-MemoryPatch MemoryPatch::createWithAsm(uintptr_t absolute_address, MP_ASM_ARCH asm_arch, const std::string &asm_code, uintptr_t asm_address)
-{
-  MemoryPatch patch;
-  patch.getAllmaps = KittyMemory::getAllMaps();
 
-  if (!absolute_address || asm_code.empty())
-      return patch;
-
-  ks_engine *ks = nullptr;
-  ks_err err = KS_ERR_ARCH;
-
-  switch (asm_arch) {
-    case MP_ASM_ARM32:
-      err = ks_open(KS_ARCH_ARM, KS_MODE_LITTLE_ENDIAN, &ks);
-      break;
-    case MP_ASM_ARM64:
-      err = ks_open(KS_ARCH_ARM64, KS_MODE_LITTLE_ENDIAN, &ks);
-      break;
-    case MP_ASM_x86:
-      err = ks_open(KS_ARCH_X86, KS_MODE_32, &ks);
-      break;
-    case MP_ASM_x86_64:
-      err = ks_open(KS_ARCH_X86, KS_MODE_64, &ks);
-      break;
-    default:
-      KITTY_LOGE("Unknown MP_ASM_ARCH '%d'.", asm_arch);
-      return patch;
-  }
-
-  if (err != KS_ERR_OK) {
-    KITTY_LOGE("ks_open failed with error = '%s'.", ks_strerror(err));
-    return patch;
-  }
-
-  unsigned char *insn_bytes = nullptr;
-  size_t insn_count = 0, insn_size = 0;
-  int rt = ks_asm(ks, asm_code.c_str(), asm_address, &insn_bytes, &insn_size, &insn_count);
-
-  if (rt == 0 && insn_bytes != nullptr && insn_size) {
-    patch = createWithBytes(absolute_address, insn_bytes, insn_size);
-  }
-
-  if (insn_bytes != nullptr) {
-    ks_free(insn_bytes);
-  }
-
-  ks_close(ks);
-
-  if (rt) {
-    KITTY_LOGE("ks_asm failed (asm: %s, count = %zu, error = '%s') (code = %u).", asm_code.c_str(), insn_count, ks_strerror(ks_errno(ks)), ks_errno(ks));
-  }
-
-  return patch;
-}
-#endif // kNO_KEYSTONE
 
 
 MemoryPatch MemoryPatch::createWithBytes(const KittyMemory::ProcMap &map, uintptr_t address, const void *patch_code, size_t patch_size)
@@ -146,17 +91,6 @@ MemoryPatch MemoryPatch::createWithHex(const KittyMemory::ProcMap &map, uintptr_
 }
 
 
-#ifndef kNO_KEYSTONE
-
-MemoryPatch MemoryPatch::createWithAsm(const KittyMemory::ProcMap &map, uintptr_t address, MP_ASM_ARCH asm_arch, const std::string &asm_code, uintptr_t asm_address)
-{
-  if (!address || !map.startAddress || !map.isValid())
-    return MemoryPatch();
-
-  return createWithAsm(map.startAddress+address, asm_arch, asm_code, asm_address);
-}
-
-#endif // kNO_KEYSTONE
 
 bool MemoryPatch::isValid() const
 {

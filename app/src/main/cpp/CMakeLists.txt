@@ -44,6 +44,7 @@ add_library(ciphered
         include/imgui/imgui_tables.cpp
         include/imgui/imgui_widgets.cpp
         include/imgui/imgui_impl_opengl3.cpp
+
         )
 
 target_compile_options(ciphered PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-Werror -std=c++17 -Wno-error=c++11-narrowing  -Wall>)
@@ -57,6 +58,5 @@ find_package(shadowhook REQUIRED CONFIG)
 target_link_libraries( # Specifies the target library.
         ciphered
         shadowhook::shadowhook
-        ${CMAKE_SOURCE_DIR}/include/KittyMemory/Deps/Keystone/libs-android/libkeystone.a
         ${LINKED_LIBS}
 )

@@ -20,16 +20,16 @@ PRIVATE_API struct AAssetManager* IconLoader::aAssetManager;
 extern "C"
 JNIEXPORT void JNICALL
 Java_git_artdeell_skymodloader_iconloader_IconLoader_addIcon(JNIEnv *env, [[maybe_unused]] jclass clazz,
-                                                             jstring name, jstring atlas_name,
-                                                             jfloat u0, jfloat v0, jfloat u1,
-                                                             jfloat v1) {
-    //since the icons will be loaded once at runtime, we can just hold JNI refs to them for eternity
-    auto icon = new PrivateUIIcon;
-    icon->uv0 = ImVec2(u0,v0);
-    icon->uv1 = ImVec2(u1, v1);
-    icon->atlasName =  (*env).GetStringUTFChars(atlas_name, nullptr);
-    icon->atlasTexture = (ImTextureID)-2;
-    icons.insert(std::make_pair(std::string((*env).GetStringUTFChars(name, nullptr)), icon));
+        jstring name, jstring atlas_name,
+        jfloat u0, jfloat v0, jfloat u1,
+jfloat v1) {
+//since the icons will be loaded once at runtime, we can just hold JNI refs to them for eternity
+auto icon = new PrivateUIIcon;
+icon->uv0 = ImVec2(u0,v0);
+icon->uv1 = ImVec2(u1, v1);
+icon->atlasName =  (*env).GetStringUTFChars(atlas_name, nullptr);
+icon->atlasTexture = (ImTextureID)-2;
+icons.insert(std::make_pair(std::string((*env).GetStringUTFChars(name, nullptr)), icon));
 }
 
 PRIVATE_API SkyImage& die() {
@@ -176,4 +176,3 @@ void IconLoader::getUIIcon(const std::string &name, UIIcon *publicIcon) {
         publicIcon->textureId = IL_NO_TEXTURE;
     }
 }
-
