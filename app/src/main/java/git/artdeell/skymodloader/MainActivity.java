@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -31,9 +30,9 @@ import git.artdeell.skymodloader.elfmod.ElfRefcountLoader;
 import git.artdeell.skymodloader.iconloader.IconLoader;
 
 public class MainActivity extends Activity {
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     public static String SKY_PACKAGE_NAME;
-    Map<String, Integer> skyPackages;
+    private Map<String, Integer> skyPackages;
 
     public static DeviceInfo deviceInfo;
 
@@ -82,9 +81,10 @@ public class MainActivity extends Activity {
 
             IconLoader.findIcons();
             BuildConfig.VERSION_CODE = sharedPreferences.getBoolean("skip_updates", false) ? 0x99999 : info.versionCode;
+            Integer gameType = skyPackages.getOrDefault(SKY_PACKAGE_NAME, 0);
             MainActivity.settle(
                     info.versionCode,
-                    skyPackages.getOrDefault(SKY_PACKAGE_NAME, 0),
+                    gameType == null ? 0 : gameType,
                     BuildConfig.SKY_SERVER_HOSTNAME,
                     configDir.getAbsolutePath(),
                     SMLApplication.skyRes.getAssets()
