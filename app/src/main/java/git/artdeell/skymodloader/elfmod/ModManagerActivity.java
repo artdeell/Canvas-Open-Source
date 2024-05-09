@@ -67,7 +67,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         runUpdater();
-        git.artdeell.skymodloader.databinding.ModManagerBinding binding = DataBindingUtil.setContentView(this, R.layout.mod_manager);
+        setContentView(R.layout.mod_manager);
 
         modListView = findViewById(R.id.mm_modList);
         addModButton = findViewById(R.id.mm_addMod);
