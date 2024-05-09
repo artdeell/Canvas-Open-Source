@@ -75,7 +75,6 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
     private ScannerOverlay mImageScannerView;
     ImportState mImportState;
     private Mode mMode;
-    private QRCodeBoundsView mOverlay;
     private RadioGroup mSegmentedControl;
     private HashMap<Object, Object> mTextAttributedStrings;
     private EditText mTextField;
@@ -1009,7 +1008,7 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                 e.printStackTrace();
             }
             if (decodeStream != null) {
-                String scanImage = QrScanner.scanImage(this.m_activity.getApplicationContext(), decodeStream);
+                String scanImage = QrScanner.scanImage(decodeStream);
                 if (scanImage != null) {
                     setCodeScannerState(CodeScannerState.kCodeScannerState_Parsing, scanImage);
                     this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_ValidateUrl.ordinal(), false);
@@ -1067,10 +1066,6 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                             CodeScanner.this.mVideoPreviewLayer.setRadius(((GradientDrawable) CodeScanner.this.mVideoPreview.getBackground()).getCornerRadius());
                             CodeScanner.this.mVideoPreview.addView(CodeScanner.this.mVideoPreviewLayer);
                             CodeScanner.this.mVideoPreviewLayer.setOnQRCodeReadListener(CodeScanner.this);
-                            CodeScanner.this.mOverlay = new QRCodeBoundsView(CodeScanner.this.m_activity);
-                            CodeScanner.this.mOverlay.setLayoutParams(new RelativeLayout.LayoutParams(CodeScanner.this.mVideoPreview.getWidth(), CodeScanner.this.mVideoPreview.getHeight()));
-                            CodeScanner.this._containerContentView.addView(CodeScanner.this.mOverlay);
-                            CodeScanner.this.mOverlay.setZ(-1.0f);
                             CodeScanner.this.view.invalidate();
                         }
                     }
@@ -1091,24 +1086,18 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
                     }
                     CodeScanner.this.mCaptureSession = false;
                     CodeScanner.this.mVideoPreviewLayer = null;
-                    if (CodeScanner.this.mOverlay != null) {
-                        ((RelativeLayout) CodeScanner.this.mOverlay.getParent()).removeView(CodeScanner.this.mOverlay);
-                        CodeScanner.this.mOverlay = null;
-                    }
                 }
             }
         });
     }
 
     @Override // com.tgc.sky.ui.qrcodereaderview.QRCodeReaderTextureView.OnQRCodeReadListener
-    public void onBeginDetect() {
-        this.mOverlay.clear();
-    }
+    public void onBeginDetect() {}
 
     @Override // com.tgc.sky.ui.qrcodereaderview.QRCodeReaderTextureView.OnQRCodeReadListener
-    public boolean onQRCodeRead(String str, RectF rectF) {
+    public boolean onQRCodeRead(String str) {
         try {
-            captureOutput(str, rectF);
+            captureOutput(str);
             return true;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -1116,16 +1105,12 @@ public class CodeScanner extends BasePanel implements GameActivity.OnKeyboardLis
         }
     }
 
-    public boolean captureOutput(String str, RectF rectF) throws UnsupportedEncodingException {
-        if (rectF != null) {
-            boolean z = str != null && str.startsWith("https://sky") && str.indexOf(".thatg.co/?") >= 0;
-            this.mOverlay.addBounds(rectF, z);
-            if (z && this.mCodeInput == null) {
-                setCodeScannerState(CodeScannerState.kCodeScannerState_Parsing, str);
-                this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_ValidateUrl.ordinal(), false);
-            }
-            return z;
+    public boolean captureOutput(String str) throws UnsupportedEncodingException {
+        boolean z = str != null && str.startsWith("https://sky") && str.indexOf(".thatg.co/?") >= 0;
+        if (z && this.mCodeInput == null) {
+            setCodeScannerState(CodeScannerState.kCodeScannerState_Parsing, str);
+            this.mHandler.run(this.mCodeInput, ResultOptions.kCodeScanner_ValidateUrl.ordinal(), false);
         }
-        return false;
+        return z;
     }
 }

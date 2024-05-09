@@ -11,7 +11,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -32,19 +31,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
+
 import androidx.core.content.FileProvider;
 import androidx.core.internal.view.SupportMenu;
-//import com.google.android.gms.drive.DriveFile;
-import com.google.android.play.core.review.ReviewInfo;
-import com.google.android.play.core.review.ReviewManager;
-import com.google.android.play.core.review.ReviewManagerFactory;
-import com.google.android.play.core.tasks.OnCompleteListener;
-import com.google.android.play.core.tasks.Task;
-import com.tgc.sky.GameActivity;
-//import com.tgc.sky.accounts.Facebook;
-import com.tgc.sky.accounts.SystemAccountType;
+
 import com.tgc.sky.ui.QRCameraHandler;
 import com.tgc.sky.ui.TextField;
 import com.tgc.sky.ui.TextFieldLimiter;
@@ -59,6 +49,7 @@ import com.tgc.sky.ui.text.SystemVAlignment;
 import com.tgc.sky.ui.text.TextLabel;
 import com.tgc.sky.ui.text.TextLabelArgs;
 import com.tgc.sky.ui.text.TextLabelManager;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -699,23 +690,7 @@ public class SystemUI_android {
     }
 
     public boolean RequestUserAppRating() {
-        if (GetMainWindowAttachedSheet()) {
-            return false;
-        }
-        final ReviewManager create = ReviewManagerFactory.create(this.m_activity);
-        create.requestReviewFlow().addOnCompleteListener(new OnCompleteListener<ReviewInfo>() { // from class: com.tgc.sky.SystemUI_android.11
-            @Override // com.google.android.play.core.tasks.OnCompleteListener
-            public void onComplete(Task<ReviewInfo> task) {
-                if (task.isSuccessful()) {
-                    create.launchReviewFlow(SystemUI_android.this.m_activity, task.getResult()).addOnCompleteListener(new OnCompleteListener<Void>() { // from class: com.tgc.sky.SystemUI_android.11.1
-                        @Override // com.google.android.play.core.tasks.OnCompleteListener
-                        public void onComplete(Task<Void> task2) {
-                        }
-                    });
-                }
-            }
-        });
-        return true;
+        return GetMainWindowAttachedSheet();
     }
 
     public int ShowCodeScanner(final int i) {

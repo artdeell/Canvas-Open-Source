@@ -20,11 +20,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
-import android.util.SparseArray;
 import android.view.Surface;
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.zxing.Result;
 import com.tgc.sky.GameActivity;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -43,7 +40,6 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
     private CameraManager m_cameraManager;
     private CameraCaptureSession m_captureSession;
     private Context m_context;
-    private BarcodeDetector m_detector;
     private CameraVideoFormat m_format;
     public HandlerCb m_handler;
     private int m_height;
@@ -127,7 +123,6 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         this.m_imagePicker = intent;
         intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         this.m_cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        this.m_detector = new BarcodeDetector.Builder(context).setBarcodeFormats(256).build();
         this.m_imageLock = new ReentrantLock();
         this.m_format = CameraVideoFormat.kCameraVideoFormat_Unknown;
         this.m_width = 0;
@@ -496,14 +491,10 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         if (bitmap == null) {
             return null;
         }
-        SparseArray<Barcode> detect = this.m_detector.detect(new Frame.Builder().setBitmap(bitmap).build());
-        for (int i = 0; i < detect.size(); i++) {
-            Barcode valueAt = detect.valueAt(i);
-            if (valueAt != null && valueAt.url != null && valueAt.url.url != null) {
-                return valueAt.url.url;
-            }
-        }
-        return null;
+        Result zxingResult = ZXingUtils.decodeQRBitmap(bitmap);
+        if(zxingResult == null) return null;
+        if(zxingResult.getText() == null) return null;
+        return zxingResult.getText();
     }
 
     @Override // com.tgc.sky.GameActivity.OnActivityResultListener

@@ -37,7 +37,6 @@ import android.widget.RelativeLayout;
 import androidx.core.view.InputDeviceCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.google.android.play.core.splitcompat.SplitCompat;
 import com.tgc.sky.io.AudioDeviceType;
 import com.tgc.sky.ui.panels.BasePanel;
 
@@ -184,7 +183,6 @@ public class GameActivity extends TGCNativeActivity {
 
     public void attachBaseContext(Context context) {
         super.attachBaseContext(context);
-        SplitCompat.install(this);
     }
 
     private boolean isTextRenderingBrokenForDevice() {

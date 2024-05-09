@@ -14,8 +14,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.WindowManager;
+
 import com.google.zxing.client.android.camera.CameraManager;
 import com.tgc.sky.QrScanner;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -32,7 +34,7 @@ public class QRCodeReaderTextureView extends TextureView implements TextureView.
     public interface OnQRCodeReadListener {
         void onBeginDetect();
 
-        boolean onQRCodeRead(String str, RectF rectF);
+        boolean onQRCodeRead(String str);
     }
 
     @Override // android.view.TextureView.SurfaceTextureListener
@@ -123,7 +125,7 @@ public class QRCodeReaderTextureView extends TextureView implements TextureView.
             this.mCameraManager.closeDriver();
         }
         try {
-            this.mScanner = new QrScanner(getContext());
+            this.mScanner = new QrScanner();
             this.mCameraManager.startPreview();
         } catch (Exception e2) {
             SimpleLog.e(TAG, "Exception: " + e2.getMessage());
