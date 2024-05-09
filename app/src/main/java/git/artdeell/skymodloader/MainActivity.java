@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -80,14 +81,7 @@ public class MainActivity extends Activity {
             );
 
             IconLoader.findIcons();
-            if (SKY_PACKAGE_NAME.equals("com.tgc.sky.android.test.gold")) {
-                SKY_PACKAGE_NAME = "com.tgc.sky.android.test.";
-                BuildConfig.SKY_SERVER_HOSTNAME = "beta.radiance.thatgamecompany.com";
-                BuildConfig.SKY_BRANCH_NAME = "Test";
-                BuildConfig.SKY_STAGE_NAME = "Test";
-            }
             BuildConfig.VERSION_CODE = sharedPreferences.getBoolean("skip_updates", false) ? 0x99999 : info.versionCode;
-
             MainActivity.settle(
                     info.versionCode,
                     skyPackages.getOrDefault(SKY_PACKAGE_NAME, 0),
@@ -95,6 +89,13 @@ public class MainActivity extends Activity {
                     configDir.getAbsolutePath(),
                     SMLApplication.skyRes.getAssets()
             );
+
+            if (SKY_PACKAGE_NAME.equals("com.tgc.sky.android.test.gold")) {
+                SKY_PACKAGE_NAME = "com.tgc.sky.android.test.";
+                BuildConfig.SKY_SERVER_HOSTNAME = "beta.radiance.thatgamecompany.com";
+                BuildConfig.SKY_BRANCH_NAME = "Test";
+                BuildConfig.SKY_STAGE_NAME = "Test";
+            }
 
             new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
             BuildConfig.APPLICATION_ID = SKY_PACKAGE_NAME;

@@ -10,6 +10,7 @@
 #include "include/misc/Vector3.h"
 #include <vector>
 #include "Canvas/Canvas.h"
+#include "Cipher/CipherUtils.h"
 #include "Cipher/Cipher.h"
 #include "include/misc/visibility.h"
 #include "Iconloader/IconLoader.h"
@@ -54,6 +55,9 @@ PRIVATE_API void iAmHook() {
 static CipherBase *hook = NULL;
 PRIVATE_API void SystemsTest() {
     ImGui::Begin("System Tests");
+
+    ImGui::Text("is Game Beta? %s", Cipher::isGameBeta() ? "true" : "false");
+    ImGui::Text("is Game Beta? %s", CipherUtils::get_GameType() == GameType::Beta ? "true" : "false");
     iAmHookable();
     if(ImGui::Button("Hook")) {
         if(hook != NULL) hook->Restore();
