@@ -56,8 +56,6 @@ import git.artdeell.skymodloader.ImGUI;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.SMLApplication;
 import git.artdeell.skymodloader.ImGUITextInput;
-import git.artdeell.skymodloader.updater.UpdaterService;
-import git.artdeell.skymodloader.updater.UpdaterServiceConnection;
 
 public class GameActivity extends TGCNativeActivity {
     static final boolean ENABLE_DISPLAY_CUTOUT_MODE = true;
@@ -215,15 +213,9 @@ public class GameActivity extends TGCNativeActivity {
         }
     }
 
-    public void runUpdater() {
-        Intent updaterService = new Intent(this, UpdaterService.class);
-        bindService(updaterService, new UpdaterServiceConnection(this), BIND_AUTO_CREATE);
-    }
-
     /* access modifiers changed from: protected */
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        runUpdater();
         DialogJNI.setActivity(this);
         hideNavigationFullScreen(getWindow().getDecorView());
         getWindow().addFlags(2097280);

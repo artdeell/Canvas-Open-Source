@@ -38,6 +38,8 @@ import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.SMLApplication;
 import git.artdeell.skymodloader.modupdater.ModUpdateInfo;
 import git.artdeell.skymodloader.modupdater.ModUpdater;
+import git.artdeell.skymodloader.updater.UpdaterService;
+import git.artdeell.skymodloader.updater.UpdaterServiceConnection;
 
 public class ModManagerActivity extends Activity implements LoadingListener {
     private static final int REQUEST_MOD = 1024 * 121;
@@ -64,6 +66,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        runUpdater();
         git.artdeell.skymodloader.databinding.ModManagerBinding binding = DataBindingUtil.setContentView(this, R.layout.mod_manager);
 
         modListView = findViewById(R.id.mm_modList);
@@ -512,6 +515,11 @@ public class ModManagerActivity extends Activity implements LoadingListener {
 
             dialogX.show();
         });
+    }
+
+    public void runUpdater() {
+        Intent updaterService = new Intent(this, UpdaterService.class);
+        bindService(updaterService, new UpdaterServiceConnection(this), BIND_AUTO_CREATE);
     }
 
     private int dpToPixels(int dp) {
