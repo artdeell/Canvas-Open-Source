@@ -11,6 +11,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -24,6 +25,7 @@ import io.noties.markwon.Markwon;
 public class ModUpdaterDialogManager extends IUpdaterConnection.Stub implements ServiceConnection, View.OnClickListener {
     private final Handler mUiThreadHandler = new Handler(Looper.getMainLooper());
     private final DialogY mDialog;
+    private ElfUIBackbone mLoader;
     private final Markwon mMarkwon;
     private IUpdater mUpdater;
     private boolean mHasShownChangelog;
@@ -148,7 +150,6 @@ public class ModUpdaterDialogManager extends IUpdaterConnection.Stub implements 
         mDialog.positiveButton.setVisibility(positiveButton ? View.VISIBLE : View.GONE);
         mDialog.negativeButton.setVisibility(negativeButton ? View.VISIBLE : View.GONE);
         mDialog.setProgressVisibility(progressBar);
-
     }
 
     private void updateProgressBar(long curr, long max) {
@@ -162,12 +163,22 @@ public class ModUpdaterDialogManager extends IUpdaterConnection.Stub implements 
     }
 
     private void onClickedPositive() {
-        if(mState == AbstractUpdaterService.SERVICE_STATE_UPDATE_AVAILABLE) {
-            downloadUpdate();
-        }else {
-            // In all other cases when the positive button is shown, we want to hide ourselves and kill the service.
-            shutDown();
+        switch(mState) {
+            case AbstractUpdaterService.SERVICE_STATE_UPDATE_AVAILABLE:
+                downloadUpdate();
+                break;
+            case AbstractUpdaterService.SERVICE_STATE_INSTALL_FINISHED:
+                updateModInfo();
+            default:
+                // In all cases other than SERVICE_STATE_UPDATE_AVAILABLE when the positive button is shown,
+                // we want to hide ourselves and kill the service.
+                shutDown();
         }
+    }
+
+    private void updateModInfo() {
+        File filesDir = mDialog.content.getContext().getFilesDir();
+        mLoader.startLoadingAsync(new File(filesDir, "mods"));
     }
 
     private void downloadUpdate() {
@@ -213,5 +224,9 @@ public class ModUpdaterDialogManager extends IUpdaterConnection.Stub implements 
         }else if(view.equals(mDialog.negativeButton)){
             onClickedNegative();
         }
+    }
+
+    public void setLoader(ElfUIBackbone loader) {
+        mLoader = loader;
     }
 }

@@ -62,6 +62,7 @@ public class ElfUIBackbone {
     }
 
     public void loadMetaFromModFolder(File modFolder) {
+        mods.clear();
         this.modFolder = modFolder;
         if (!modFolder.exists()) {
             modFolder.mkdirs();
@@ -316,6 +317,7 @@ public class ElfUIBackbone {
             startLoading();
             loadMetaFromModFolder(modsFolder);
             stopLoading();
+            listener.refreshModList(3, 0);
         }).start();
     }
 
@@ -352,21 +354,5 @@ public class ElfUIBackbone {
         }
 
         return false;
-    }
-
-    public ElfModUIMetadata updateElfMod(int idx, File modFile) throws IOException, InvalidModException {
-        ElfModUIMetadata elfMod = getElfMetadata(modFile);
-
-        if (!elfMod.modIsValid) {
-            throw new InvalidModException("Invalid mod metadata");
-        }
-
-        File _modFile = new File(this.activity.getFilesDir(), "mods/" + elfMod.getLibName());
-        elfMod.modFile.renameTo(_modFile);
-        elfMod.modFile = _modFile;
-
-        mods.set(idx, elfMod);
-        listener.refreshModList(2, idx);
-        return elfMod;
     }
 }

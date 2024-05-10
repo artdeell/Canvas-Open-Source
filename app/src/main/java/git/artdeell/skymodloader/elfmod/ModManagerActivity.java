@@ -140,6 +140,7 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
             loader = new ElfUIBackbone(this, this);
             loader.addListener(this);
             loader.startLoadingAsync(new File(getFilesDir(), "mods"));
+            mDialogManager.setLoader(loader);
         } else {
             handleLoading();
             handleUnsafeModRemoval();
@@ -236,6 +237,7 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
         unbindService(mDialogManager);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void refreshModList(int mode, int which) {
         runOnUiThread(() -> {
@@ -251,6 +253,8 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
                     case 2:
                         adapter.notifyItemChanged(which);
                         break;
+                    case 3:
+                        adapter.notifyDataSetChanged();
                 }
 
             } else modListView.setAdapter(new ModListAdapter(loader));

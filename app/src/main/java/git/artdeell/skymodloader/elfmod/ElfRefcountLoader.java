@@ -7,7 +7,6 @@ import net.fornwall.jelf.ElfSectionHeader;
 import net.fornwall.jelf.ElfStringTable;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import git.artdeell.skymodloader.BuildConfig;
 import git.artdeell.skymodloader.ElfLoader;
 import git.artdeell.skymodloader.LibrarySelectorListener;
 
@@ -77,6 +75,12 @@ public class ElfRefcountLoader extends ElfLoader{
     }
 
     public void addElf(File file) throws Exception {
+        ElfModMetadata metadata = loadMetadata(file);
+        elfFileReferences.add(new ElfFileReference(metadata));
+        metadataByName.put(metadata.name, metadata);
+    }
+
+    public static ElfModMetadata loadMetadata(File file) throws Exception {
         ElfFile elf = ElfFile.from(file);
         RandomAccessFile raf = new RandomAccessFile(file,"r");
         ElfStringTable shstrtab = elf.getSectionNameStringTable();
@@ -93,40 +97,41 @@ public class ElfRefcountLoader extends ElfLoader{
             raf.close();
             throw new InvalidModException("no SEC_CONFIG in "+file.getName());
         }
-        if(secsz_config > 0 && secsz_config < Integer.MAX_VALUE) {
-            byte[] config = new byte[(int) secsz_config];
-            raf.seek(secoff_config);
-            raf.readFully(config);
-            JSONObject jsonConfig = new JSONObject(new String(config, 0, config.length));
-            ElfModMetadata modMetadata = new ElfModMetadata();
-            modMetadata.name = jsonConfig.getString("name");
-            modMetadata.author = jsonConfig.optString("author");
-            modMetadata.description = jsonConfig.getString("description");
-            modMetadata.majorVersion = jsonConfig.getInt("majorVersion");
-            modMetadata.minorVersion = jsonConfig.getInt("minorVersion");
-            modMetadata.patchVersion = jsonConfig.getInt("patchVersion");
-            modMetadata.displayName = jsonConfig.optString("displayName");
-            modMetadata.displaysUI = jsonConfig.optBoolean("displaysUI");
-            modMetadata.selfManagedUI = jsonConfig.optBoolean("selfManagedUI");
-            JSONArray jdeps = jsonConfig.getJSONArray("dependencies");
-            ElfModMetadata[] dependencies = new ElfModMetadata[jdeps.length()];
-            for(int i = 0; i < dependencies.length; i++) {
-                JSONObject jsonDependency = jdeps.getJSONObject(i);
-                ElfModMetadata dependency = new ElfModMetadata();
-                dependency.modIsValid = true;
-                dependency.name = jsonDependency.getString("name");
-                dependency.author = jsonDependency.optString("author");
-                dependency.majorVersion = jsonDependency.getInt("majorVersion");
-                dependency.minorVersion = jsonDependency.getInt("minorVersion");
-                dependency.patchVersion = jsonDependency.getInt("patchVersion");
-                dependencies[i] = dependency;
-            }
-            modMetadata.dependencies = dependencies;
-            modMetadata.modIsValid = true;
-            elfFileReferences.add(new ElfFileReference(modMetadata));
-            metadataByName.put(modMetadata.name, modMetadata);
+        if(secsz_config < 0 || secsz_config > Integer.MAX_VALUE) {
+            raf.close();
+            throw new InvalidModException("SECSZ exceeds integer limit");
         }
+        byte[] config = new byte[(int) secsz_config];
+        raf.seek(secoff_config);
+        raf.readFully(config);
+        JSONObject jsonConfig = new JSONObject(new String(config));
+        ElfModMetadata modMetadata = new ElfModMetadata();
+        modMetadata.name = jsonConfig.getString("name");
+        modMetadata.author = jsonConfig.optString("author");
+        modMetadata.description = jsonConfig.getString("description");
+        modMetadata.majorVersion = jsonConfig.getInt("majorVersion");
+        modMetadata.minorVersion = jsonConfig.getInt("minorVersion");
+        modMetadata.patchVersion = jsonConfig.getInt("patchVersion");
+        modMetadata.displayName = jsonConfig.optString("displayName");
+        modMetadata.displaysUI = jsonConfig.optBoolean("displaysUI");
+        modMetadata.selfManagedUI = jsonConfig.optBoolean("selfManagedUI");
+        JSONArray jdeps = jsonConfig.getJSONArray("dependencies");
+        ElfModMetadata[] dependencies = new ElfModMetadata[jdeps.length()];
+        for(int i = 0; i < dependencies.length; i++) {
+            JSONObject jsonDependency = jdeps.getJSONObject(i);
+            ElfModMetadata dependency = new ElfModMetadata();
+            dependency.modIsValid = true;
+            dependency.name = jsonDependency.getString("name");
+            dependency.author = jsonDependency.optString("author");
+            dependency.majorVersion = jsonDependency.getInt("majorVersion");
+            dependency.minorVersion = jsonDependency.getInt("minorVersion");
+            dependency.patchVersion = jsonDependency.getInt("patchVersion");
+            dependencies[i] = dependency;
+        }
+        modMetadata.dependencies = dependencies;
+        modMetadata.modIsValid = true;
         raf.close();
+        return modMetadata;
     }
 
     public void scanDeps() {

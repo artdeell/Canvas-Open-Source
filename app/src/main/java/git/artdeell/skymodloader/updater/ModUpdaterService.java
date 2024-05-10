@@ -10,6 +10,10 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+
+import git.artdeell.skymodloader.elfmod.ElfModMetadata;
+import git.artdeell.skymodloader.elfmod.ElfRefcountLoader;
 
 public class ModUpdaterService extends AbstractUpdaterService {
     public static final String EXTRA_UPDATE_URL = "update_url";
@@ -66,13 +70,22 @@ public class ModUpdaterService extends AbstractUpdaterService {
         Log.i("ModUpdaterService", "Tag: "+tag);
         VersionNumber newVersion = VersionNumber.parseVersion(tag);
         if(newVersion == null) return false;
-        return VersionNumber.versionCompare(mCurrentVersionNumber, newVersion);
+        return mCurrentVersionNumber.compare(newVersion) < 0;
     }
 
     @Override
     protected void performInstallActions() throws Exception {
-        // Basically, we just copy the file while showing progress.
         File source = getDownloadTarget();
+        ElfModMetadata metadata = ElfRefcountLoader.loadMetadata(source);
+        // Make sure that we actually replace the mod name after an update
+        // if the library name changes.
+        if(!mLibraryPath.delete())
+            throw new IOException("Failed to delete old mod file");
+        // Pick the new name based on metadata.
+        File modsFolder = mLibraryPath.getParentFile();
+        assert modsFolder != null;
+        mLibraryPath = new File(modsFolder, metadata.name);
+        // Copy the file.
         long length = source.length();
         setProgressBarMax(length);
         try (FileInputStream inputStream = new FileInputStream(getDownloadTarget())) {
