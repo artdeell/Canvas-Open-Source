@@ -77,10 +77,15 @@ public class DialogY implements View.OnLayoutChangeListener, DialogInterface.OnS
     private void updateProgressBar() {
         if(mIndeterminate) return;
         double progress = mCurrentProgress / mMaxProgress;
-        mProgressBar.setProgress((int)(progress * mProgressBarMax));
-        mProgressText.setText(
-            String.format(Locale.getDefault(),"%.2f%%", progress * 100d)
-        );
+        if(Double.isFinite(progress)) {
+            mProgressBar.setProgress((int)(progress * mProgressBarMax));
+            mProgressText.setText(
+                    String.format(Locale.getDefault(),"%.2f%%", progress * 100d)
+            );
+        }else {
+            mProgressBar.setProgress(0);
+            mProgressText.setText("--%");
+        }
     }
 
     public void setProgressIndeterminate(boolean indeterminate) {
