@@ -2,30 +2,23 @@ package git.artdeell.skymodloader.elfmod;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
-import git.artdeell.skymodloader.DialogX;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.databinding.ModListElementBinding;
-import git.artdeell.skymodloader.modupdater.ModUpdater;
 
 public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHolder> {
     final ElfUIBackbone loader;
@@ -53,8 +46,7 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
         return loader.getModsCount();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ColorStateList defaultColors;
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         int which;
         View myView;
         public ModListElementBinding binding;
@@ -80,13 +72,16 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
                 checkForUpdatesLayout.setVisibility(View.VISIBLE);
             } else {
                 checkForUpdatesLayout.setEnabled(false);
-                TextView textUpdate =  ((TextView)myView.findViewById(R.id.text_update));
+                TextView textUpdate = myView.findViewById(R.id.text_update);
                 textUpdate.setText(R.string.no_update_links);
                 textUpdate.setTextColor(ContextCompat.getColor(myView.getContext(), android.R.color.darker_gray));
                 ((ImageView)myView.findViewById(R.id.image_update)).setColorFilter(ContextCompat.getColor(myView.getContext(), android.R.color.darker_gray));
             }
 
-            myView.findViewById(R.id.check_for_updates).setOnClickListener(v -> onCheckForUpdates(metadata));
+            myView.findViewById(R.id.check_for_updates).setOnClickListener(v -> {
+                Log.i("AA", "onClick()");
+                onCheckForUpdates(metadata);
+            });
             binding.setItem(metadata);
         }
 
@@ -95,50 +90,12 @@ public class ModListAdapter extends RecyclerView.Adapter<ModListAdapter.ViewHold
         public void onClick(View v) {
         }
 
-        void onCheckForUpdates(ElfModMetadata metadata) {
-            {
-                if (ModUpdater.isDownloading()) {
-                    Toast.makeText(myView.getContext(), R.string.updater_busy, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                ModManagerActivity.dialogX = new DialogX(
-                        myView.getContext(),
-                        ModManagerActivity.alertDialog,
-                        loader.activity.getString(R.string.check_updates_title, metadata.displayName),
-                        loader.activity.getString(R.string.check_updates_message),
-                        loader.activity.getString(R.string.check_button_text),
-                        () -> {
-                            Executor executor = Executors.newSingleThreadExecutor();
-                            executor.execute(() -> {
-                                try {
-                                    loader.modUpdater.checkForModUpdate(metadata);
-                                } catch (IOException | JSONException e) {
-                                    loader.activity.runOnUiThread(() -> {
-                                        ModManagerActivity.dialogX = new DialogX(
-                                                myView.getContext(),
-                                                ModManagerActivity.alertDialog,
-                                                loader.activity.getString(R.string.check_updates_failed_title),
-                                                e.getMessage(),
-                                                null,
-                                                null
-                                        );
-                                        ModManagerActivity.dialogX.buildDialogEx(view -> view.findViewById(R.id.dialog_button_positive).setVisibility(View.GONE));
-                                        ModManagerActivity.dialogX.setCancelable(false);
-                                        ModManagerActivity.dialogX.show();
-                                    });
-                                }
-                            });
-                        }
-                );
-                ModManagerActivity.dialogX.buildDialog();
-                ModManagerActivity.dialogX.setCancelable(false);
-                ModManagerActivity.dialogX.show();
-            }
+        private void onCheckForUpdates(ElfModUIMetadata metadata) {
+            loader.modUpdater.startModUpdater(metadata);
         }
     }
 
-    public static String getVisibleModName(Context c, ElfModUIMetadata metadata) {
+    public static String getVisibleModName(ElfModUIMetadata metadata) {
         return Optional.ofNullable(metadata.displayName).orElse(metadata.name);
     }
 }

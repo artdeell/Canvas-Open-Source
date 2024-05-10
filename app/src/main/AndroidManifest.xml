@@ -14,9 +14,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.NFC" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SHORT_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
 
     <application
@@ -44,19 +41,19 @@
 
         </provider>
         <activity
-            android:name=".updater.UpdaterActivity"
+            android:name=".updater.CanvasUpdaterActivity"
             android:exported="false"
             android:noHistory="true"
             android:process=":updater" />
 
         <service
-            android:name=".updater.UpdaterService"
+            android:name=".updater.CanvasUpdaterService"
             android:exported="false"
             android:process=":updater" />
         <service
-            android:name=".modupdater.ModUpdaterService"
-            android:foregroundServiceType="specialUse"
-            tools:ignore="ForegroundServicePermission" />
+            android:name=".updater.ModUpdaterService"
+            android:exported="false"
+            android:process=":mod_updater"/>
 
         <activity
             android:name=".elfmod.ModManagerActivity"

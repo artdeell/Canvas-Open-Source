@@ -25,7 +25,7 @@ public class ElfModUIMetadata extends ElfModMetadata {
     }
 
     public String getName() {
-        return ModListAdapter.getVisibleModName(activity, this);
+        return ModListAdapter.getVisibleModName(this);
     }
 
     public String getVersion() {

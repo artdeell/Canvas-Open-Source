@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import git.artdeell.skymodloader.BuildConfig;
-import git.artdeell.skymodloader.modupdater.ModUpdater;
+import git.artdeell.skymodloader.updater.ModUpdater;
 
 public class ElfUIBackbone {
     private final List<ElfModUIMetadata> mods = new ArrayList<>();

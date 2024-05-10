@@ -98,6 +98,12 @@
     <string name="close">Close</string>
     <string name="mod_icon">mod icon</string>
     <string name="no_update_links">No Update Links</string>
-
-
+    <string name="mod_check_updates_checking">Checking for updates…</string>
+    <string name="mod_check_updates_found">Found an update!</string>
+    <string name="mod_check_updates_not_found">No updates available.</string>
+    <string name="mod_check_updates_downloading">Downloading update…</string>
+    <string name="mod_check_updates_installing">Installing update…</string>
+    <string name="mod_check_updates_complete">Update complete!</string>
+    <string name="mod_check_updates_error">An error has occurred</string>
+    <string name="settings_title">SETTINGS</string>
 </resources>

@@ -8,15 +8,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,20 +27,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import git.artdeell.skymodloader.BuildConfig;
-import git.artdeell.skymodloader.DialogX;
+import git.artdeell.skymodloader.DialogY;
 import git.artdeell.skymodloader.MainActivity;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.SMLApplication;
-import git.artdeell.skymodloader.modupdater.ModUpdateInfo;
-import git.artdeell.skymodloader.modupdater.ModUpdater;
-import git.artdeell.skymodloader.updater.UpdaterService;
-import git.artdeell.skymodloader.updater.UpdaterServiceConnection;
+import git.artdeell.skymodloader.updater.CanvasUpdaterConnection;
+import git.artdeell.skymodloader.updater.CanvasUpdaterService;
+import git.artdeell.skymodloader.updater.ModUpdater;
+import git.artdeell.skymodloader.updater.ModUpdaterService;
+import git.artdeell.skymodloader.updater.VersionNumber;
 
-public class ModManagerActivity extends Activity implements LoadingListener {
+public class ModManagerActivity extends Activity implements LoadingListener, ModUpdater {
     private static final int REQUEST_MOD = 1024 * 121;
     @SuppressLint("StaticFieldLeak")
     private static ElfUIBackbone loader;
@@ -56,12 +54,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
 
     private SharedPreferences sharedPreferences;
     private ArrayList<String> skyPackages;
-
-    public static DialogX dialogX;
-    public static AlertDialog alertDialog;
-    private static String downloadingInfo;
-
-    private ModUpdater modUpdater = null;
+    private ModUpdaterDialogManager mDialogManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -93,140 +86,26 @@ public class ModManagerActivity extends Activity implements LoadingListener {
     }
 
     private void initializeModUpdater() {
-        modUpdater = ModUpdater.getInstance(this);
+        mDialogManager = new ModUpdaterDialogManager(this);
+        // This will not do anything if the service isn't already started, and it's only
+        // started when a mod is in the process of updating.
+        bindService(new Intent(this, ModUpdaterService.class), mDialogManager, 0);
+    }
 
-        modUpdater.setModUpdaterListener(new ModUpdater.ModUpdaterListener() {
-
-            @Override
-            public void onModUpdateAvailable(ElfModMetadata elfMod, ModUpdateInfo info) {
-
-                if (info == null)
-                    return;
-
-                runOnUiThread(() -> {
-                    downloadingInfo = getString(R.string.version_info, info.tag, info.description);
-                    ModManagerActivity.dialogX = new DialogX(
-                            ModManagerActivity.this,
-                            ModManagerActivity.alertDialog,
-                            getString(R.string.update_dialog_title, elfMod.displayName),
-                            downloadingInfo,
-                            getString(R.string.install_button_text),
-                            () -> {
-                                Executor executor = Executors.newSingleThreadExecutor();
-                                executor.execute(() -> modUpdater.updateMod(elfMod, info.url));
-                                dialogX = new DialogX(
-                                        ModManagerActivity.this,
-                                        ModManagerActivity.alertDialog,
-                                        "Updating " + elfMod.displayName,
-                                        downloadingInfo,
-                                        null,
-                                        null
-                                );
-                            }
-                    );
-                    dialogX.buildDialog();
-                    dialogX.setCancelable(false);
-                    dialogX.show();
-                });
-
-                // Called when mod update is available.
-            }
-
-            @Override
-            public void onModUpToDate(ElfModMetadata elfMod, ModUpdateInfo info) {
-                runOnUiThread(() -> {
-                    ModManagerActivity.dialogX = new DialogX(
-                            ModManagerActivity.this,
-                            ModManagerActivity.alertDialog,
-                            getString(R.string.up_to_date_title),
-                            getString(R.string.up_to_date_message, info.tag),
-                            getString(R.string.install_button_text),
-                            null
-                    );
-
-                    dialogX.buildDialogEx(view -> view.findViewById(R.id.dialog_button_positive).setVisibility(View.GONE));
-                    dialogX.setCancelable(false);
-                    dialogX.show();
-                });
-                // Called when mod is up-to-date
-
-                // Note that if mod metadata doesn't have github releases url
-                // the `ModUpdateInfo info` object will be equal to `null`
-
-            }
-
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onModDownloadProgress(ElfModMetadata elfMod, int downloadedSize, int fileSize) {
-                if (dialogX != null) {
-                    runOnUiThread(() -> dialogX.buildDialogEx((view) -> {
-                        view.findViewById(R.id.dialog_progress_box).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.dialog_button_positive).setVisibility(View.GONE);
-                        view.findViewById(R.id.dialog_button_negative).setVisibility(View.GONE);
-                        ((ProgressBar) view.findViewById(R.id.dialog_progress)).setProgress(0);
-                        ProgressBar progressBar = view.findViewById(R.id.dialog_progress);
-                        TextView progressText = view.findViewById(R.id.dialog_progress_text);
-                        progressBar.setMax(100);
-                        double progress = (downloadedSize / (double) fileSize) * 100;
-                        progressBar.setProgress((int) progress);
-                        progressText.setText((int) progress + "%");
-
-                        dialogX.setCancelable(false);
-                        dialogX.show();
-
-                        if (progress == 100)
-                            dialogX.close();
-                    }));
-                }
-
-
-                // Called everytime a chunk of file is downloaded.
-                // Be aware, there is a chance for `fileSize` to be -1. Happens only
-                // when full file size couldn't be fetched (tho you could
-                // access it in `ModUpdateInfo.size` ).
-            }
-
-            @Override
-            public void onModDownloadComplete(ElfModMetadata elfMod) {
-                // Called when modfile has been successfully downloaded.
-                // `ElfModMetadata elfMod` object of new file is passed.
-            }
-
-            @Override
-            public void onModDownloadFailure(ElfModMetadata elfMod, Exception exception) {
-                runOnUiThread(() -> {
-                    ModManagerActivity.dialogX = new DialogX(
-                            ModManagerActivity.this,
-                            ModManagerActivity.alertDialog,
-                            getString(R.string.updating_failed_title),
-                            exception.getMessage(),
-                            null,
-                            null
-                    );
-                    dialogX.setCancelable(false);
-                    dialogX.show();
-                });
-
-                // Called when download was unsuccessful.
-                // Exception is passed for further processing.
-            }
-        });
-
-        if (ModUpdater.isDownloading()) {
-            ElfModMetadata elfMod = modUpdater.getCurrent();
-            Toast.makeText(this, R.string.download_is_going, Toast.LENGTH_SHORT).show();
-
-            dialogX = new DialogX(
-                    this,
-                    alertDialog,
-                    "Updating " + elfMod.displayName,
-                    downloadingInfo,
-                    null,
-                    null
-            );
-            // if it was already downloading an update, do something
+    public void startModUpdater(ElfModUIMetadata metadata) {
+        Log.i("MMA", "Starting mod update...");
+        if(mDialogManager.isConnected()) {
+            Toast.makeText(this, R.string.updater_busy, Toast.LENGTH_SHORT).show();
+            return;
         }
-
+        Intent serviceStartIntent = new Intent(this, ModUpdaterService.class);
+        serviceStartIntent.putExtra(ModUpdaterService.EXTRA_UPDATE_URL, metadata.getGithubReleasesUrl());
+        serviceStartIntent.putExtra(ModUpdaterService.EXTRA_LIB_NAME, metadata.name);
+        serviceStartIntent.putExtra(ModUpdaterService.EXTRA_VERSION_NUMBER,
+                new VersionNumber(metadata.majorVersion, metadata.minorVersion, metadata.patchVersion)
+        );
+        startService(serviceStartIntent);
+        bindService(new Intent(this, ModUpdaterService.class), mDialogManager, 0);
     }
 
     private void initializeSkyPackages() {
@@ -258,7 +137,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
 
     private void initializeLoader() {
         if (loader == null) {
-            loader = new ElfUIBackbone(this, modUpdater);
+            loader = new ElfUIBackbone(this, this);
             loader.addListener(this);
             loader.startLoadingAsync(new File(getFilesDir(), "mods"));
         } else {
@@ -354,7 +233,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
     protected void onDestroy() {
         super.onDestroy();
         if (loader != null) loader.removeListener();
-        dialogX = null;
+        unbindService(mDialogManager);
     }
 
     @Override
@@ -428,10 +307,13 @@ public class ModManagerActivity extends Activity implements LoadingListener {
             message = e.getMessage();
         }
 
-        dialogX = new DialogX(this, alertDialog, getString(R.string.mod_add_unable), message, null, null);
-        dialogX.buildDialog();
-        dialogX.setCancelable(true);
-        dialogX.show();
+        DialogY dialogY = DialogY.createFromActivity(this);
+        dialogY.positiveButton.setVisibility(View.GONE);
+        dialogY.title.setText(R.string.mod_add_unable);
+        dialogY.content.setText(message);
+        dialogY.negativeButton.setOnClickListener((v)->dialogY.dialog.dismiss());
+        dialogY.dialog.setCancelable(true);
+        dialogY.dialog.show();
     }
 
     private void handleUnsafeModRemoval() {
@@ -439,7 +321,7 @@ public class ModManagerActivity extends Activity implements LoadingListener {
         if (metadata == null) return;
         StringBuilder sb = new StringBuilder();
         for (ElfModUIMetadata meta : metadata.dependingMods) {
-            sb.append(getString(R.string.mod_remove_dep, ModListAdapter.getVisibleModName(this, meta)));
+            sb.append(getString(R.string.mod_remove_dep, ModListAdapter.getVisibleModName(meta)));
             sb.append('\n');
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -483,43 +365,35 @@ public class ModManagerActivity extends Activity implements LoadingListener {
     }
 
     public void onExtraSettingsDialog(View view) {
+        DialogY dialogY = DialogY.createFromActivity(this);
+        dialogY.positiveButton.setVisibility(View.GONE);
+        dialogY.content.setVisibility(View.GONE);
+        dialogY.title.setText(R.string.settings_title);
+        dialogY.negativeButton.setText(R.string.close);
+        dialogY.negativeButton.setOnClickListener((v)->dialogY.dialog.dismiss());
 
-        dialogX = new DialogX(
-                this,
-                alertDialog,
-                "SETTINGS",
-                null,
-                null,
-                null
+        SwitchMaterial bypassUpdate = new SwitchMaterial(this);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
         );
 
-        dialogX.buildDialogEx(dialogView -> {
-            ((Button) dialogView.findViewById(R.id.dialog_button_negative)).setText(R.string.close);
-            LinearLayout emptySpaceLayout = dialogView.findViewById(R.id.dialog_empty_space);
-            SwitchMaterial bypassUpdate = new SwitchMaterial(this);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
+        int marginPx = dpToPixels(10);
+        layoutParams.setMargins(marginPx, 0, 0, marginPx);
 
-            int marginPx = dpToPixels(10);
-            layoutParams.setMargins(marginPx, 0, 0, marginPx);
+        bypassUpdate.setTextSize(15);
+        bypassUpdate.setLayoutParams(layoutParams);
+        bypassUpdate.setText(R.string.switch_skip_updates);
+        bypassUpdate.setChecked(sharedPreferences.getBoolean("skip_updates", false));
 
-            bypassUpdate.setTextSize(15);
-            bypassUpdate.setLayoutParams(layoutParams);
-            bypassUpdate.setText(R.string.switch_skip_updates);
-            bypassUpdate.setChecked(sharedPreferences.getBoolean("skip_updates", false));
-
-            bypassUpdate.setOnCheckedChangeListener((buttonView, isChecked) -> setSkipUpdates(isChecked));
-            emptySpaceLayout.addView(bypassUpdate);
-
-            dialogX.show();
-        });
+        bypassUpdate.setOnCheckedChangeListener((buttonView, isChecked) -> setSkipUpdates(isChecked));
+        dialogY.container.addView(bypassUpdate, layoutParams);
+        dialogY.dialog.show();
     }
 
     public void runUpdater() {
-        Intent updaterService = new Intent(this, UpdaterService.class);
-        bindService(updaterService, new UpdaterServiceConnection(this), BIND_AUTO_CREATE);
+        Intent updaterService = new Intent(this, CanvasUpdaterService.class);
+        bindService(updaterService, new CanvasUpdaterConnection(this), BIND_AUTO_CREATE);
     }
 
     private int dpToPixels(int dp) {

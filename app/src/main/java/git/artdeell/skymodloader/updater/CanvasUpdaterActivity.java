@@ -1,5 +1,6 @@
 package git.artdeell.skymodloader.updater;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -26,8 +27,7 @@ import java.io.IOException;
 import git.artdeell.skymodloader.R;
 import io.noties.markwon.Markwon;
 
-public class UpdaterActivity extends Activity implements ServiceConnection {
-    private Intent serviceStartIntent;
+public class CanvasUpdaterActivity extends Activity implements ServiceConnection {
     private IUpdater service;
     private View updateControlButtons;
     private View skipButton;
@@ -45,7 +45,7 @@ public class UpdaterActivity extends Activity implements ServiceConnection {
         loadingBar = findViewById(R.id.updater_progress);
         updaterMessage = findViewById(R.id.updater_messageView);
         changelog = findViewById(R.id.updater_changelog);
-        serviceStartIntent = new Intent(this, UpdaterService.class);
+        Intent serviceStartIntent = new Intent(this, CanvasUpdaterService.class);
         bindService(serviceStartIntent, this, BIND_AUTO_CREATE);
     }
 
@@ -77,13 +77,13 @@ public class UpdaterActivity extends Activity implements ServiceConnection {
     private void updateStateId() {
         try {
             switch (service.getServiceState()) {
-                case UpdaterService.SERVICE_STATE_CHECKING:
+                case AbstractUpdaterService.SERVICE_STATE_CHECKING:
                     updateControlButtons.setVisibility(View.GONE);
                     skipButton.setVisibility(View.VISIBLE);
                     updaterMessage.setText(R.string.updater_checking);
                     installButton.setVisibility(View.GONE);
                     break;
-                case UpdaterService.SERVICE_STATE_UPDATE_AVAILABLE:
+                case AbstractUpdaterService.SERVICE_STATE_UPDATE_AVAILABLE:
                     updateControlButtons.setVisibility(View.VISIBLE);
                     skipButton.setVisibility(View.GONE);
                     installButton.setVisibility(View.GONE);
@@ -91,29 +91,29 @@ public class UpdaterActivity extends Activity implements ServiceConnection {
                     Markwon markwon = Markwon.create(this);
                     markwon.setMarkdown(changelog, service.getUpdateChangelog());
                     break;
-                case UpdaterService.SERVICE_STATE_DOWNLOADING:
+                case AbstractUpdaterService.SERVICE_STATE_DOWNLOADING:
                     skipButton.setVisibility(View.GONE);
                     updateControlButtons.setVisibility(View.GONE);
                     installButton.setVisibility(View.GONE);
                     updaterMessage.setText(R.string.updater_update_downloading);
                     break;
-                case UpdaterService.SERVICE_STATE_DOWNLOAD_FINISHED:
+                case AbstractUpdaterService.SERVICE_STATE_DOWNLOAD_FINISHED:
                     skipButton.setVisibility(View.GONE);
                     updateControlButtons.setVisibility(View.GONE);
                     installButton.setVisibility(View.VISIBLE);
                     updaterMessage.setText(R.string.updater_update_downloaded);
                     tryInstall();
                     break;
-                case UpdaterService.SERVICE_STATE_PROCEED:
+                case AbstractUpdaterService.SERVICE_STATE_PROCEED:
                     finish();
                     service.suicide();
                     break;
-                case UpdaterService.SERVICE_STATE_FAILURE:
+                case AbstractUpdaterService.SERVICE_STATE_FAILURE:
                     skipButton.setVisibility(View.GONE);
                     updateControlButtons.setVisibility(View.GONE);
                     installButton.setVisibility(View.GONE);
-                    Exception e = this.service.getException().exception;
-                    stopService(serviceStartIntent);
+                    Exception e = service.getException().exception;
+                    service.suicide();
                     AlertDialog.Builder bldr = new AlertDialog.Builder(this);
                     bldr.setTitle(R.string.updater_failed);
                     if (e instanceof IOException) {
@@ -144,6 +144,7 @@ public class UpdaterActivity extends Activity implements ServiceConnection {
 
     }
 
+    @SuppressLint("ObsoleteSdkInt") // i use this updater in other projects, so the if stays here
     @SuppressWarnings("deprecation") // we still need to check if we have unknown install sources enabled
     private void tryInstall() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -199,12 +200,12 @@ public class UpdaterActivity extends Activity implements ServiceConnection {
 
         @Override
         public void onStateChanged() {
-            runOnUiThread(UpdaterActivity.this::updateStateId);
+            runOnUiThread(CanvasUpdaterActivity.this::updateStateId);
         }
 
         @Override
         public void onProgressBarChanged() {
-            runOnUiThread(UpdaterActivity.this::updateLoadingBar);
+            runOnUiThread(CanvasUpdaterActivity.this::updateLoadingBar);
         }
     }
 
