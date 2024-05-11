@@ -1,5 +1,6 @@
 package com.tgc.sky;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
@@ -11,6 +12,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -33,6 +35,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import androidx.core.content.FileProvider;
+import androidx.core.content.PackageManagerCompat;
 import androidx.core.internal.view.SupportMenu;
 
 import com.tgc.sky.ui.QRCameraHandler;
@@ -698,25 +701,27 @@ public class SystemUI_android {
         if (GetMainWindowAttachedSheet() || (TryActivate = TryActivate()) == -1) {
             return -1;
         }
-        this.m_activity.runOnUiThread(new Runnable() { // from class: com.tgc.sky.SystemUI_android.12
-            @Override // java.lang.Runnable
-            public void run() {
-                SystemUI_android systemUI_android = SystemUI_android.this;
-                GameActivity gameActivity = SystemUI_android.this.m_activity;
-                SystemUI_android systemUI_android2 = SystemUI_android.this;
-                systemUI_android.m_codeScanner = new CodeScanner(gameActivity, systemUI_android2, systemUI_android2.m_markup, CodeScanner.Mode.values()[i], new CodeScanner.Handle() { // from class: com.tgc.sky.SystemUI_android.12.1
-                    @Override // com.tgc.sky.ui.panels.CodeScanner.Handle
-                    public void run(String str, int i2, boolean z) {
-                        SystemUI_android.this.SetResult(str, i2, z);
-                        if (z) {
-                            SystemUI_android.this.m_codeScanner = null;
-                        }
-                    }
-                });
-                SystemUI_android.this.m_codeScanner.showAtLocation(SystemUI_android.this.m_activity.getWindow().getDecorView(), 19, 0, 0);
+        if(m_activity.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            GameActivity.PermissionCallback callback = (p, r)-> __ShowCodeScanner(i);
+            m_activity.requestPermissions(new String[] {Manifest.permission.CAMERA}, callback);
+        }else {
+            m_activity.runOnUiThread(()->__ShowCodeScanner(i));
+        }
+        return TryActivate;
+    }
+
+    private void __ShowCodeScanner(int i) {
+        SystemUI_android systemUI_android = SystemUI_android.this;
+        GameActivity gameActivity = SystemUI_android.this.m_activity;
+        SystemUI_android systemUI_android2 = SystemUI_android.this;
+        systemUI_android.m_codeScanner = new CodeScanner(gameActivity, systemUI_android2, systemUI_android2.m_markup, CodeScanner.Mode.values()[i], (str, i2, z) -> {
+            SystemUI_android.this.SetResult(str, i2, z);
+            if (z) {
+                SystemUI_android.this.m_codeScanner = null;
             }
         });
-        return TryActivate;
+        SystemUI_android.this.m_codeScanner.showAtLocation(SystemUI_android.this.m_activity.getWindow().getDecorView(), 19, 0, 0);
+
     }
 
     public void InformCodeInputResult(String str, String str2, int i) {
