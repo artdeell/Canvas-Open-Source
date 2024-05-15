@@ -69,6 +69,8 @@ public class GameActivity extends TGCNativeActivity {
     private ArrayList<BasePanel> mActivePanels = new ArrayList<>();
     private ImageView logoView;
     private MediaPlayer m_mediaPlayer;
+    private int m_nativeHeight;
+    private int m_nativeWidth;
     private ImGUI imgui;
     private boolean imguiKeybaordShowing;
     private ImGUITextInput imguiInput;
@@ -814,6 +816,22 @@ public class GameActivity extends TGCNativeActivity {
         }
         return null;
     }
+
+    public void setDisplayWidth(int i) {
+        this.m_nativeWidth = i;
+    }
+
+    //public int getDisplayWidth() {
+    //    return this.m_nativeWidth;
+    //}
+
+    public void setDisplayHeight(int i) {
+        this.m_nativeHeight = i;
+    }
+
+    //public int getDisplayHeight() {
+    //    return this.m_nativeHeight;
+    //}
 
     public int getDisplayWidth() {
         Rect rect = new Rect();
