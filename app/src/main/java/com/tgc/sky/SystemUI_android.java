@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -68,6 +69,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
+import git.artdeell.skymodloader.SMLApplication;
+
 public class SystemUI_android {
     public static final int kInvalidDialogId = -1;
     public static final int kInvalidLabelId = -1;
@@ -76,6 +79,8 @@ public class SystemUI_android {
     private GameActivity m_activity;
     private CodeScanner m_codeScanner;
     private int m_currentId;
+    private boolean m_isOrientationLocked;
+
     private float m_keyboardHeight;
     private boolean m_keyboardIsShowing;
     private LocalizationManager m_localizationManager;
@@ -183,6 +188,14 @@ public class SystemUI_android {
         return !this.m_activity.getBrigeView().hasWindowFocus();
     }
 
+    void AttemptRotationToDeviceOrientation() {
+        int i = this.m_useSensorOrientation ? 4 : 6;
+        if (i == this.m_activity.getRequestedOrientation() || this.m_activity.portraitOnResume || IsOrientationLocked()) {
+            return;
+        }
+        this.m_activity.setRequestedOrientation(i);
+    }
+
     @SuppressLint("WrongConstant")
     void SetUseSensorOrientation(boolean z) {
         this.m_useSensorOrientation = z;
@@ -206,6 +219,24 @@ public class SystemUI_android {
 
     public boolean GetUseSensorOrientation() {
         return this.m_useSensorOrientation;
+    }
+
+    void LockCurrentOrientation() {
+        this.m_isOrientationLocked = true;
+        if (SMLApplication.skyRes.getConfiguration().orientation == 2) {
+            this.m_activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        } else {
+            this.m_activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        }
+    }
+
+    void UnlockCurrentOrientation() {
+        this.m_isOrientationLocked = false;
+        AttemptRotationToDeviceOrientation();
+    }
+
+    boolean IsOrientationLocked() {
+        return this.m_isOrientationLocked;
     }
 
     int ShowTextField(final String str, final int i, final int i2) {
