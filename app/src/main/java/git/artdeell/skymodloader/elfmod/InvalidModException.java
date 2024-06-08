@@ -7,6 +7,4 @@ public class InvalidModException extends Exception {
     public InvalidModException() {}
 }
 
-class ModExistsException extends  Exception {
 
-}

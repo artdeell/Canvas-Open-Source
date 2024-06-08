@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+                name="viewModel"
+                type="git.artdeell.skymodloader.ui.home.HomeViewModel"/>
+
+        <variable
+                name="item"
+                type="git.artdeell.skymodloader.ui.home.BaseDevItem"/>
+
+    </data>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:paddingTop="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='@{"@"+item.name}'
+                android:textAppearance="@style/AppearanceFoundation.Caption"
+                android:textStyle="bold"
+                tools:text="\@name"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <ImageView
+                    style="@style/WidgetFoundation.Image.Small"
+                    gone="@{(item.gitHubLink == null)}"
+                    app:tint="?colorOnSurface"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_github"
+                    android:focusable="true"
+                    android:onClick="@{(view) -> viewModel.onLinkPressed(view,item.gitHubLink)}"/>
+
+            <View
+                    android:layout_weight="1"
+                    gone="@{!(item.telegramLink == null)}"
+                    style="@style/WidgetFoundation.Image.Small"/>
+
+            <ImageView
+                    gone="@{(item.telegramLink == null)}"
+                    style="@style/WidgetFoundation.Image.Small"
+                    app:tint="?colorOnSurface"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_telegram"
+                    android:focusable="true"
+                    android:onClick='@{(view) -> viewModel.onLinkPressed(view,item.telegramLink)}'/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</layout>

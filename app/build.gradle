@@ -1,5 +1,8 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id 'com.android.application'
+    id 'androidx.navigation.safeargs'
 }
 
 android {
@@ -11,9 +14,10 @@ android {
     }
     defaultConfig {
         applicationId "git.artdeell.skymodloader"
+        buildToolsVersion = '34.0.0'
         minSdk 26
         targetSdk 34
-        versionCode 34
+        versionCode 35
         versionName "1.5.1"
         manifestPlaceholders = [
                 'appAuthRedirectScheme': 'com.googleusercontent.apps.704988078112-46vk837uhg8n7qf3lb8dut52o7ugm7v4'
@@ -27,11 +31,17 @@ android {
                 arguments "-DANDROID_ARM_NEON=TRUE", '-DANDROID_STL=c++_shared'
             }
         }
+
+        // Build time
+        def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        def buildTime = sdf.format(new Date())
+        buildConfigField "String", "BUILD_TIME", "\"$buildTime\""
+
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             shrinkResources false
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -75,5 +85,27 @@ dependencies {
     implementation 'androidx.media3:media3-exoplayer-hls:1.3.1'
     implementation 'androidx.constraintlayout:constraintlayout-core:1.0.4'
     implementation 'com.bytedance.android:shadowhook:1.0.9'
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+    implementation 'androidx.media3:media3-exoplayer-hls:1.3.1'
+    implementation 'androidx.media3:media3-common:1.3.1'
+    implementation 'androidx.media3:media3-datasource:1.3.1'
+    implementation 'androidx.media3:media3-exoplayer:1.3.1'
+    implementation 'androidx.preference:preference:1.2.0'
+
+    def vNav = '2.4.0-rc01'
+    implementation "androidx.navigation:navigation-fragment-ktx:$vNav"
+    implementation "androidx.navigation:navigation-ui-ktx:$vNav"
+
+    def vBAdapt = '4.0.0'
+    def bindingAdapter = 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter'
+    implementation "$bindingAdapter:$vBAdapt"
+    implementation "$bindingAdapter-recyclerview:$vBAdapt"
 
 }

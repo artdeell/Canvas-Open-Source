@@ -12,4 +12,6 @@
     <color name="text">#FF000000</color>
     <color name="widgets">#FFC8C6C6</color>
     <color name="green">#83EF06</color>
+    <color name="colorOnSurfaceVariant">#BF444444</color>
+    <color name="bg">#f2f2f2</color>
 </resources>

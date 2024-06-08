@@ -1,0 +1,26 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="reply_entries">
+        <item>Reply</item>
+        <item>Reply to all</item>
+    </string-array>
+
+    <string-array name="reply_values">
+        <item>reply</item>
+        <item>reply_all</item>
+    </string-array>
+
+    <string-array name="server_entries">
+        <item>Follow the package name.</item>
+        <item>Live</item>
+        <item>Beta</item>
+        <item>Dev</item>
+    </string-array>
+
+    <string-array name="server_values">
+        <item></item>
+        <item>live.radiance.thatgamecompany.com</item>
+        <item>beta.radiance.thatgamecompany.com</item>
+        <item>dev.radiance.thatgamecompany.com</item>
+    </string-array>
+</resources>

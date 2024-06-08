@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context=".ui.modmgr.ModManagerFragment">
+
+    <data>
+
+        <variable
+                name="viewModel"
+                type="git.artdeell.skymodloader.ui.modmgr.ModManagerViewModel"/>
+
+    </data>
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:paddingTop="56dp"
+            android:paddingBottom="48dp"
+            app:fitsSystemWindowsInsets="top|bottom"
+            tools:layout_marginTop="24dp">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clipToPadding="false">
+
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/buttons"
+                    android:radius="8dp"
+                    android:focusable="true"
+                    android:text="@string/add_mod"
+                    android:onClick="@{viewModel::onAddMod}"
+                    android:layout_marginBottom="8dp"
+                    android:elevation="0dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/module_list"
+                    items="@{viewModel.items}"
+                    itemBinding="@{viewModel.itemBinding}"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="16dp"
+                    app:fitsSystemWindowsInsets="top|bottom"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/mod_list_element" />
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+                gone="@{!viewModel.loading}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loading"
+                    android:textAppearance="@style/AppearanceFoundation.Title"
+                    android:textStyle="bold" />
+
+            <ProgressBar
+                    style="@style/WidgetFoundation.ProgressBar.Indeterminate"
+                    android:layout_marginTop="16dp" />
+
+        </LinearLayout>
+
+
+    </FrameLayout>
+
+</layout>

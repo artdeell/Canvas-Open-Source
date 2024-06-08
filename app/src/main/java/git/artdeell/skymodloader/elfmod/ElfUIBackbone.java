@@ -41,7 +41,7 @@ public class ElfUIBackbone {
         return mods.get(where);
     }
 
-    ElfUIBackbone(Activity activity, ModUpdater modUpdater) {
+    public ElfUIBackbone(Activity activity, ModUpdater modUpdater) {
         this.activity = activity;
         this.modUpdater = modUpdater;
     }

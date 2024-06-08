@@ -1,0 +1,34 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/boot">
+
+        <SwitchPreference
+            app:key="skip_updates"
+            app:title="@string/switch_skip_updates"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="false" />
+
+        <ListPreference
+            app:defaultValue=""
+            app:entries="@array/server_entries"
+            app:entryValues="@array/server_values"
+            app:key="server"
+            app:title="@string/settle_server"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="sky_package_name"
+            app:title="@string/modify_package"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreference
+            app:key="allow_gg"
+            app:title="@string/allow_gg"
+            app:useSimpleSummaryProvider="true"
+            app:switchTextOn="@string/description_gg"
+            app:switchTextOff="@string/description_gg"
+            app:defaultValue="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
