@@ -25,7 +25,7 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/icon"
         android:label="@string/app_name"
-        android:manageSpaceActivity=".elfmod.ModManagerActivity"
+        android:manageSpaceActivity=".ui.ModManagerActivity"
         android:roundIcon="@mipmap/icon_round"
         android:supportsRtl="false"
         android:theme="@style/AppTheme"
