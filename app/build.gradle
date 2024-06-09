@@ -18,7 +18,7 @@ android {
         minSdk 26
         targetSdk 34
         versionCode 35
-        versionName "1.5.1"
+        versionName "1.5.2"
         manifestPlaceholders = [
                 'appAuthRedirectScheme': 'com.googleusercontent.apps.704988078112-46vk837uhg8n7qf3lb8dut52o7ugm7v4'
         ]
