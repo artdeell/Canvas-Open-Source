@@ -1,9 +1,9 @@
 <resources>
 
     <string-array name="server_entries">
-        <item>Follow the package name.</item>
-        <item>Live</item>
-        <item>Beta</item>
+        <item>跟随包名</item>
+        <item>国际服</item>
+        <item>测试服</item>
         <item>Dev</item>
     </string-array>
 
