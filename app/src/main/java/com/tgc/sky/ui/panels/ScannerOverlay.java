@@ -18,8 +18,6 @@ import com.tgc.sky.ui.Utils;
 import com.tgc.sky.ui.ZXingUtils;
 import java.util.HashMap;
 
-/* renamed from: com.tgc.sky.ui.panels.ScannerOverlay */
-/* compiled from: InvitationPanel */
 class ScannerOverlay extends RelativeLayout {
     private String mCurrentLink;
     /* access modifiers changed from: private */

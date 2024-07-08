@@ -1,34 +1,44 @@
 package com.tgc.sky.ui.panels;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ScaleDrawable;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import com.tgc.sky.BuildConfig;
 import com.tgc.sky.GameActivity;
-//import com.tgc.sky.R;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.net.Uri;
+
 import com.tgc.sky.SystemUI_android;
 import com.tgc.sky.ui.panels.CodeScanner;
 import com.tgc.sky.ui.text.Markup;
 import com.tgc.sky.ui.webview.RoundCornerWebView;
 
 import git.artdeell.skymodloader.R;
+import git.artdeell.skymodloader.SMLApplication;
 
-/* loaded from: classes2.dex */
+
 public class Starboard extends BasePanel implements View.OnLayoutChangeListener, GameActivity.OnKeyboardListener {
     private final PanelButton _closeButton;
     public Handle mHandler;
     private final RelativeLayout view;
 
-    /* loaded from: classes2.dex */
     public interface Handle {
         void run(String str, int i, boolean z);
     }
@@ -61,7 +71,7 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         relativeLayout.addView(relativeLayout2);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         this.m_activity.getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
-        relativeLayout2.setLayoutParams(setLayoutParams(displayMetrics, 0.5625f, 0.9f));
+        relativeLayout2.setLayoutParams(setLayoutParams(displayMetrics));
         ConstraintLayout constraintLayout = new ConstraintLayout(this.m_activity);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(-1, -2);
         layoutParams.gravity = 5;
@@ -69,7 +79,7 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         PanelButton panelButton = new PanelButton(this.m_activity, new View.OnClickListener() { // from class: com.tgc.sky.ui.panels.Starboard$$ExternalSyntheticLambda0
             @Override // android.view.View.OnClickListener
             public final void onClick(View view) {
-                Starboard.this.m419lambda$new$0$comtgcskyuipanelsStarboard(view);
+                Starboard.this.m777lambda$new$0$comtgcskyuipanelsStarboard(view);
             }
         });
         this._closeButton = panelButton;
@@ -77,18 +87,43 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         panelButton.setLayoutParams(new ConstraintLayout.LayoutParams(-2, -2));
         panelButton.setVisibility(View.VISIBLE);
         panelButton.setEnabled(true);
-        ScaleDrawable scaleDrawable = new ScaleDrawable(ContextCompat.getDrawable(this.m_activity, R.drawable.back_button), 17, 0.5f, 0.5f);
+        ScaleDrawable scaleDrawable = new ScaleDrawable(SMLApplication.skyRes.getDrawable(SMLApplication.skyRes.getIdentifier("systemui_closebutton", "drawable", SMLApplication.skyPName), null), 17, 0.7f, 0.7f);
         scaleDrawable.setLevel(100);
         panelButton.setBackground(scaleDrawable);
+        final FrameLayout createLoadingScreen = createLoadingScreen();
         RoundCornerWebView roundCornerWebView = new RoundCornerWebView(this.m_activity);
         roundCornerWebView.setLayoutParams(new RelativeLayout.LayoutParams(-1, -1));
         roundCornerWebView.setBackgroundColor(0);
         roundCornerWebView.getSettings().setJavaScriptEnabled(true);
         roundCornerWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         StringBuilder sb = new StringBuilder(BuildConfig.SKY_SERVER_HOSTNAME);
-        sb.insert(sb.indexOf(".") + 1, "starboard.");
+        sb.delete(sb.indexOf("radiance"), sb.indexOf("radiance") + 8);
+        sb.insert(sb.indexOf(".") + 1, "starboard");
         sb.insert(0, "https://");
-        roundCornerWebView.loadUrl(sb.toString());
+        final String sb2 = sb.toString();
+        roundCornerWebView.setWebViewClient(new WebViewClient() { // from class: com.tgc.sky.ui.panels.Starboard.1
+            @Override // android.webkit.WebViewClient
+            public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest webResourceRequest) {
+                return handleUrl(webResourceRequest.getUrl());
+            }
+
+            @Override // android.webkit.WebViewClient
+            public void onPageFinished(WebView webView, String str) {
+                super.onPageFinished(webView, str);
+                createLoadingScreen.setVisibility(View.GONE);
+            }
+
+            private boolean handleUrl(Uri uri) {
+                if (uri.toString().contains(sb2)) {
+                    return false;
+                }
+                Starboard.this.m_activity.startActivity(new Intent("android.intent.action.VIEW", uri));
+                return true;
+            }
+        });
+        roundCornerWebView.setWebChromeClient(new WebChromeClient());
+        roundCornerWebView.loadUrl(sb2);
+        relativeLayout2.addView(createLoadingScreen, new FrameLayout.LayoutParams(-1, -1));
         relativeLayout2.addView(roundCornerWebView);
         relativeLayout2.addView(constraintLayout);
         constraintLayout.addView(panelButton);
@@ -98,15 +133,15 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         constraintSet.applyTo(constraintLayout);
     }
 
-    /* renamed from: lambda$new$0$com-tgc-sky-ui-panels-Starboard */
-    public /* synthetic */ void m419lambda$new$0$comtgcskyuipanelsStarboard(View view) {
+    /* renamed from: lambda$new$0$com-tgc-sky-ui-panels-Starboard  reason: not valid java name */
+    /* synthetic */ void m777lambda$new$0$comtgcskyuipanelsStarboard(View view) {
         onCloseButton();
     }
 
-    private static RelativeLayout.LayoutParams setLayoutParams(DisplayMetrics displayMetrics, float f, float f2) {
+    private static RelativeLayout.LayoutParams setLayoutParams(DisplayMetrics displayMetrics) {
         int i = displayMetrics.widthPixels;
-        int i2 = (int) (displayMetrics.heightPixels * f2);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams((i2 / 9) * 16, i2);
+        int i2 = (int) (displayMetrics.heightPixels * 0.9f);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams((i2 / 2) * 3, i2);
         layoutParams.addRule(14);
         layoutParams.addRule(13);
         layoutParams.addRule(15);
@@ -120,6 +155,21 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
 
     public void viewWillLayoutSubviews() {
         setPreviewOrientation();
+    }
+
+    private FrameLayout createLoadingScreen() {
+        FrameLayout frameLayout = new FrameLayout(this.m_activity);
+        frameLayout.setForegroundGravity(17);
+        frameLayout.setVisibility(View.VISIBLE);
+        GradientDrawable gradientDrawable = new GradientDrawable();
+        gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+        gradientDrawable.setCornerRadius(dp2px(16.0f));
+        gradientDrawable.setColor(Color.argb(102, 0, 0, 0));
+        frameLayout.setBackground(gradientDrawable);
+        ProgressBar progressBar = new ProgressBar(this.m_activity);
+        progressBar.setIndeterminateTintList(ColorStateList.valueOf(-1));
+        frameLayout.addView(progressBar, new FrameLayout.LayoutParams(-2, -2, 17));
+        return frameLayout;
     }
 
     public void onCloseButton() {
@@ -137,7 +187,7 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         this.m_activity.RemoveOnKeyboardListener(this);
     }
 
-    @Override // com.tgc.sky.ui.panels.BasePanel, android.widget.PopupWindow
+    @Override // com.tgc.sky.p015ui.panels.BasePanel, android.widget.PopupWindow
     public void dismiss() {
         if (this._closeButton.isEnabled()) {
             dismissInternal();
