@@ -196,25 +196,9 @@ public class SystemUI_android {
         this.m_activity.setRequestedOrientation(i);
     }
 
-    @SuppressLint("WrongConstant")
     void SetUseSensorOrientation(boolean z) {
         this.m_useSensorOrientation = z;
-        final int i = z ? 4 : 6;
-        if (i != this.m_activity.getRequestedOrientation()) {
-            this.m_activity.runOnUiThread(new Runnable() {
-                @Override
-                public final void run() {
-                    SystemUI_android.this.SetUseSensorOrientation(i);
-                }
-            });
-        }
-    }
-
-    void SetUseSensorOrientation(int i) {
-        if (this.m_activity.portraitOnResume) {
-            return;
-        }
-        this.m_activity.setRequestedOrientation(i);
+        AttemptRotationToDeviceOrientation();
     }
 
     public boolean GetUseSensorOrientation() {

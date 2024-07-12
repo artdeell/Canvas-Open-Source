@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -29,8 +30,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -77,6 +80,10 @@ public class GameActivity extends TGCNativeActivity {
     private boolean m_logoSoundReleased = false;
     /* access modifiers changed from: private */
     public Rect mSafeAreaInsets = new Rect();
+    private Handler m_keyboardHandler = null;
+    private int m_keyboardHeight = 0;
+
+    private boolean m_editTextFocused = false;
     private boolean m_isKeyboardShowing = false;
     private RelativeLayout m_relativeLayout;
     SystemAccounts_android m_systemAccounts = null;
@@ -323,6 +330,29 @@ public class GameActivity extends TGCNativeActivity {
     public void onBackPressed() {
         onBackPressedNative();
     }
+    public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+        try {
+            int max = Integer.max(windowInsets.getStableInsetTop(), windowInsets.getStableInsetBottom());
+            if (Build.VERSION.SDK_INT >= 27) {
+                try {
+                    if (windowInsets.getDisplayCutout() != null) {
+                        max = Integer.max(max, Integer.max(windowInsets.getDisplayCutout().getSafeInsetLeft(), windowInsets.getDisplayCutout().getSafeInsetRight()));
+                    }
+                } catch (NoSuchMethodError unused) {
+                }
+            }
+            this.mSafeAreaInsets.left = max;
+            this.mSafeAreaInsets.top = 0;
+            this.mSafeAreaInsets.right = max;
+            this.mSafeAreaInsets.bottom = 0;
+            float transformWidthToProgram = transformWidthToProgram(max);
+            onSafeAreaInsetsChanged(new float[]{transformWidthToProgram, 0.0f, transformWidthToProgram, 0.0f});
+        } catch (Exception | NoSuchMethodError unused2) {
+        }
+        handleKeyboardInsets(view, windowInsets);
+        return view.onApplyWindowInsets(windowInsets);
+    }
+
 
     public void AddOnActivityIntentListener(OnActivityIntentListener onActivityIntentListener) {
         if (this.mOnActivityIntentListeners == null) {
@@ -538,6 +568,66 @@ public class GameActivity extends TGCNativeActivity {
         }
     }
 
+    public void notifyEditTextFocus(boolean z) {
+        this.m_editTextFocused = z;
+        m769lambda$pollKeyboardHeight$0$comtgcskyGameActivity();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    /* renamed from: pollKeyboardHeight */
+    public void m769lambda$pollKeyboardHeight$0$comtgcskyGameActivity() {
+        int identifier;
+        if (Build.VERSION.SDK_INT < 30) {
+            try {
+                int intValue = ((Integer) InputMethodManager.class.getMethod("getInputMethodWindowVisibleHeight", new Class[0]).invoke((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE), new Object[0])).intValue();
+                if (this.m_editTextFocused && intValue == 0) {
+                    intValue = com.tgc.sky.ui.Utils.dp2px(30.0f);
+                } else if (this.m_nativeWidth < this.m_nativeHeight && (identifier = getResources().getIdentifier("navigation_bar_height", "dimen", "android")) > 0) {
+                    intValue += getResources().getDimensionPixelSize(identifier);
+                }
+                toggleKeyboard(this.m_editTextFocused, intValue);
+                if (this.m_editTextFocused) {
+                    getBrigeView().postDelayed(new Runnable() { // from class: com.tgc.sky.GameActivity$$ExternalSyntheticLambda0
+                        @Override // java.lang.Runnable
+                        public final void run() {
+                            GameActivity.this.m769lambda$pollKeyboardHeight$0$comtgcskyGameActivity();
+                        }
+                    }, 100L);
+                }
+            } catch (Exception unused) {
+            }
+        }
+    }
+
+
+    protected void handleKeyboardInsets(View view, WindowInsets windowInsets) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            boolean isVisible = windowInsets.isVisible(WindowInsets.Type.ime());
+            Insets insets = windowInsets.getInsets(WindowInsets.Type.ime());
+            toggleKeyboard(isVisible, insets.bottom - insets.top);
+        }
+    }
+
+    protected void toggleKeyboard(boolean z, int i) {
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        if (!z) {
+            if (this.m_isKeyboardShowing) {
+                this.m_isKeyboardShowing = false;
+                this.m_keyboardHeight = 0;
+                onHideKeyboard();
+                localBroadcastManager.sendBroadcast(new Intent("KeyboardWillHide"));
+            }
+        } else if (this.m_isKeyboardShowing && i == this.m_keyboardHeight) {
+        } else {
+            this.m_isKeyboardShowing = true;
+            this.m_keyboardHeight = i;
+            onShowKeyboard(i);
+            Intent intent = new Intent("KeyboardWillShow");
+            intent.putExtra("KeyboardHeight", i);
+            localBroadcastManager.sendBroadcast(intent);
+        }
+    }
+
     protected void onShowKeyboard(int i) {
         ArrayList<OnKeyboardListener> arrayList = this.mOnKeyboardListeners;
         if (arrayList == null) {
@@ -550,7 +640,7 @@ public class GameActivity extends TGCNativeActivity {
     }
 
     /* access modifiers changed from: protected */
-    public void onHideKeyboard() {
+    protected void onHideKeyboard() {
         //imguiInput.setVisibility(View.GONE);
         ArrayList<OnKeyboardListener> arrayList = this.mOnKeyboardListeners;
         if (arrayList != null) {
@@ -821,28 +911,16 @@ public class GameActivity extends TGCNativeActivity {
         this.m_nativeWidth = i;
     }
 
-    //public int getDisplayWidth() {
-    //    return this.m_nativeWidth;
-    //}
+    public int getDisplayWidth() {
+        return this.m_nativeWidth;
+    }
 
     public void setDisplayHeight(int i) {
         this.m_nativeHeight = i;
     }
 
-    //public int getDisplayHeight() {
-    //    return this.m_nativeHeight;
-    //}
-
-    public int getDisplayWidth() {
-        Rect rect = new Rect();
-        getWindow().getDecorView().getLocalVisibleRect(rect);
-        return rect.width();
-    }
-
     public int getDisplayHeight() {
-        Rect rect = new Rect();
-        getWindow().getDecorView().getLocalVisibleRect(rect);
-        return rect.height();
+        return this.m_nativeHeight;
     }
 
     public float getDisplaySizeInInches() {
@@ -965,8 +1043,8 @@ public class GameActivity extends TGCNativeActivity {
     public void fadeoutLogos() {
         runOnUiThread(()->{
             AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.0f);
+            alphaAnimation.setInterpolator(new AccelerateInterpolator());
             alphaAnimation.setDuration(1000);
-            alphaAnimation.setRepeatCount(0);
             alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {

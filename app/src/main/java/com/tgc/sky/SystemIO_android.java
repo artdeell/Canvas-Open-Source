@@ -51,6 +51,8 @@ public class SystemIO_android {
     private boolean m_batteryCharging;
     private ExoplayerService mExoplayer;
     private int mExoplayerVideoCounter = 0;
+    float mExoplayerPauseVolume = 1.0f;
+    boolean mIsPaused = false;
     private Future<String> mSubtitleRequest;
     public float m_batteryLevel;
     private boolean m_isOtherAudioPlaying;
@@ -89,23 +91,31 @@ public class SystemIO_android {
         kUserPreference_InvertCameraGamepad,
         kUserPreference_InvertFlightGamepad,
         kUserPreference_EnableHapticsGamepad,
+        kUserPreference_InvertCameraDesktop,
+        kUserPreference_InvertFlightDesktop,
         kUserPreference_ReturningPlayer,
         kUserPreference_Instrument_RemoteNotes_Freeplay,
         kUserPreference_Instrument_RemoteNotes_JoinedSheet,
         kUserPreference_DisableCrossPlay,
-        kUserPreference_EnableDarkMode
+        kUserPreference_EnableDarkMode,
+        kUserPreference_Fullscreen,
+        kUserPreference_AutoSkipCutscenes,
+        kUserPreference_VideoSubtitles
+
     }
 
     enum UserPreferenceFloatKey {
         kUserPreference_MusicVolume,
         kUserPreference_SfxVolume,
         kUserPreference_InstrumentVolume,
-        kUserPreference_HdrBlackLevel,
+        kUserPreference_VideoVolume,
         kUserPreference_HdrBrightness,
         kUserPreference_HdrUIBrightness,
+        kUserPreference_HdrBlackLevel,
         kUserPreference_MotionBlurScalar,
         kUserPreference_CameraRotationSpeed,
         kUserPreference_CameraZoomSpeed
+
     }
 
     enum UserPreferenceIntKey {
@@ -114,6 +124,7 @@ public class SystemIO_android {
         kUserPreference_InstrumentLayout,
         kUserPreference_AltInstrumentLayout,
         kUserPreference_QualityFps
+
     }
 
     public enum UserPreferenceStringKey {
@@ -141,6 +152,7 @@ public class SystemIO_android {
     public native void OnPushNotificationToken(String str);
 
     public native void SetAssetManager(AssetManager assetManager);
+
 
     public static SystemIO_android getInstance() {
         return sInstance;
@@ -180,11 +192,23 @@ public class SystemIO_android {
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         this.m_activity.registerReceiver(this.m_receiver, intentFilter);
         m_onAudioDeviceChanged((AudioManager) this.m_activity.getSystemService(Context.AUDIO_SERVICE), (Intent) null);
+        ExoplayerService exoplayerService = this.mExoplayer;
+        if (exoplayerService != null) {
+            exoplayerService.SetVolume(this.mExoplayerPauseVolume);
+        }
+        this.mIsPaused = false;
+
     }
 
     /* access modifiers changed from: package-private */
     public void onPause() {
         this.m_activity.unregisterReceiver(this.m_receiver);
+        this.mIsPaused = true;
+        ExoplayerService exoplayerService = this.mExoplayer;
+        if (exoplayerService != null) {
+            exoplayerService.SetVolume(0.0f);
+        }
+
     }
 
     /* access modifiers changed from: package-private */
@@ -326,213 +350,238 @@ public class SystemIO_android {
     }
 
     public static /* synthetic */ class C11334 {
-        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey;
-        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey;
-        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceIntKey;
-        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey;
+        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey;
+        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey;
+        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceIntKey;
+        static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey;
         static final /* synthetic */ int[] $SwitchMap$com$tgc$sky$SystemIO_android$VideoCodec;
 
         static {
             int[] iArr = new int[UserPreferenceFloatKey.values().length];
-            $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey = iArr;
+            $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey = iArr;
             try {
                 iArr[UserPreferenceFloatKey.kUserPreference_MusicVolume.ordinal()] = 1;
             } catch (NoSuchFieldError unused) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_SfxVolume.ordinal()] = 2;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_SfxVolume.ordinal()] = 2;
             } catch (NoSuchFieldError unused2) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_InstrumentVolume.ordinal()] = 3;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_InstrumentVolume.ordinal()] = 3;
             } catch (NoSuchFieldError unused3) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_HdrBrightness.ordinal()] = 4;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_VideoVolume.ordinal()] = 4;
             } catch (NoSuchFieldError unused4) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_HdrBlackLevel.ordinal()] = 5;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_HdrBrightness.ordinal()] = 5;
             } catch (NoSuchFieldError unused5) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_HdrUIBrightness.ordinal()] = 6;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_HdrUIBrightness.ordinal()] = 6;
             } catch (NoSuchFieldError unused6) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_MotionBlurScalar.ordinal()] = 7;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_HdrBlackLevel.ordinal()] = 7;
             } catch (NoSuchFieldError unused7) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_CameraRotationSpeed.ordinal()] = 8;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_MotionBlurScalar.ordinal()] = 8;
             } catch (NoSuchFieldError unused8) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_CameraZoomSpeed.ordinal()] = 9;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_CameraRotationSpeed.ordinal()] = 9;
             } catch (NoSuchFieldError unused9) {
             }
-            int[] iArr2 = new int[UserPreferenceIntKey.values().length];
-            $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceIntKey = iArr2;
             try {
-                iArr2[UserPreferenceIntKey.kUserPreference_TimeOffset.ordinal()] = 1;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceFloatKey[UserPreferenceFloatKey.kUserPreference_CameraZoomSpeed.ordinal()] = 10;
             } catch (NoSuchFieldError unused10) {
             }
+            int[] iArr2 = new int[UserPreferenceStringKey.values().length];
+            $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey = iArr2;
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceIntKey[UserPreferenceIntKey.kUserPreference_AgreedTOSVersion.ordinal()] = 2;
+                iArr2[UserPreferenceStringKey.kUserPreference_Version.ordinal()] = 1;
             } catch (NoSuchFieldError unused11) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceIntKey[UserPreferenceIntKey.kUserPreference_InstrumentLayout.ordinal()] = 3;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_UserId.ordinal()] = 2;
             } catch (NoSuchFieldError unused12) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceIntKey[UserPreferenceIntKey.kUserPreference_AltInstrumentLayout.ordinal()] = 4;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_LastSessionId.ordinal()] = 3;
             } catch (NoSuchFieldError unused13) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceIntKey[UserPreferenceIntKey.kUserPreference_QualityFps.ordinal()] = 5;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_QualityOption.ordinal()] = 4;
             } catch (NoSuchFieldError unused14) {
             }
-            int[] iArr3 = new int[UserPreferenceBoolKey.values().length];
-            $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey = iArr3;
             try {
-                iArr3[UserPreferenceBoolKey.kUserPreference_WideScreenHint.ordinal()] = 1;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_AccountLinkPromptDismissedEpoch.ordinal()] = 5;
             } catch (NoSuchFieldError unused15) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_PortraitModeAllowed.ordinal()] = 2;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DeviceCapability_HashId.ordinal()] = 6;
             } catch (NoSuchFieldError unused16) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_AskedToEnableHighResScreenshots.ordinal()] = 3;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DeviceCapability_GpuRating.ordinal()] = 7;
             } catch (NoSuchFieldError unused17) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_EnableHighResScreenshots.ordinal()] = 4;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_LastPlayedAccountType.ordinal()] = 8;
             } catch (NoSuchFieldError unused18) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_ParentalDisableChat.ordinal()] = 5;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_AutomatedTestData.ordinal()] = 9;
             } catch (NoSuchFieldError unused19) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_ParentalDisableShop.ordinal()] = 6;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DevicePublicKey.ordinal()] = 10;
             } catch (NoSuchFieldError unused20) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_ProControls.ordinal()] = 7;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DevicePrivateKey.ordinal()] = 11;
             } catch (NoSuchFieldError unused21) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_LeftHanded.ordinal()] = 8;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DisplayPreferenceData.ordinal()] = 12;
             } catch (NoSuchFieldError unused22) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_MixedCameraMode.ordinal()] = 9;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_FirstOpenTimestamp.ordinal()] = 13;
             } catch (NoSuchFieldError unused23) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertCamera.ordinal()] = 10;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_ButtonMapping.ordinal()] = 14;
             } catch (NoSuchFieldError unused24) {
             }
+            int[] iArr3 = new int[UserPreferenceIntKey.values().length];
+            $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceIntKey = iArr3;
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertFlight.ordinal()] = 11;
+                iArr3[UserPreferenceIntKey.kUserPreference_TimeOffset.ordinal()] = 1;
             } catch (NoSuchFieldError unused25) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_EnableHaptics.ordinal()] = 12;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceIntKey[UserPreferenceIntKey.kUserPreference_AgreedTOSVersion.ordinal()] = 2;
             } catch (NoSuchFieldError unused26) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertCameraGamepad.ordinal()] = 13;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceIntKey[UserPreferenceIntKey.kUserPreference_InstrumentLayout.ordinal()] = 3;
             } catch (NoSuchFieldError unused27) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertFlightGamepad.ordinal()] = 14;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceIntKey[UserPreferenceIntKey.kUserPreference_AltInstrumentLayout.ordinal()] = 4;
             } catch (NoSuchFieldError unused28) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_EnableHapticsGamepad.ordinal()] = 15;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceIntKey[UserPreferenceIntKey.kUserPreference_QualityFps.ordinal()] = 5;
             } catch (NoSuchFieldError unused29) {
             }
+            int[] iArr4 = new int[UserPreferenceBoolKey.values().length];
+            $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey = iArr4;
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_ReturningPlayer.ordinal()] = 16;
+                iArr4[UserPreferenceBoolKey.kUserPreference_WideScreenHint.ordinal()] = 1;
             } catch (NoSuchFieldError unused30) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_Instrument_RemoteNotes_Freeplay.ordinal()] = 17;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_PortraitModeAllowed.ordinal()] = 2;
             } catch (NoSuchFieldError unused31) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_Instrument_RemoteNotes_JoinedSheet.ordinal()] = 18;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_AskedToEnableHighResScreenshots.ordinal()] = 3;
             } catch (NoSuchFieldError unused32) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_DisableCrossPlay.ordinal()] = 19;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_EnableHighResScreenshots.ordinal()] = 4;
             } catch (NoSuchFieldError unused33) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_EnableDarkMode.ordinal()] = 20;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_ParentalDisableChat.ordinal()] = 5;
             } catch (NoSuchFieldError unused34) {
             }
-            int[] iArr4 = new int[UserPreferenceStringKey.values().length];
-            $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey = iArr4;
             try {
-                iArr4[UserPreferenceStringKey.kUserPreference_Version.ordinal()] = 1;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_ParentalDisableShop.ordinal()] = 6;
             } catch (NoSuchFieldError unused35) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_UserId.ordinal()] = 2;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_ProControls.ordinal()] = 7;
             } catch (NoSuchFieldError unused36) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_LastSessionId.ordinal()] = 3;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_LeftHanded.ordinal()] = 8;
             } catch (NoSuchFieldError unused37) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_QualityOption.ordinal()] = 4;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_MixedCameraMode.ordinal()] = 9;
             } catch (NoSuchFieldError unused38) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_AccountLinkPromptDismissedEpoch.ordinal()] = 5;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertCamera.ordinal()] = 10;
             } catch (NoSuchFieldError unused39) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DeviceCapability_HashId.ordinal()] = 6;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertFlight.ordinal()] = 11;
             } catch (NoSuchFieldError unused40) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DeviceCapability_GpuRating.ordinal()] = 7;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_EnableHaptics.ordinal()] = 12;
             } catch (NoSuchFieldError unused41) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_LastPlayedAccountType.ordinal()] = 8;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertCameraGamepad.ordinal()] = 13;
             } catch (NoSuchFieldError unused42) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_AutomatedTestData.ordinal()] = 9;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertFlightGamepad.ordinal()] = 14;
             } catch (NoSuchFieldError unused43) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DevicePublicKey.ordinal()] = 10;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_EnableHapticsGamepad.ordinal()] = 15;
             } catch (NoSuchFieldError unused44) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DevicePrivateKey.ordinal()] = 11;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertCameraDesktop.ordinal()] = 16;
             } catch (NoSuchFieldError unused45) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_DisplayPreferenceData.ordinal()] = 12;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_InvertFlightDesktop.ordinal()] = 17;
             } catch (NoSuchFieldError unused46) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_FirstOpenTimestamp.ordinal()] = 13;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_ReturningPlayer.ordinal()] = 18;
             } catch (NoSuchFieldError unused47) {
             }
             try {
-                $SwitchMap$com$tgc$sky$SystemIO_android$UserPreferenceStringKey[UserPreferenceStringKey.kUserPreference_ButtonMapping.ordinal()] = 14;
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_Instrument_RemoteNotes_Freeplay.ordinal()] = 19;
             } catch (NoSuchFieldError unused48) {
             }
+            try {
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_Instrument_RemoteNotes_JoinedSheet.ordinal()] = 20;
+            } catch (NoSuchFieldError unused49) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_DisableCrossPlay.ordinal()] = 21;
+            } catch (NoSuchFieldError unused50) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_EnableDarkMode.ordinal()] = 22;
+            } catch (NoSuchFieldError unused51) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_Fullscreen.ordinal()] = 23;
+            } catch (NoSuchFieldError unused52) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_AutoSkipCutscenes.ordinal()] = 24;
+            } catch (NoSuchFieldError unused53) {
+            }
+            try {
+                $SwitchMap$com$tgc$sky$LocalPreferences$UserPreferenceBoolKey[UserPreferenceBoolKey.kUserPreference_VideoSubtitles.ordinal()] = 25;
+            } catch (NoSuchFieldError unused54) {
+            }
+
             int[] iArr5 = new int[VideoCodec.values().length];
             $SwitchMap$com$tgc$sky$SystemIO_android$VideoCodec = iArr5;
             try {
@@ -665,7 +714,9 @@ public class SystemIO_android {
                     case 9:
                         return "automated_test_data";
                     case 10:
+                        return "device_public_key";
                     case 11:
+                        return "device_private_key";
                     case 12:
                         return "display_preference_data";
                     case 13:
@@ -674,7 +725,6 @@ public class SystemIO_android {
                         return "button_mapping";
                     default:
                         return null;
-
                 }
             case KEY_TYPE_BOOLEAN:
                 switch (preference + 1) {
@@ -709,15 +759,25 @@ public class SystemIO_android {
                     case 15:
                         return "kUserPreference_EnableHapticsGamepad";
                     case 16:
-                        return "kUserPreference_ReturningPlayer";
+                        return "kUserPreference_InvertCameraDesktop";
                     case 17:
-                        return "kUserPreference_Instr_RemoteNotes_Freeplay";
+                        return "kUserPreference_InvertFlightDesktop";
                     case 18:
-                        return "kUserPreference_Instr_RemoteNotes_Sheet";
+                        return "kUserPreference_ReturningPlayer";
                     case 19:
-                        return "kUserPreference_DisableCrossPlay";
+                        return "kUserPreference_Instr_RemoteNotes_Freeplay";
                     case 20:
+                        return "kUserPreference_Instr_RemoteNotes_Sheet";
+                    case 21:
+                        return "kUserPreference_DisableCrossPlay";
+                    case 22:
                         return "kUserPreference_EnableDarkMode";
+                    case 23:
+                        return "kUserPreference_Fullscreen";
+                    case 24:
+                        return "kUserPreference_AutoSkipCutscenes";
+                    case 25:
+                        return "kUserPreference_VideoSubtitles";
                     default:
                         return null;
                 }
@@ -730,16 +790,18 @@ public class SystemIO_android {
                     case 3:
                         return "kUserPreference_InstrumentVolume";
                     case 4:
-                        return "kUserPreference_HdrBrightness";
+                        return "kUserPreference_VideoVolume";
                     case 5:
-                        return "kUserPreference_HdrBlackLevel";
+                        return "kUserPreference_HdrBrightness";
                     case 6:
                         return "kUserPreference_HdrUIBrightness";
                     case 7:
-                        return "kUserPreference_MotionBlurScalar";
+                        return "kUserPreference_HdrBlackLevel";
                     case 8:
-                        return "kUserPreference_CameraRotationSpeed";
+                        return "kUserPreference_MotionBlurScalar";
                     case 9:
+                        return "kUserPreference_CameraRotationSpeed";
+                    case 10:
                         return "kUserPreference_CameraZoomSpeed";
                     default:
                         return null;
@@ -754,6 +816,8 @@ public class SystemIO_android {
                     case 3:
                         return "instrument_layout";
                     case 4:
+                        return "alt_instrument_layout";
+                    case 5:
                         return "quality_fps";
                     default:
                         return null;
@@ -1027,6 +1091,7 @@ public class SystemIO_android {
     }
 
     void MediaPlayerSetVolume(final float f) {
+        this.mExoplayerPauseVolume = f;
         this.m_activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
