@@ -189,7 +189,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:onClick="@{() -> _item.remove()}"
+                    android:onClick="@{() -> viewModel.onModRemove(_item)}"
                     android:orientation="horizontal">
 
 

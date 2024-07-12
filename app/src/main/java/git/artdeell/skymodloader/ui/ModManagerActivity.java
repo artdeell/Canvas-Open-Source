@@ -49,7 +49,7 @@ public class ModManagerActivity extends AppCompatActivity {
                             loader.addModSafely(getInputStreamFromURI(loader.activity, uri));
                         }
                     } catch (IOException e) {
-                        Toast.makeText(loader.activity, R.string.mod_ioe, Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> Toast.makeText(loader.activity, R.string.mod_ioe, Toast.LENGTH_SHORT).show());
                     }
                 });
     }

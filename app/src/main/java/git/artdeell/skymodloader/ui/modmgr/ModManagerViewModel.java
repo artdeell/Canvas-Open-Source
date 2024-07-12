@@ -71,8 +71,6 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
             mDialogManager.setLoader(loader);
         } else {
             handleLoading();
-            handleUnsafeModRemoval();
-            handleException();
             loader.addListener(this);
         }
     }
@@ -85,6 +83,7 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
 
     public void onAddMod(View view) {
         ((git.artdeell.skymodloader.ui.ModManagerActivity) view.getContext()).mGetContent.launch("*/*");
+        handleException();
         notifyPropertyChanged(BR._all);
     }
 
@@ -115,18 +114,27 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
             message = e.getMessage();
         }
 
-        DialogY dialogY = DialogY.createFromActivity(context);
-        dialogY.positiveButton.setVisibility(View.GONE);
-        dialogY.title.setText(R.string.mod_add_unable);
-        dialogY.content.setText(message);
-        dialogY.negativeButton.setOnClickListener((v)->dialogY.dialog.dismiss());
-        dialogY.dialog.setCancelable(true);
-        dialogY.dialog.show();
+        context.runOnUiThread(() -> {
+            DialogY dialogY = DialogY.createFromActivity(context);
+            dialogY.positiveButton.setVisibility(View.GONE);
+            dialogY.title.setText(R.string.mod_add_unable);
+            dialogY.content.setText(message);
+            dialogY.negativeButton.setOnClickListener((v)->dialogY.dialog.dismiss());
+            dialogY.dialog.setCancelable(true);
+            dialogY.dialog.show();
+            loader.resetException();
+        });
     }
 
     public void runUpdater() {
         Intent updaterService = new Intent(context, CanvasUpdaterService.class);
         context.bindService(updaterService, new CanvasUpdaterConnection(context), BIND_AUTO_CREATE);
+    }
+
+    public void onModRemove(ElfModUIMetadata item){
+        item.remove();
+        notifyPropertyChanged(BR._all);
+        handleUnsafeModRemoval();
     }
 
     private void handleUnsafeModRemoval() {
@@ -139,12 +147,16 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
             sb.append(context.getString(R.string.mod_remove_dep, ModListAdapter.getVisibleModName(meta)));
             sb.append('\n');
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.mod_remove_unable);
-        builder.setMessage(sb.toString());
-        builder.setPositiveButton(android.R.string.ok, (d, w) -> loader.resetModRemovalMetadata());
-        builder.setOnCancelListener((d) -> loader.resetModRemovalMetadata());
-        builder.show();
+
+        context.runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.mod_remove_unable);
+            builder.setMessage(sb.toString());
+            builder.setPositiveButton(android.R.string.ok, (d, w) -> loader.resetModRemovalMetadata());
+            builder.setOnCancelListener((d) -> loader.resetModRemovalMetadata());
+            builder.show();
+            loader.resetModRemovalMetadata();
+        });
     }
 
     private void handleLoading() {
@@ -180,6 +192,7 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
 
     public void onCheckForUpdates(ElfModUIMetadata metadata) {
         loader.modUpdater.startModUpdater(metadata);
+        notifyPropertyChanged(BR._all);
     }
 
     private void initializeModUpdater() {
