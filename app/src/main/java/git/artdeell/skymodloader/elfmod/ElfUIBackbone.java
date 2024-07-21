@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.updater.ModUpdater;
 
 public class ElfUIBackbone {
@@ -41,7 +42,7 @@ public class ElfUIBackbone {
         return mods.get(where);
     }
 
-    ElfUIBackbone(Activity activity, ModUpdater modUpdater) {
+    public ElfUIBackbone(Activity activity, ModUpdater modUpdater) {
         this.activity = activity;
         this.modUpdater = modUpdater;
     }
@@ -176,9 +177,12 @@ public class ElfUIBackbone {
                     System.arraycopy(elfFile, (int) secoff_icon, icon, 0, icon.length);
                     defaultMeta.bitmapIcon = BitmapFactory.decodeByteArray(icon, 0, icon.length);
                 } catch (Exception e) {
-                    defaultMeta.bitmapIcon = null;
+                    //defaultMeta.bitmapIcon = null;
+                    defaultMeta.bitmapIcon = BitmapFactory.decodeResource(activity.getResources(), R.drawable.icon_black_round);
                     e.printStackTrace();
                 }
+            }else{
+                defaultMeta.bitmapIcon = BitmapFactory.decodeResource(activity.getResources(), R.drawable.icon_black_round);
             }
             return defaultMeta;
         } catch (Exception e) {
@@ -245,7 +249,6 @@ public class ElfUIBackbone {
     }
 
     public void removeModSafelyAsync(int which) {
-        new Thread(() -> {
             startLoading();
             ElfModUIMetadata reqModMeta = getMod(which);
             ArrayList<ElfModUIMetadata> dependingMods = new ArrayList<>();
@@ -272,7 +275,6 @@ public class ElfUIBackbone {
                 listener.signalModRemovalUnsafe();
             }
             stopLoading();
-        }).start();
     }
 
     private static byte[] getBytesFromInputStream(InputStream is) throws IOException {
@@ -313,12 +315,10 @@ public class ElfUIBackbone {
     }
 
     public void startLoadingAsync(final File modsFolder) {
-        new Thread(() -> {
-            startLoading();
-            loadMetaFromModFolder(modsFolder);
-            stopLoading();
-            listener.refreshModList(3, 0);
-        }).start();
+        startLoading();
+        loadMetaFromModFolder(modsFolder);
+        stopLoading();
+        listener.refreshModList(3, 0);
     }
 
     public static class UnsafeRemovalMetadata {

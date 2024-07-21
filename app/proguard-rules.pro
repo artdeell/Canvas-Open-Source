@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class org.fmod.** { *; }
+-keep class git.artdeell.skymodloader.ui.** { *; }
+-keep class git.artdeell.skymodloader.databinding.DataBindingAdapters {*;}
+-keep class git.artdeell.skymodloader.* {*;}
+-keep class com.tgc.sky.** { *; }
+
+-keepclasseswithmembers class * {
+    native <methods>;
+}

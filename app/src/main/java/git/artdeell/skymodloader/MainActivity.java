@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 
@@ -28,6 +29,7 @@ import java.util.Optional;
 
 import git.artdeell.skymodloader.elfmod.ElfRefcountLoader;
 import git.artdeell.skymodloader.iconloader.IconLoader;
+import git.artdeell.skymodloader.utils.CpDir;
 
 public class MainActivity extends Activity {
     private SharedPreferences sharedPreferences;
@@ -66,6 +68,14 @@ public class MainActivity extends Activity {
             File modsDir = new File(getFilesDir(), "mods");
             File configDir = new File(getFilesDir(), "config");
             if (!configDir.isDirectory() && !configDir.mkdirs()) throw new IOException("Failed to create mod configuration directory");
+
+            if(sharedPreferences.getBoolean("allow_gg",false)){
+                clearAllCache(this);
+                String localDir = this.getFilesDir()+"/lib";
+                new CpDir(nativeLibraryDir,localDir);
+                nativeLibraryDir = localDir;
+            }
+
             ElfLoader loader = new ElfLoader(nativeLibraryDir + ":/system/lib64");
             loader.loadLib("libBootloader.so");
             System.loadLibrary("ciphered");
@@ -97,6 +107,13 @@ public class MainActivity extends Activity {
                 BuildConfig.SKY_STAGE_NAME = "Test";
             }
 
+            String savedServer = sharedPreferences.getString("server","");
+            if(!savedServer.isEmpty()) {
+                BuildConfig.SKY_SERVER_HOSTNAME = savedServer;
+            }
+
+
+
             new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
             BuildConfig.APPLICATION_ID = SKY_PACKAGE_NAME;
             startActivity(new Intent(this, GameActivity.class));
@@ -110,6 +127,26 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public static void clearAllCache(Context context) {
+        deleteDir(context.getCacheDir());
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            deleteDir(context.getExternalCacheDir());
+        }
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
     }
 
     public void alertDialog(Throwable th) {

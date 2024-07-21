@@ -105,5 +105,22 @@
     <string name="mod_check_updates_installing">Installing update…</string>
     <string name="mod_check_updates_complete">Update complete!</string>
     <string name="mod_check_updates_error">An error has occurred</string>
-    <string name="settings_title">SETTINGS</string>
+    <string name="settings_title">Settings</string>
+    <string name="home_title_homepage">GitHub Project Homepage</string>
+    <string name="home_description_homepage">Star this repositories</string>
+    <string name="home_follow_title">Developers</string>
+    <string name="home_follow_content">Contact Developers of Canvas</string>
+    <string name="version">Version</string>
+    <string name="build">Build</string>
+    <string name="loading">Loading</string>
+    <string name="navigation_home">Home</string>
+    <string name="navigation_mod">Mods</string>
+    <string name="home_title">Home</string>
+    <string name="mods_title">Mods</string>
+
+    <string name="boot">\n\n\n\nBoot</string>
+    <string name="settle_server">Set server</string>
+    <string name="modify_package">Edit the package name to boot with.</string>
+    <string name="allow_gg">Allow using GameGuardian.</string>
+    <string name="description_gg">Compatibility issues may occur.</string>
 </resources>

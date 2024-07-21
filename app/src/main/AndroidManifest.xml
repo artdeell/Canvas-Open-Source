@@ -25,10 +25,10 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/icon"
         android:label="@string/app_name"
-        android:manageSpaceActivity=".elfmod.ModManagerActivity"
+        android:manageSpaceActivity=".ui.ModManagerActivity"
         android:roundIcon="@mipmap/icon_round"
         android:supportsRtl="false"
-        android:theme="@style/Theme.Design.NoActionBar"
+        android:theme="@style/AppTheme"
         tools:targetApi="34">
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -56,15 +56,15 @@
             android:process=":mod_updater"/>
 
         <activity
-            android:name=".elfmod.ModManagerActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:resizeableActivity="false"
-            android:theme="@style/AppTheme">
+                android:name=".ui.ModManagerActivity"
+                android:theme="@style/AppTheme"
+                android:label="Canvas"
+                android:exported="true" >
+
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 

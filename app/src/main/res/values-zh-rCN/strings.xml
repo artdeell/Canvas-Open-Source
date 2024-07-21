@@ -1,0 +1,127 @@
+<resources>
+
+    <string name="app_name">Canvas</string>
+    <string name="sky_not_installed">Open Mod Manager and choose Live/Beta/Huawei. Sky is not installed. You must have Sky installed in order to use this!</string>
+    <string name="app_info"><![CDATA[
+<strong>Canvas Mod Loader</strong>
+<p>
+    <strong>Support:</strong>
+    <ul>
+      <li><a href="https://t.me/+Hc6QeQVTH1JjNjky">English</a></li>
+      <li><a href="https://t.me/+mue7BZWmWOxkMDUy">Русский</a></li>
+    </ul>
+  </p>
+  <p>
+    <strong>Made by:</strong>
+    <ul>
+      <li><a href="https://github.com/lukas0x1">Icarus (retired)</a></li>
+      <li><a href="https://github.com/artdeell">artDev (retired)</a></li>
+    </ul>
+  </p>
+  <p>
+    <strong>Continue updated by:</strong>
+    <ul>
+        <li><a href="https://github.com/RomanChamelo">Roman</a></li>
+        <li><a href="https://github.com/Kiojeen">Kiojeen</a></li>
+    </ul>
+  </p>
+  <p>
+    <strong>Banner by:</strong>
+    <ul>
+      <li>Сон~ (<a href="https://vk.com/son583">VK</a>, <a href="https://t.me/Son040">Telegram</a>)</li>
+    </ul>
+  </p>
+  <p>
+    <strong>Icon by:</strong>
+    <ul>
+      <li>Elias Gabriel (<a href="https://t.me/Eliatshaha">Telegram</a>)</li>
+    </ul>
+  </p>
+  <p>
+    <strong>Original game by:</strong>
+    <ul>
+      <li><a href="https://thatgamecompany.com/">thatgamecompany</a></li>
+    </ul>
+  </p>
+    ]]></string>
+    <string name="mod_manager">Mod管理器</string>
+    <string name="add_mod">添加Mod</string>
+    <string name="mod_name">%s (%s)</string>
+    <string name="mod_invalid">无效的Mod。是否缺少依赖？</string>
+    <string name="mod_remove_unable">无法移除Mod</string>
+    <string name="mod_remove_deps">有其他Mod依赖于这个Mod，请先移除其他Mod</string>
+    <string name="mod_remove_dep">%s 依赖于你正在移除的Mod</string>
+    <string name="mod_ioe">I/O 错误</string>
+    <string name="mod_gf">General fault</string>
+    <string name="mod_add_unable">添加Mod失败</string>
+    <string name="mod_add_wrongformat">不可读的Mod</string>
+    <string name="mod_add_missingdep">Mod依赖 %s %d.%d 或更新的版本, 但是依赖不可用</string>
+    <string name="mod_add_exists">已存在同名Mod</string>
+    <string name="mod_version">%d.%d.%d</string>
+    <string name="mod_skip_updater">跳过更新</string>
+    <string name="sign_in">用 %s 登录</string>
+    <string name="enable_beta">开启测试服支持</string>
+    <string name="launch">Play</string>
+    <string name="enable_dev">Dev服务器</string>
+    <string name="wait">等待</string>
+    <string name="updater_checking">检查更新…</string>
+    <string name="updater_update_available">可用的更新</string>
+    <string name="updater_update_downloading">下载中…</string>
+    <string name="updater_update_downloaded">下载成功</string>
+    <string name="updater_skip">跳过</string>
+    <string name="updater_update">更新</string>
+    <string name="updater_install">安装</string>
+    <string name="updater_retry">重试</string>
+    <string name="updater_failed">更新失败</string>
+    <string name="updater_input_unreadable">下载数据不可读</string>
+    <string name="mod_canvas_version">Canvas %s</string>
+    <string name="huawei">华为</string>
+    <string name="beta">测试服</string>
+    <string name="live">国际服</string>
+    <string name="game_not_installed_warning">该游戏包未安装</string>
+    <string name="play">PLAY</string>
+    <string name="mods">MODS</string>
+    <string name="check_updates_title">是否现在获取[%1$s]的状态?</string>
+    <string name="check_updates_failed_title">检查更新失败</string>
+    <string name="updating_failed_title">"更新失败"</string>
+    <string name="check_updates_message">注意: 按下OK以开始更新.</string>
+    <string name="check_button_text">检查</string>
+    <string name="version_info">版本: %s\n%s</string>
+    <string name="update_dialog_title">%s 有一个可用更新!!</string>
+    <string name="install_button_text">安装</string>
+    <string name="updater_busy">正忙于其他更新任务</string>
+    <string name="download_is_going">正在下载</string>
+    <string name="up_to_date_title">已经是最新版本</string>
+    <string name="up_to_date_message">Mod已经是最新版本\n版本: %1$s</string>
+    <string name="remove">移除</string>
+    <string name="check_for_updates">检查更新</string>
+    <string name="switch_skip_updates">绕过游戏更新</string>
+    <string name="close">关闭</string>
+    <string name="mod_icon">Mod图标</string>
+    <string name="no_update_links">没有更新链接</string>
+    <string name="mod_check_updates_checking">检查更新…</string>
+    <string name="mod_check_updates_found">发现新版本</string>
+    <string name="mod_check_updates_not_found">没有可用更新</string>
+    <string name="mod_check_updates_downloading">下载更新…</string>
+    <string name="mod_check_updates_installing">安装更新…</string>
+    <string name="mod_check_updates_complete">更新完成</string>
+    <string name="mod_check_updates_error">出现了一个错误</string>
+    <string name="settings_title">设置</string>
+    <string name="home_title_homepage">GitHub项目主页</string>
+    <string name="home_description_homepage">Star Canvas项目</string>
+    <string name="home_follow_title">开发者</string>
+    <string name="home_follow_content">联系开发者</string>
+    <string name="version">版本</string>
+    <string name="build">构建</string>
+    <string name="loading">加载中</string>
+    <string name="navigation_home">主页</string>
+    <string name="navigation_mod">Mods</string>
+    <string name="home_title">主页</string>
+    <string name="mods_title">Mods</string>
+
+    <string name="boot">\n\n\n\n启动</string>
+    <string name="settle_server">固定服务器</string>
+    <string name="modify_package">修改使用的Sky包名</string>
+    <string name="allow_gg">允许使用GameGuardian</string>
+    <string name="description_gg">可能出现兼容性问题</string>
+</resources>

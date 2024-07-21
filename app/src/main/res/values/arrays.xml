@@ -1,0 +1,16 @@
+<resources>
+
+    <string-array name="server_entries">
+        <item>Follow the package name.</item>
+        <item>Live</item>
+        <item>Beta</item>
+        <item>Dev</item>
+    </string-array>
+
+    <string-array name="server_values">
+        <item></item>
+        <item>live.radiance.thatgamecompany.com</item>
+        <item>beta.radiance.thatgamecompany.com</item>
+        <item>dev.radiance.thatgamecompany.com</item>
+    </string-array>
+</resources>

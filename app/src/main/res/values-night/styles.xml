@@ -7,10 +7,11 @@
         <item name="android:datePickerStyle">@android:style/Widget.DatePicker</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
         <item name="android:windowBackground">@color/background</item>
         <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="colorSecondary">#3E78AF</item>
     </style>
 
 
@@ -23,7 +24,7 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="Card">
+    <style name="Card" parent="@style/WidgetFoundation.Card">
         <item name="cardBackgroundColor">#FF161616</item>
     </style>
 </resources>

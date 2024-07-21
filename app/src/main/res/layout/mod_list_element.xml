@@ -7,6 +7,11 @@
     <data>
 
         <variable
+                name="viewModel"
+                type="git.artdeell.skymodloader.ui.modmgr.ModManagerViewModel" />
+
+
+        <variable
             name="_item"
             type="git.artdeell.skymodloader.elfmod.ElfModUIMetadata" />
     </data>
@@ -45,7 +50,7 @@
                         android:layout_height="40dp"
                         android:contentDescription="@string/mod_icon"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/icon_black_round" />
+                        source="@{_item.bitmapIcon}" />
 
                     <TextView
                         android:id="@+id/mod_title_header_separator"
@@ -149,6 +154,8 @@
                     android:layout_marginRight="20dp"
                     android:clickable="true"
                     android:focusable="true"
+                    android:onClick="@{(view) -> viewModel.onCheckForUpdates(_item)}"
+                    gone="@{!viewModel.canUpdate(_item)}"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -160,13 +167,13 @@
                         android:src="@drawable/stat_notify_sync" />
 
                     <TextView
-                        android:id="@+id/text_update"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/check_for_updates"
-                        android:textColor="@color/text"
-                        android:textStyle="bold"
-                        tools:text="Check For Updates" />
+                            android:id="@+id/text_update"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            setText="@{viewModel.getUpdateText(_item)}"
+                            android:textColor="@color/text"
+                            android:textStyle="bold"
+                            tools:text="Check For Updates"/>
 
                 </LinearLayout>
 
@@ -181,7 +188,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:onClick="@{() -> _item.remove()}"
+                    android:onClick="@{() -> viewModel.onModRemove(_item)}"
                     android:orientation="horizontal">
 
 

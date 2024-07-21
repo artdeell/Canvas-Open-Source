@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="git.artdeell.skymodloader.BuildConfig"/>
+
+        <variable
+            name="viewModel"
+            type="git.artdeell.skymodloader.ui.home.HomeViewModel" />
+
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+            style="@style/Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:orientation="vertical"
+                tools:layout_gravity="center">
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+
+                <ImageView
+                        android:id="@+id/home_icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:padding="0dp"
+                        app:tint="?colorOnSurface"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/icon_fg"
+                        android:clickable="true"
+                        android:onClick="@{(view) -> viewModel.normalBoot(view)}"/>
+
+                <TextView
+                        android:id="@+id/home_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Canvas"
+                        android:textAppearance="@style/AppearanceFoundation.Title"
+                        android:textColor="?colorPrimary"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        app:layout_constraintBottom_toBottomOf="@+id/home_icon"
+                        app:layout_constraintStart_toEndOf="@+id/home_icon"
+                        app:layout_constraintTop_toTopOf="@+id/home_icon"/>
+
+            </LinearLayout>
+
+
+            <androidx.constraintlayout.widget.Barrier
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"/>
+
+            <LinearLayout
+                    android:id="@+id/home_magisk_installed_version"
+                    style="@style/W.Home.Item.Top">
+
+                <TextView
+                        style="@style/W.Home.ItemContent"
+                        android:text="@string/build"/>
+
+                <TextView
+                        style="@style/W.Home.ItemContent.Right"
+                        android:text="@{BuildConfig.BUILD_TIME}"
+                        tools:text="2024-04-05 09:05:45"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/home_build_type"
+                    style="@style/W.Home.Item.Bottom">
+
+                <TextView
+                        style="@style/W.Home.ItemContent"
+                        android:text="@string/version"/>
+
+                <TextView
+                        style="@style/W.Home.ItemContent.Right"
+                        android:text='@{BuildConfig.VERSION_NAME +"("+BuildConfig.VERSION_CODE+")"}'
+                        tools:text="1.3.9(999)"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>
