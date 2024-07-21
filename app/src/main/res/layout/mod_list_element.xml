@@ -50,8 +50,7 @@
                         android:layout_height="40dp"
                         android:contentDescription="@string/mod_icon"
                         android:scaleType="fitCenter"
-                        source="@{_item.bitmapIcon}"
-                        android:src="@drawable/icon_black_round" />
+                        source="@{_item.bitmapIcon}" />
 
                     <TextView
                         android:id="@+id/mod_title_header_separator"

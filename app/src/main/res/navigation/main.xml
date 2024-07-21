@@ -24,7 +24,11 @@
             android:id="@+id/modManagerFragment"
             android:name="git.artdeell.skymodloader.ui.modmgr.ModManagerFragment"
             android:label="modManagerFragment"
-            tools:layout="@layout/fragment_mod_manager"/>
+            tools:layout="@layout/fragment_mod_manager">
+        <action
+            android:id="@+id/action_modManagerFragment_self"
+            app:destination="@id/modManagerFragment" />
+    </fragment>
 
     <fragment
             android:id="@+id/settingsFragment"

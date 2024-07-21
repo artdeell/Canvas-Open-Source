@@ -22,6 +22,7 @@ import git.artdeell.skymodloader.BR;
 import git.artdeell.skymodloader.DialogY;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.elfmod.*;
+import git.artdeell.skymodloader.ui.ModManagerActivity;
 import git.artdeell.skymodloader.updater.*;
 import git.artdeell.skymodloader.ui.BaseViewModel;
 import me.tatarka.bindingcollectionadapter2.ItemBinding;
@@ -36,6 +37,7 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
     private Boolean loading = true;
     public ObservableList<ElfModMetadata> items;
     public final ItemBinding<ElfModMetadata> itemBinding = ItemBinding.of(BR._item, R.layout.mod_list_element);
+    public static ModManagerViewModel modMgrViewModel;
 
     private static final int REQUEST_MOD = 1024 * 121;
     @SuppressLint("StaticFieldLeak")
@@ -56,10 +58,10 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
 
     public void init(git.artdeell.skymodloader.ui.ModManagerActivity c) {
         context = c;
+        modMgrViewModel = this;
         initializeModUpdater();
         initializeLoader();
         itemBinding.bindExtra(BR.viewModel, this);
-
         runUpdater();
     }
 
@@ -83,11 +85,13 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
 
     public void onAddMod(View view) {
         ((git.artdeell.skymodloader.ui.ModManagerActivity) view.getContext()).mGetContent.launch("*/*");
-        handleException();
-        notifyPropertyChanged(BR._all);
     }
 
-
+    public void onAddResult(){
+        handleException();
+        //loader.startLoadingAsync(new File(context.getFilesDir(), "mods"));
+        notifyPropertyChanged(BR._all);
+    }
 
     private void handleException() {
         Exception e = loader.getException();
@@ -132,9 +136,12 @@ public class ModManagerViewModel extends BaseViewModel implements LoadingListene
     }
 
     public void onModRemove(ElfModUIMetadata item){
+        items.remove(item);
         item.remove();
-        notifyPropertyChanged(BR._all);
         handleUnsafeModRemoval();
+        notifyPropertyChanged(BR._all);
+        loader.startLoadingAsync(new File(context.getFilesDir(), "mods"));
+        notifyPropertyChanged(BR._all);
     }
 
     private void handleUnsafeModRemoval() {

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import git.artdeell.skymodloader.ui.ModManagerActivity;
 public class ModManagerFragment extends Fragment {
 
     private ModManagerViewModel mViewModel;
+    FragmentModManagerBinding binding;
 
     public static ModManagerFragment newInstance() {
         return new ModManagerFragment();
@@ -27,10 +30,11 @@ public class ModManagerFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         mViewModel = new ViewModelProvider(this).get(ModManagerViewModel.class);
         mViewModel.init((ModManagerActivity) container.getContext());
-        FragmentModManagerBinding binding = FragmentModManagerBinding.inflate(inflater, container, false);
+        binding = FragmentModManagerBinding.inflate(inflater, container, false);
         binding.setLifecycleOwner(this);
         binding.setViewModel(mViewModel);
         return binding.getRoot();
+
     }
 
 }

@@ -47,6 +47,8 @@ public class DataBindingAdapters {
     public static void setBitmap(ImageView view, Bitmap bm) {
         if (bm != null && bm.getWidth() != 0 && bm.getHeight() != 0) {
             view.setImageBitmap(bm);
+        }else{
+            view.setImageResource(R.drawable.icon_black_round);
         }
     }
 
