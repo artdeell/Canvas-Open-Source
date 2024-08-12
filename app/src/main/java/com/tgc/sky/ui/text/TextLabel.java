@@ -3,7 +3,7 @@ package com.tgc.sky.ui.text;
 import android.text.SpannableStringBuilder;
 import android.widget.TextView;
 
-/* renamed from: com.tgc.sky.ui.text.TextLabel */
+
 public class TextLabel {
     float actualHeight = 0.0f;
     float actualWidth = 0.0f;

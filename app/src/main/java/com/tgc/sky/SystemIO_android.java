@@ -1,6 +1,6 @@
 package com.tgc.sky;
 
-import android.app.Activity;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+
 
 
 public class SystemIO_android {

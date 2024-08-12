@@ -59,6 +59,7 @@ import git.artdeell.skymodloader.ImGUI;
 import git.artdeell.skymodloader.R;
 import git.artdeell.skymodloader.SMLApplication;
 import git.artdeell.skymodloader.ImGUITextInput;
+import git.artdeell.skymodloader.LoadVideoView;
 
 public class GameActivity extends TGCNativeActivity {
     static final boolean ENABLE_DISPLAY_CUTOUT_MODE = true;
@@ -71,6 +72,7 @@ public class GameActivity extends TGCNativeActivity {
     private PermissionCallback mPermissionCallback = null;
     private ArrayList<BasePanel> mActivePanels = new ArrayList<>();
     private ImageView logoView;
+    private LoadVideoView videoLogo;
     private MediaPlayer m_mediaPlayer;
     private int m_nativeHeight;
     private int m_nativeWidth;
@@ -249,7 +251,9 @@ public class GameActivity extends TGCNativeActivity {
         this.m_systemUI = new SystemUI_android(this);
         onCreateNative();
         initGameController();
-        logoView = findViewById(R.id.imageView);
+        //logoView = findViewById(R.id.imageView);
+        videoLogo = findViewById(R.id.vidLogo);
+        playVideoLogo();
         Intent intent = getIntent();
         if (intent != null) {
             HandleNewIntent(intent);
@@ -333,7 +337,7 @@ public class GameActivity extends TGCNativeActivity {
     public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
         try {
             int max = Integer.max(windowInsets.getStableInsetTop(), windowInsets.getStableInsetBottom());
-            if (Build.VERSION.SDK_INT >= 27) {
+            if (Build.VERSION.SDK_INT >= 28) {
                 try {
                     if (windowInsets.getDisplayCutout() != null) {
                         max = Integer.max(max, Integer.max(windowInsets.getDisplayCutout().getSafeInsetLeft(), windowInsets.getDisplayCutout().getSafeInsetRight()));
@@ -1012,8 +1016,10 @@ public class GameActivity extends TGCNativeActivity {
         return bArr;
     }
 
+
+
     public void playLogoSound() {
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        /*AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         if(audioManager.isMusicActive()) return;
         MediaPlayer player = new MediaPlayer();
         try {
@@ -1022,11 +1028,11 @@ public class GameActivity extends TGCNativeActivity {
             (m_mediaPlayer = player).start();
         }catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public boolean tryReleaseLogoSound() {
-        if(m_mediaPlayer == null) {
+      /*  if(m_mediaPlayer == null) {
             this.m_logoSoundReleased = true;
             return true;
         }
@@ -1036,10 +1042,36 @@ public class GameActivity extends TGCNativeActivity {
             }
             this.m_mediaPlayer.release();
             this.m_logoSoundReleased = true;
-        }
+        }*/
         return true;
     }
 
+    private void playVideoLogo() {
+        String uri = "android.resource://" + getPackageName() + "/" + R.raw.vid_logo;
+        videoLogo.setVideoURI(Uri.parse(uri));
+        videoLogo.start();
+        videoLogo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+
+
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.start();
+                mp.setLooping(false);
+
+
+            }
+        });
+
+
+        videoLogo.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+               // videoLogo.setVisibility(View.GONE);
+            }
+        });
+    }
     public void fadeoutLogos() {
         runOnUiThread(()->{
             AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.0f);
@@ -1053,7 +1085,7 @@ public class GameActivity extends TGCNativeActivity {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    logoView.setVisibility(View.GONE);
+                    videoLogo.setVisibility(View.GONE);
                     // TODO: Don't remove!
                     git.artdeell.skymodloader.MainActivity.lateInitUserLibs();
                 }
@@ -1063,7 +1095,7 @@ public class GameActivity extends TGCNativeActivity {
 
                 }
             });
-            logoView.startAnimation(alphaAnimation);
+            videoLogo.startAnimation(alphaAnimation);
         });
     }
 

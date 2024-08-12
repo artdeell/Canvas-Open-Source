@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.concurrent.locks.ReentrantLock;
 
-/* loaded from: classes2.dex */
+
 public class QRCameraHandler implements ImageReader.OnImageAvailableListener, GameActivity.OnActivityResultListener {
     private static final int kImageFormat = 256;
     private static final int kTargetHeight = 480;
@@ -61,19 +61,16 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         kCameraVideoFormat_ARGB_8888
     }
 
-    /* loaded from: classes2.dex */
     public interface HandlerCb {
         void run(String str, int i, boolean z);
     }
 
-    /* loaded from: classes2.dex */
     public enum Mode {
         kMode_Idle,
         kMode_QRScanner,
         kMode_ImagePicker
     }
 
-    /* loaded from: classes2.dex */
     public enum PermissionState {
         kPermissionState_None,
         kPermissionState_Requesting,
@@ -81,7 +78,6 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         kPermissionState_Denied
     }
 
-    /* loaded from: classes2.dex */
     public enum State {
         kState_Idle,
         kState_Starting,
@@ -177,7 +173,6 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         }
     }
 
-    /* renamed from: lambda$requestCameraPermission$0$com-tgc-sky-ui-QRCameraHandler */
     public /* synthetic */ void m413lambda$requestCameraPermission$0$comtgcskyuiQRCameraHandler(Runnable runnable, String[] strArr, int[] iArr) {
         this.m_requestingPermission = false;
         if (this.m_activity.checkResultPermissions(iArr)) {
@@ -190,12 +185,10 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         }
     }
 
-    /* renamed from: lambda$requestCameraPermission$1$com-tgc-sky-ui-QRCameraHandler */
     public /* synthetic */ void m414lambda$requestCameraPermission$1$comtgcskyuiQRCameraHandler(GameActivity.PermissionCallback permissionCallback) {
         this.m_activity.requestPermissionsThroughSettings(new String[]{"android.permission.CAMERA"}, permissionCallback);
     }
 
-    /* renamed from: lambda$requestCameraPermission$2$com-tgc-sky-ui-QRCameraHandler */
     public /* synthetic */ void m415lambda$requestCameraPermission$2$comtgcskyuiQRCameraHandler(GameActivity.PermissionCallback permissionCallback) {
         this.m_activity.requestPermissions(new String[]{"android.permission.CAMERA"}, permissionCallback);
     }
@@ -219,7 +212,6 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         }
     }
 
-    /* renamed from: setupCamera */
     public void m416x86a76924() {
         synchronized (this) {
             if (this.m_state != State.kState_Idle) {
@@ -235,7 +227,6 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         }
     }
 
-    /* renamed from: lambda$setupCamera$4$com-tgc-sky-ui-QRCameraHandler */
     public /* synthetic */ void m417lambda$setupCamera$4$comtgcskyuiQRCameraHandler() {
         String str;
         try {
@@ -319,7 +310,6 @@ public class QRCameraHandler implements ImageReader.OnImageAvailableListener, Ga
         });
     }
 
-    /* renamed from: lambda$stopCamera$5$com-tgc-sky-ui-QRCameraHandler */
     public /* synthetic */ void m418lambda$stopCamera$5$comtgcskyuiQRCameraHandler() {
         stopBackgroundThread();
         CameraCaptureSession cameraCaptureSession = this.m_captureSession;

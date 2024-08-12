@@ -2,7 +2,7 @@ package com.tgc.sky.ui.qrcodereaderview;
 
 import android.util.Log;
 
-/* loaded from: classes2.dex */
+
 public class SimpleLog {
     private static boolean loggingEnabled = false;
 

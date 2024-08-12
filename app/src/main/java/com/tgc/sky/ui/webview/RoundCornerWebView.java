@@ -12,7 +12,7 @@ import android.util.AttributeSet;
 import android.webkit.WebView;
 import com.tgc.sky.ui.Utils;
 
-/* loaded from: classes2.dex */
+
 public class RoundCornerWebView extends WebView {
     private Context context;
     private int height;

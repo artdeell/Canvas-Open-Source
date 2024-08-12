@@ -4,7 +4,7 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import java.io.UnsupportedEncodingException;
 
-/* renamed from: com.tgc.sky.ui.TextFieldLimiter */
+
 public class TextFieldLimiter implements InputFilter {
     public int maxByteSize;
     public int maxCharacters;

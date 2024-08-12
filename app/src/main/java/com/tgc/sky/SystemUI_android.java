@@ -994,14 +994,10 @@ public class SystemUI_android {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public void SaveImageAskPermissions(String[] strArr, boolean z, String str, byte[] bArr) {
         this.m_activity.runOnUiThread(new AnonymousClass18(LocalizeString("system_screenshot_permission_title"), LocalizeString(z ? "system_screenshot_permission_message_00" : "system_screenshot_permission_message_01"), LocalizeString(z ? "system_button_ask" : "system_button_settings"), z, strArr, str, bArr, LocalizeString("system_button_cancel")));
     }
 
-    /* JADX INFO: Access modifiers changed from: package-private */
-    /* renamed from: com.tgc.sky.SystemUI_android$18  reason: invalid class name */
-    /* loaded from: classes2.dex */
     public class AnonymousClass18 implements Runnable {
         final /* synthetic */ String val$_cancelButton;
         final /* synthetic */ String val$_message;
@@ -1199,6 +1195,10 @@ public class SystemUI_android {
 
     public boolean IsPreferredSupportedLanguageVietnamese() {
         return GetPreferredSupportedLanguageID().equalsIgnoreCase("vi");
+    }
+
+    public boolean IsVietnameseBuild() {
+        return IsPreferredSupportedLanguageVietnamese();
     }
 
     public void SetGameInputConfig(boolean z, boolean z2, boolean z3, boolean z4, boolean z5, boolean z6, boolean z7, String[] strArr, String[] strArr2) {

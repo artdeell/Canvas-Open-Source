@@ -43,7 +43,7 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         void run(String str, int i, boolean z);
     }
 
-    @Override // com.tgc.sky.GameActivity.OnKeyboardListener
+    @Override
     public void onKeyboardChange(boolean z, int i) {
     }
 
@@ -76,8 +76,8 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(-1, -2);
         layoutParams.gravity = 5;
         constraintLayout.setLayoutParams(layoutParams);
-        PanelButton panelButton = new PanelButton(this.m_activity, new View.OnClickListener() { // from class: com.tgc.sky.ui.panels.Starboard$$ExternalSyntheticLambda0
-            @Override // android.view.View.OnClickListener
+        PanelButton panelButton = new PanelButton(this.m_activity, new View.OnClickListener() {
+            @Override
             public final void onClick(View view) {
                 Starboard.this.m777lambda$new$0$comtgcskyuipanelsStarboard(view);
             }
@@ -101,7 +101,7 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         sb.insert(sb.indexOf(".") + 1, "starboard");
         sb.insert(0, "https://");
         final String sb2 = sb.toString();
-        roundCornerWebView.setWebViewClient(new WebViewClient() { // from class: com.tgc.sky.ui.panels.Starboard.1
+        roundCornerWebView.setWebViewClient(new WebViewClient() {
             @Override // android.webkit.WebViewClient
             public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest webResourceRequest) {
                 return handleUrl(webResourceRequest.getUrl());
@@ -133,8 +133,8 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         constraintSet.applyTo(constraintLayout);
     }
 
-    /* renamed from: lambda$new$0$com-tgc-sky-ui-panels-Starboard  reason: not valid java name */
-    /* synthetic */ void m777lambda$new$0$comtgcskyuipanelsStarboard(View view) {
+
+    void m777lambda$new$0$comtgcskyuipanelsStarboard(View view) {
         onCloseButton();
     }
 
@@ -148,7 +148,7 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         return layoutParams;
     }
 
-    @Override // android.view.View.OnLayoutChangeListener
+    @Override
     public void onLayoutChange(View view, int i, int i2, int i3, int i4, int i5, int i6, int i7, int i8) {
         viewWillLayoutSubviews();
     }
@@ -187,7 +187,7 @@ public class Starboard extends BasePanel implements View.OnLayoutChangeListener,
         this.m_activity.RemoveOnKeyboardListener(this);
     }
 
-    @Override // com.tgc.sky.p015ui.panels.BasePanel, android.widget.PopupWindow
+    @Override
     public void dismiss() {
         if (this._closeButton.isEnabled()) {
             dismissInternal();

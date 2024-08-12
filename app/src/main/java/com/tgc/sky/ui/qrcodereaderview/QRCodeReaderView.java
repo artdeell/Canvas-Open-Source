@@ -5,7 +5,7 @@ import android.widget.FrameLayout;
 import androidx.cardview.widget.CardView;
 import com.tgc.sky.ui.qrcodereaderview.QRCodeReaderTextureView;
 
-/* loaded from: classes2.dex */
+
 public class QRCodeReaderView extends CardView {
     private QRCodeReaderTextureView mQRCodeReaderTextureView;
 

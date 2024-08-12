@@ -12,16 +12,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <ImageView
-        android:id="@+id/imageView"
+
+
+    <git.artdeell.skymodloader.LoadVideoView
+        android:id="@+id/vidLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="128dp"
-        android:layout_marginEnd="128dp"
-        android:layout_marginTop="64dp"
-        android:layout_marginBottom="64dp"
-        android:src="@drawable/banner2"
-        android:visibility="visible" />
+
+        android:src="@raw/vid_logo"
+        android:visibility="visible"/>
 
     <git.artdeell.skymodloader.ImGUITextInput
         android:id="@+id/imguiInput"

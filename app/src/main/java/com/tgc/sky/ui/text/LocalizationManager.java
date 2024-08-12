@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import git.artdeell.skymodloader.SMLApplication;
 
-/* loaded from: classes2.dex */
+
 public class LocalizationManager {
     private static int kMaxLocalizedStrings = 512;
     private GameActivity m_activity;

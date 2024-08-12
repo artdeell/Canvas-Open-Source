@@ -21,7 +21,7 @@ import com.tgc.sky.QrScanner;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-/* loaded from: classes2.dex */
+
 public class QRCodeReaderTextureView extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private static final String TAG = "com.tgc.sky.ui.qrcodereaderview.QRCodeReaderTextureView";
     private CameraManager mCameraManager;
@@ -30,7 +30,6 @@ public class QRCodeReaderTextureView extends TextureView implements TextureView.
     private int mPreviewWidth;
     private QrScanner mScanner;
 
-    /* loaded from: classes2.dex */
     public interface OnQRCodeReadListener {
         void onBeginDetect();
 
