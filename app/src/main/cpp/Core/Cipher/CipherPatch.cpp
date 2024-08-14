@@ -2,7 +2,9 @@
 
 #include <mutex>
 
-extern std::mutex cipher_base_mtx;
+#include "../../include/misc/visibility.h"
+
+PRIVATE_API std::mutex cipher_patch_mtx;
 
 CipherPatch *CipherPatch::set_Opcode(std::string _hex) {
     artpatch_set_hex(this->patch, _hex.c_str());
@@ -19,7 +21,7 @@ CipherPatch* CipherPatch::Fire() {
         return this;
     }
 
-    std::lock_guard<std::mutex> lock(cipher_base_mtx);
+    std::lock_guard<std::mutex> lock(cipher_patch_mtx);
 
     for (auto& instance : CipherPatch::s_InstanceVec) {
         CipherPatch* pInstance = (CipherPatch *)instance;
@@ -47,7 +49,7 @@ CipherPatch::CipherPatch() {
 CipherPatch::~CipherPatch() {
     artpatch_restore(this->patch);
 
-    std::lock_guard<std::mutex> lock(cipher_base_mtx);
+    std::lock_guard<std::mutex> lock(cipher_patch_mtx);
 
     CipherBase::s_InstanceVec.erase(
         std::find(

@@ -173,8 +173,6 @@ int main() {
     do {
         sleep(1);
     } while (!Canvas::isLibLoaded(Canvas::libName));
-    auto elfScanner = ElfScanner::createWithPath(Canvas::libName);
-    Canvas::libBase = elfScanner.baseSegment().startAddress;
     shadowhook_init(SHADOWHOOK_MODE_UNIQUE, false);
     (new CipherHook)->set_Hook((std::uintptr_t)ImGuiEndHook)
     ->set_Callback((std::uintptr_t)&ImGuiEnd)
@@ -201,19 +199,23 @@ Java_git_artdeell_skymodloader_MainActivity_settle(
     Canvas::gameType = _gameType;
     Canvas::configsPath = (*env).GetStringUTFChars(_configDir, NULL);
     Canvas::aAssetManager = AAssetManager_fromJava(env, _gameAssets);
+
+    Canvas::libElfScanner = ElfScanner::createWithPath(Canvas::libName);
+    Canvas::libBase = Canvas::libElfScanner.baseSegment().startAddress;
 }
 
 
 typedef void (*func)();
-PRIVATE_API void *UserThread(void *Ulib){
-    Canvas::UserLib *pUserLib = (Canvas::UserLib *)Ulib;
+PRIVATE_API void *UserThread(Canvas::UserLib *pUserLib){
+    // Canvas::UserLib *pUserLib = (Canvas::UserLib *)Ulib;
     func (*Start)() = (func(*)())pUserLib->Start;
     pUserLib->Draw = (void (*)(bool *))Start();
-    if (!pUserLib->Name.empty() && pUserLib->Draw){
+    if (!pUserLib->Name.empty() && pUserLib->Draw && pUserLib->DisplaysUI) {
         Canvas::pushUserLib(*pUserLib);
     }
     delete pUserLib;
-    pthread_exit(nullptr);
+    // pthread_exit(nullptr);
+    return nullptr;
 }
 
 PRIVATE_API void crash(JNIEnv *env, char* crashReason) {
@@ -253,6 +255,7 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
     }
 
     Canvas::UserLib* pUserLib = new Canvas::UserLib;
+    pUserLib->DisplaysUI = _isDraw;
     pUserLib->UISelfManaged = _selfManagedUI;
     pUserLib->Name = env->GetStringUTFChars(_displayName, 0);
     pUserLib->Author = env->GetStringUTFChars(_author, 0);
@@ -263,8 +266,12 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
     func (*InitLate)() = (func (*)()) dlsym( dl_entry, "InitLate");
     pUserLib->InitLate = (void (*)(void))InitLate;
 
-    pthread_t pid;
-    pthread_create(&pid, nullptr, UserThread, (void *)pUserLib);
+    // pthread_t pid;
+    // pthread_create(&pid, nullptr, UserThread, (void *)pUserLib);
+
+    // Do NOT run in a separate thread.
+    // Initialize mods BEFORE sky initializes bootloader 
+    UserThread(pUserLib);
 }
 
 extern "C"

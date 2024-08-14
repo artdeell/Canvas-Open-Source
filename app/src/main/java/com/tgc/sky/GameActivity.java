@@ -12,7 +12,6 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.input.InputManager;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -43,7 +42,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.tgc.sky.io.AudioDeviceType;
 import com.tgc.sky.ui.panels.BasePanel;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Timer;
