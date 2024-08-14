@@ -11,6 +11,7 @@ namespace Canvas {
     struct UserLib {
         bool UIEnabled = false;
         bool UISelfManaged;
+        bool DisplaysUI;
         std::string Name;
         std::string Author;
         std::string Description;
@@ -32,12 +33,12 @@ namespace Canvas {
     extern DeviceInfo deviceInfo;
     extern const char* gameHost;
 
-
     extern const char* libName;
     extern std::uintptr_t libBase;
+    extern KittyScanner::ElfScanner libElfScanner;
 
     extern std::vector<UserLib> userLibs;
-    extern void pushUserLib(UserLib _userLib);
+    extern void pushUserLib(UserLib& _userLib);
 
     extern AAssetManager *aAssetManager;
     extern bool dev;

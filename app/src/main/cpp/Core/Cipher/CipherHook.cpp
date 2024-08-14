@@ -7,7 +7,9 @@
 #include "../include/misc/Logger.h"
 #include <shadowhook.h>
 
-extern std::mutex cipher_base_mtx;
+#include "../../include/misc/visibility.h"
+
+PRIVATE_API std::recursive_mutex cipher_hook_mtx;
 
 CipherHook::CipherHook()
         : p_Hook(0),
@@ -45,7 +47,7 @@ CipherHook* CipherHook::Fire() {
         return this;
     }
 
-    std::lock_guard<std::mutex> lock(cipher_base_mtx);
+    std::lock_guard<std::recursive_mutex> lock(cipher_hook_mtx);
 
     if (!this->get_Lock()) {
         for (auto& instance : CipherBase::s_InstanceVec) {
@@ -87,7 +89,7 @@ void CipherHook::m_Restore() {
         return;
     }
 
-    std::lock_guard<std::mutex> lock(cipher_base_mtx);
+    std::lock_guard<std::recursive_mutex> lock(cipher_hook_mtx);
 
     shadowhook_unhook(this->stub);
     this->stub = nullptr;

@@ -114,9 +114,14 @@ std::uintptr_t CipherUtils::CipherScan(
         const std::uintptr_t& _start,
         const char* _libName
 ) {
-    const char* libName = (_libName != nullptr  && strlen(_libName) != 0) ? _libName : Canvas::libName;
-    const KittyScanner::ElfScanner elfScanner = KittyScanner::ElfScanner::createWithPath(libName);
+    const char* libName = (_libName != nullptr && strlen(_libName) != 0) ? _libName : Canvas::libName;
+    const KittyScanner::ElfScanner elfScanner = (strcmp(libName, Canvas::libName) ?
+        KittyScanner::ElfScanner::createWithPath(libName) :
+        Canvas::libElfScanner
+    );
+
     if (!elfScanner.isValid()) {
+        LOGE("!elfScanner.isValid()");
         return 0;
     }
 

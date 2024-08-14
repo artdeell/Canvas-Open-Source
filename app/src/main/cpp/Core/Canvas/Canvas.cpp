@@ -10,9 +10,10 @@ namespace Canvas {
     PRIVATE_API const char* gameHost;
     PRIVATE_API const char* libName;
     PRIVATE_API std::uintptr_t libBase;
+    PRIVATE_API KittyScanner::ElfScanner libElfScanner;
 
     PRIVATE_API std::vector<UserLib> userLibs;
-    PRIVATE_API void pushUserLib(UserLib _userLib) {
+    PRIVATE_API void pushUserLib(UserLib& _userLib) {
         Canvas::userLibs.push_back(_userLib);
     }
 
