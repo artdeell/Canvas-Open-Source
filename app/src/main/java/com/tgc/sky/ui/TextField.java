@@ -53,21 +53,6 @@ public class TextField {
         this.m_activity = gameActivity;
         this.m_systemUI = systemUI_android;
         AppCompatEditText appCompatEditText = new AppCompatEditText(this.m_activity) {
-            @Override // android.widget.TextView, android.view.View
-            protected void onFocusChanged(boolean z, int i, Rect rect) {
-                super.onFocusChanged(z, i, rect);
-                TextField.this.m_activity.notifyEditTextFocus(z);
-            }
-
-            @Override // android.widget.TextView, android.view.View
-            public boolean onKeyPreIme(int i, KeyEvent keyEvent) {
-                if (keyEvent.getKeyCode() == 4) {
-                    TextField.this.hideTextField();
-                    return true;
-                }
-                return super.dispatchKeyEvent(keyEvent);
-            }
-
             @Override // android.widget.TextView
             protected void onSelectionChanged(int i, int i2) {
                 super.onSelectionChanged(i, i2);

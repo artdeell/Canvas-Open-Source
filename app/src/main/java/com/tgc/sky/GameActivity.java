@@ -332,28 +332,6 @@ public class GameActivity extends TGCNativeActivity {
     public void onBackPressed() {
         onBackPressedNative();
     }
-    public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-        try {
-            int max = Integer.max(windowInsets.getStableInsetTop(), windowInsets.getStableInsetBottom());
-            if (Build.VERSION.SDK_INT >= 28) {
-                try {
-                    if (windowInsets.getDisplayCutout() != null) {
-                        max = Integer.max(max, Integer.max(windowInsets.getDisplayCutout().getSafeInsetLeft(), windowInsets.getDisplayCutout().getSafeInsetRight()));
-                    }
-                } catch (NoSuchMethodError unused) {
-                }
-            }
-            this.mSafeAreaInsets.left = max;
-            this.mSafeAreaInsets.top = 0;
-            this.mSafeAreaInsets.right = max;
-            this.mSafeAreaInsets.bottom = 0;
-            float transformWidthToProgram = transformWidthToProgram(max);
-            onSafeAreaInsetsChanged(new float[]{transformWidthToProgram, 0.0f, transformWidthToProgram, 0.0f});
-        } catch (Exception | NoSuchMethodError unused2) {
-        }
-        handleKeyboardInsets(view, windowInsets);
-        return view.onApplyWindowInsets(windowInsets);
-    }
 
 
     public void AddOnActivityIntentListener(OnActivityIntentListener onActivityIntentListener) {
@@ -567,66 +545,6 @@ public class GameActivity extends TGCNativeActivity {
             Intent intent = new Intent("KeyboardWillShow");
             intent.putExtra("KeyboardHeight", height);
             instance.sendBroadcast(intent);
-        }
-    }
-
-    public void notifyEditTextFocus(boolean z) {
-        this.m_editTextFocused = z;
-        m769lambda$pollKeyboardHeight$0$comtgcskyGameActivity();
-    }
-
-    /* JADX INFO: Access modifiers changed from: private */
-    /* renamed from: pollKeyboardHeight */
-    public void m769lambda$pollKeyboardHeight$0$comtgcskyGameActivity() {
-        int identifier;
-        if (Build.VERSION.SDK_INT < 30) {
-            try {
-                int intValue = ((Integer) InputMethodManager.class.getMethod("getInputMethodWindowVisibleHeight", new Class[0]).invoke((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE), new Object[0])).intValue();
-                if (this.m_editTextFocused && intValue == 0) {
-                    intValue = com.tgc.sky.ui.Utils.dp2px(30.0f);
-                } else if (this.m_nativeWidth < this.m_nativeHeight && (identifier = getResources().getIdentifier("navigation_bar_height", "dimen", "android")) > 0) {
-                    intValue += getResources().getDimensionPixelSize(identifier);
-                }
-                toggleKeyboard(this.m_editTextFocused, intValue);
-                if (this.m_editTextFocused) {
-                    getBrigeView().postDelayed(new Runnable() { // from class: com.tgc.sky.GameActivity$$ExternalSyntheticLambda0
-                        @Override // java.lang.Runnable
-                        public final void run() {
-                            GameActivity.this.m769lambda$pollKeyboardHeight$0$comtgcskyGameActivity();
-                        }
-                    }, 100L);
-                }
-            } catch (Exception unused) {
-            }
-        }
-    }
-
-
-    protected void handleKeyboardInsets(View view, WindowInsets windowInsets) {
-        if (Build.VERSION.SDK_INT >= 30) {
-            boolean isVisible = windowInsets.isVisible(WindowInsets.Type.ime());
-            Insets insets = windowInsets.getInsets(WindowInsets.Type.ime());
-            toggleKeyboard(isVisible, insets.bottom - insets.top);
-        }
-    }
-
-    protected void toggleKeyboard(boolean z, int i) {
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        if (!z) {
-            if (this.m_isKeyboardShowing) {
-                this.m_isKeyboardShowing = false;
-                this.m_keyboardHeight = 0;
-                onHideKeyboard();
-                localBroadcastManager.sendBroadcast(new Intent("KeyboardWillHide"));
-            }
-        } else if (this.m_isKeyboardShowing && i == this.m_keyboardHeight) {
-        } else {
-            this.m_isKeyboardShowing = true;
-            this.m_keyboardHeight = i;
-            onShowKeyboard(i);
-            Intent intent = new Intent("KeyboardWillShow");
-            intent.putExtra("KeyboardHeight", i);
-            localBroadcastManager.sendBroadcast(intent);
         }
     }
 
