@@ -97,6 +97,12 @@ public class MainActivity extends Activity {
                 BuildConfig.SKY_STAGE_NAME = "Test";
             }
 
+            if(sharedPreferences.getBoolean("custom_server", false)){
+
+                BuildConfig.SKY_SERVER_HOSTNAME = sharedPreferences.getString("server_host", BuildConfig.SKY_SERVER_HOSTNAME);
+                MainActivity.customServer(BuildConfig.SKY_SERVER_HOSTNAME);
+            }
+
             new ElfRefcountLoader(nativeLibraryDir + ":/system/lib64", modsDir).load();
             BuildConfig.APPLICATION_ID = SKY_PACKAGE_NAME;
             startActivity(new Intent(this, GameActivity.class));
@@ -152,7 +158,7 @@ public class MainActivity extends Activity {
     public static native void settle(int _gameVersion, int _gameType, String _hostName, String _configDir, AssetManager _gameAssets);
     public static native void setDeviceInfoNative(float _xdpi, float _ydpi, float _density, String _deviceName, String _manufacturer, String _model);
     public static native void onKeyboardCompleteNative(String message);
-
+    public static native void customServer(String url);
     public static native void lateInitUserLibs();
 
 }

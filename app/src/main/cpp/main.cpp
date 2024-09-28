@@ -320,3 +320,11 @@ Java_git_artdeell_skymodloader_MainActivity_lateInitUserLibs(JNIEnv *env, jclass
     });
     lateInitThread.detach();
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_git_artdeell_skymodloader_MainActivity_customServer(JNIEnv *env, jclass clazz, jstring url) {
+    //?? ?? ?? 52 E2 03 1F AA ?? ?? ?? 94 ?? ?? ?? F9 ?? ?? ?? 52
+    uintptr_t ssl = (new CipherUtils())->CipherScan("\x00\x00\x00\x52\xE2\x03\x1F\xAA\x00\x00\x00\x94\x00\x00\x00\xF9\x00\x00\x00\x52", "???xxxxx???x???x???x");
+    LOGD("scanner %p", ssl);
+    (new CipherPatch())->set_Opcode("01008052")->set_Address(ssl, false)->Fire();
+}

@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +22,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textfield.TextInputEditText;
+import android.view.inputmethod.EditorInfo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -202,6 +206,16 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
         sharedPreferences.edit().putBoolean("skip_updates", flag).apply();
     }
 
+    public void setCustomServer(boolean flag){
+        sharedPreferences.edit().putBoolean("custom_server", flag).apply();
+    }
+
+    public void setServerUrl(String url) {
+
+        sharedPreferences.edit().putString("server_host", url).apply();
+
+    }
+
     public void onAddMod(View v) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
@@ -368,6 +382,7 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
         }
     }
 
+    @SuppressLint("SetTextI18n")
     public void onExtraSettingsDialog(View view) {
         DialogY dialogY = DialogY.createFromActivity(this);
         dialogY.positiveButton.setVisibility(View.GONE);
@@ -377,21 +392,53 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
         dialogY.negativeButton.setOnClickListener((v)->dialogY.dialog.dismiss());
 
         SwitchMaterial bypassUpdate = new SwitchMaterial(this);
+        SwitchMaterial enableServer = new SwitchMaterial(this);
+        TextInputEditText serverSelector = new TextInputEditText(this);
+
+
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
 
+
+
         int marginPx = dpToPixels(10);
         layoutParams.setMargins(marginPx, 0, 0, marginPx);
+
 
         bypassUpdate.setTextSize(15);
         bypassUpdate.setLayoutParams(layoutParams);
         bypassUpdate.setText(R.string.switch_skip_updates);
         bypassUpdate.setChecked(sharedPreferences.getBoolean("skip_updates", false));
-
         bypassUpdate.setOnCheckedChangeListener((buttonView, isChecked) -> setSkipUpdates(isChecked));
+
+        enableServer.setTextSize(15);
+        enableServer.setLayoutParams(layoutParams);
+        enableServer.setText(R.string.switch_custom_server);
+        enableServer.setChecked(sharedPreferences.getBoolean("custom_server", false));
+        enableServer.setOnCheckedChangeListener((buttonView, isChecked) -> setCustomServer(isChecked));
+
+        serverSelector.setText(sharedPreferences.getString("server_host", "beyer-ka.de"));
+        serverSelector.setSingleLine(true);
+        serverSelector.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        serverSelector.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                String url = s.toString();
+                setServerUrl(url);
+            }
+        });
+
+
+
         dialogY.container.addView(bypassUpdate, layoutParams);
+        dialogY.container.addView(enableServer, layoutParams);
+        dialogY.container.addView(serverSelector, layoutParams);
         dialogY.dialog.show();
     }
 
