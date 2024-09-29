@@ -12,7 +12,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.tgc.sky.BuildConfig;
@@ -124,10 +128,44 @@ public class MainActivity extends Activity {
         th.printStackTrace(pw);
         String stackTrace = sw.toString();
         pw.close();
+
+        AlertDialog dialog = getAlertDialog(stackTrace);
+
+        // Get the neutral button and override its behavior (to ensure it doesn't dismiss)
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
+            copyToClipboard(stackTrace);
+        });
+    }
+
+    private @NonNull AlertDialog getAlertDialog(String stackTrace) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(stackTrace);
+
+        // Existing OK button to dismiss the dialog
         builder.setPositiveButton(android.R.string.ok, (d, w) -> finish());
-        builder.show();
+
+        // Show the dialog without setting neutral button here, so it doesn't close by default
+        AlertDialog dialog = builder.create();
+
+        // Add the "Copy" button manually after creating the dialog
+        dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Copy", (d, which) -> {
+            copyToClipboard(stackTrace);
+        });
+
+        // Show the dialog
+        dialog.show();
+        return dialog;
+    }
+
+    private void copyToClipboard(String stackTrace) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Stack Trace", stackTrace);
+        clipboard.setPrimaryClip(clip);
+
+        // Only show the toast for versions below API level 33 (Android 13)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Toast.makeText(this, "Stack trace copied to clipboard", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void alertDialog(String th) {
