@@ -8,12 +8,15 @@ import git.artdeell.skymodloader.auth.Huawei;
 import git.artdeell.skymodloader.auth.Nintendo;
 import git.artdeell.skymodloader.auth.PSN;
 import git.artdeell.skymodloader.auth.Steam;
+import git.artdeell.skymodloader.auth.Twitch;
+
 import com.tgc.sky.accounts.SystemAccountClientInfo;
 import com.tgc.sky.accounts.SystemAccountClientRequestState;
 import com.tgc.sky.accounts.SystemAccountInterface;
 import com.tgc.sky.accounts.SystemAccountServerInfo;
 import com.tgc.sky.accounts.SystemAccountServerState;
 import com.tgc.sky.accounts.SystemAccountType;
+
 
 public class SystemAccounts_android implements SystemAccountInterface.UpdateClientInfoCallback {
     private static volatile SystemAccounts_android sInstance;
@@ -26,6 +29,8 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
     private Nintendo m_systemAccountNintendo;
     private PSN m_systemAccountPlaystation;
     private Steam m_systemAccountSteam;
+    private Twitch m_systemAccountTwitch;
+
 
     public native void OnSystemAccount(SystemAccountClientInfo systemAccountClientInfo);
 
@@ -47,6 +52,10 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
         m_systemAccountPlaystation.Initialize(gameActivity, this);
         Steam steam = this.m_systemAccountSteam = new Steam();
         steam.Initialize(gameActivity, this);
+        Twitch twitch = new Twitch();
+        this.m_systemAccountTwitch = twitch;
+        twitch.Initialize(gameActivity, this);
+
         sInstance = this;
     }
 
@@ -77,7 +86,10 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
             INTS[SystemAccountType.kSystemAccountType_Huawei.ordinal()] = 6;
             INTS[SystemAccountType.kSystemAccountType_PSN.ordinal()] = 7;
             INTS[SystemAccountType.kSystemAccountType_Steam.ordinal()] = 8;
-            INTS[SystemAccountType.kSystemAccountType_Local.ordinal()] = 9;
+            INTS[SystemAccountType.kSystemAccountType_Twitch.ordinal()] = 9;
+            INTS[SystemAccountType.kSystemAccountType_Local.ordinal()] = 10;
+            INTS[SystemAccountType.kSystemAccountType_AppleGameCenterVN.ordinal()] = 11;
+            INTS[SystemAccountType.kSystemAccountType_AppleVN.ordinal()] = 12;
         }
     }
 
@@ -99,6 +111,8 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
                 return this.m_systemAccountPlaystation;
             case 8:
                 return this.m_systemAccountSteam;
+            case 9:
+                return this.m_systemAccountTwitch;
             default:
                 return null;
         }
@@ -170,7 +184,13 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
             case 8:
                 return "Steam";
             case 9:
+                return "Twitch";
+            case 10:
                 return "Local";
+            case 11:
+                return "AppleGameCenterVN";
+            case 12:
+                return "AppleVN";
             default:
                 return null;
         }

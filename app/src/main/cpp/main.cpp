@@ -270,7 +270,7 @@ Java_git_artdeell_skymodloader_LibrarySelectorListener_onModLibrary(
     // pthread_create(&pid, nullptr, UserThread, (void *)pUserLib);
 
     // Do NOT run in a separate thread.
-    // Initialize mods BEFORE sky initializes bootloader 
+    // Initialize mods BEFORE sky initializes bootloader
     UserThread(pUserLib);
 }
 
@@ -326,5 +326,5 @@ Java_git_artdeell_skymodloader_MainActivity_customServer(JNIEnv *env, jclass cla
     //?? ?? ?? 52 E2 03 1F AA ?? ?? ?? 94 ?? ?? ?? F9 ?? ?? ?? 52
     uintptr_t ssl = (new CipherUtils())->CipherScan("\x00\x00\x00\x52\xE2\x03\x1F\xAA\x00\x00\x00\x94\x00\x00\x00\xF9\x00\x00\x00\x52", "???xxxxx???x???x???x");
     LOGD("scanner %p", ssl);
-    (new CipherPatch())->set_Opcode("01008052")->set_Address(ssl, false)->Fire();
+   // (new CipherPatch())->set_Opcode("01008052")->set_Address(ssl, false)->Fire();
 }

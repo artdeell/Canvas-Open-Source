@@ -11,6 +11,7 @@ import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -192,6 +193,9 @@ public class GameActivity extends TGCNativeActivity {
         super.attachBaseContext(context);
     }
 
+    public native void onDisplayChangedNative();
+
+
     private boolean isTextRenderingBrokenForDevice() {
         if (Build.VERSION.SDK_INT == 31 || Build.VERSION.SDK_INT == 32) {
             String[] strArr = {"OPD2102", "X21N2", "PFUM10", "TB128FU", "RMX3478", "RMX3471", "RMX3472", "2201116SC", "22101317C"};
@@ -280,7 +284,32 @@ public class GameActivity extends TGCNativeActivity {
                 return windowInsets;
             }
         });
+        if (Build.VERSION.SDK_INT >= 30) {
+            //setupDisplayListener();
+        }
+
     }
+
+    private void setupDisplayListener() {
+        final DisplayManager displayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+        displayManager.registerDisplayListener(new DisplayManager.DisplayListener() { // from class: com.tgc.sky.GameActivity.1
+            @Override // android.hardware.display.DisplayManager.DisplayListener
+            public void onDisplayAdded(int i) {
+            }
+
+            @Override // android.hardware.display.DisplayManager.DisplayListener
+            public void onDisplayRemoved(int i) {
+            }
+
+            @Override // android.hardware.display.DisplayManager.DisplayListener
+            public void onDisplayChanged(int i) {
+                if (displayManager.getDisplay(i) != null) {
+                    GameActivity.this.onDisplayChangedNative();
+                }
+            }
+        }, null);
+    }
+
     public String getDeviceBrand() {
         return Build.BRAND;
     }
@@ -877,6 +906,10 @@ public class GameActivity extends TGCNativeActivity {
 
     public float getDesiredMaxLum() {
         return getWindowManager().getDefaultDisplay().getHdrCapabilities().getDesiredMaxLuminance();
+    }
+
+    public float getDisplayRefreshRate() {
+        return getWindowManager().getDefaultDisplay().getRefreshRate();
     }
 
     public int getPhysicalMemorySize() {
