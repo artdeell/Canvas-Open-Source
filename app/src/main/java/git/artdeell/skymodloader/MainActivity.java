@@ -34,7 +34,6 @@ import java.util.Optional;
 import dalvik.system.DexClassLoader;
 import git.artdeell.skymodloader.elfmod.ElfRefcountLoader;
 import git.artdeell.skymodloader.iconloader.IconLoader;
-import git.artdeell.skymodloader.net.StarwatchBlocker;
 import git.artdeell.skymodloader.server.ServerManager;
 
 public class MainActivity extends Activity {
@@ -198,8 +197,12 @@ public class MainActivity extends Activity {
             ElfLoader loader = new ElfLoader(elfLibPath);
             loader.loadLib("libBootloader.so");
             System.loadLibrary("ciphered");
-            nativeSetStarwatchAllowed(!sharedPreferences.getBoolean(
-                StarwatchBlocker.PREF_BLOCK_STARWATCH, false));
+            if (getSharedPreferences("daybreaker_configs", MODE_PRIVATE).getBoolean("enable_daybreaker", false)) {
+                try {
+                    System.loadLibrary("DayBreaker");
+                } catch (Throwable ignored) {
+                }
+            }
 
             String buildKey = getSkyBuildAccessKey();
             if (buildKey != null) {
@@ -535,7 +538,6 @@ public class MainActivity extends Activity {
     public static native void lateInitUserLibs();
     public static native void getSysetemUI(Object systemUI);
     private static native void nativeSetSkyBuildKey(String key);
-    private static native void nativeSetStarwatchAllowed(boolean allowed);
 
     // Video stats pushed down from SystemIO_android.UpdateMediaPlayer, which
     // already runs per frame on the thread that owns the ExoPlayer instance.

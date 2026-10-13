@@ -23,7 +23,6 @@
 #include "fileselector/fileselector.h"
 #include <android/asset_manager_jni.h>
 #include "shadowhook.h"
-#include "Core/starwatch/starwatch_block.h"
 
 extern "C" {
 #include "Core/ceserver/ceserver.h"
@@ -275,7 +274,6 @@ __unused __attribute__((constructor))
 int main() {
     LOGI("Starting Sky ModMenu.. Build time: " __DATE__ " " __TIME__);
     shadowhook_init(SHADOWHOOK_MODE_UNIQUE, false);
-    starwatch_block_install();
     Canvas::libName = "libBootloader.so";
     do {
         sleep(1);
@@ -471,15 +469,6 @@ Java_git_artdeell_skymodloader_MainActivity_nativeSetSkyBuildKey(
     }
 }
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_git_artdeell_skymodloader_MainActivity_nativeSetStarwatchAllowed(
-        JNIEnv *env,
-        jclass clazz,
-        jboolean allowed
-) {
-    starwatch_block_set_allowed(allowed == JNI_TRUE);
-}
 
 // ---------------------------------------------------------------------------
 // Host value channel for user libs.

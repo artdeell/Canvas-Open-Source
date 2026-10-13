@@ -111,7 +111,14 @@
     <string name="section_developer_options">Developer Options</string>
     <string name="cheat_engine_server">Cheat Engine Server</string>
     <string name="custom_server">Custom server</string>
-    <string name="block_starwatch">Block Starwatch</string>
+    <string name="enable_network_shield">Privacy Shield</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">This experimental protection layer is designed to filter background telemetry, isolate tracking endpoints, and reduce the risk of action freezes.\n\nWhile it should help make gameplay safer, no protection can be 100% guaranteed. A game restart is recommended for changes to take full effect.</string>
+    <string name="regenerate_device_key">Regenerate Device Key</string>
+    <string name="regenerate_device_key_desc">Generate a fresh cryptographic identity for this device</string>
+    <string name="dialog_regenerate_key_title">Regenerate Device Key</string>
+    <string name="dialog_regenerate_key_message">Are you sure you want to regenerate your device key? A new key pair will be created upon restart, so previous restrictions won\'t affect new accounts.</string>
+    <string name="toast_device_key_regenerated">Device key regenerated successfully. Please restart the app.</string>
     <string name="server_url">Server URL</string>
     <string name="server_url_hint" translatable="false">insert-url</string>
     <string name="enable_logcat_monitoring">Enable Logcat Monitoring</string>
@@ -191,4 +198,26 @@
     <string name="toast_export_failed">Failed to export backup</string>
     <string name="toast_import_success">Backup restored successfully! Restarting…</string>
     <string name="toast_import_failed">Failed to restore backup</string>
+    <string name="manage_instances">Manage</string>
+    <string name="instance_manager_title">Instance Manager</string>
+    <string name="instance_manager_desc">Manage isolated game profiles. Each instance has its own cryptographic identity and independent account.</string>
+    <string name="new_instance">+ New Instance</string>
+    <string name="instance_active">Active</string>
+    <string name="instance_activate">Select</string>
+    <string name="instance_regenerate_key">Regenerate Key</string>
+    <string name="instance_rename">Rename</string>
+    <string name="instance_delete">Delete</string>
+    <string name="instance_key_prefix">Key: %s</string>
+    <string name="toast_instance_switched">Switched to instance: %s</string>
+    <string name="toast_instance_created">Created new instance: %s</string>
+    <string name="toast_instance_key_regenerated">Key regenerated for %s</string>
+    <string name="toast_instance_deleted">Instance deleted</string>
+    <string name="dialog_new_instance_title">New Instance</string>
+    <string name="dialog_new_instance_hint">Instance name (e.g. Slot 2, Alt 1)</string>
+    <string name="dialog_rename_instance_title">Rename Instance</string>
+    <string name="btn_create">Create</string>
+    <string name="btn_save">Save</string>
+    <string name="instance_name_prefix">Instance: %s</string>
+    <string name="dialog_delete_instance_message">Permanently delete %s? All data in this instance will be removed.</string>
+    <string name="dialog_regenerate_instance_key_message">Regenerate cryptographic key for %s? The instance hardware fingerprint will change.</string>
 </resources>

@@ -22,7 +22,8 @@ public class DataBackupManager {
         "PrivateAccounts",
         "OfficialAccount",
         "config",
-        "configs"
+        "configs",
+        "Instances"
     };
 
     private static final String[] BACKUP_FILES = {
@@ -43,6 +44,11 @@ public class DataBackupManager {
     public static boolean exportBackupStream(Context context, OutputStream out) {
         File filesDir = context.getFilesDir();
         if (filesDir == null || !filesDir.exists()) return false;
+
+        try {
+            InstanceManager.saveActiveToCurrentInstance(context);
+        } catch (Throwable ignored) {
+        }
 
         try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(out))) {
             for (String dirName : BACKUP_DIRS) {
@@ -126,6 +132,10 @@ public class DataBackupManager {
                     }
                 }
                 zis.closeEntry();
+            }
+            try {
+                InstanceManager.init(context);
+            } catch (Throwable ignored) {
             }
             return true;
         } catch (Exception e) {

@@ -108,7 +108,7 @@
     <string name="section_developer_options">Developer Options</string>
     <string name="cheat_engine_server">Cheat Engine Server</string>
     <string name="custom_server">Custom server</string>
-    <string name="block_starwatch">I-block ang Starwatch</string>
+        <string name="enable_network_shield">Privacy Shield</string>
     <string name="server_url">Server URL</string>
     <string name="server_url_hint" translatable="false">insert-url</string>
     <string name="enable_logcat_monitoring">Enable Logcat Monitoring</string>
@@ -169,4 +169,33 @@
     <string name="toast_export_failed">Nabigong i-export ang backup</string>
     <string name="toast_import_success">Matagumpay na na-restore ang backup! Nagre-restart…</string>
     <string name="toast_import_failed">Nabigong i-restore ang backup</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">Ang proteksyong ito ay idinisenyo upang salain ang background telemetry at bawasan ang panganib ng mga freeze sa aksyon.\n\nInirerekomenda ang pag-restart ng laro.</string>
+    <string name="regenerate_device_key">Muling Gumawa ng Device Key</string>
+    <string name="regenerate_device_key_desc">Gumawa ng bagong cryptographic identity para sa aparatong ito</string>
+    <string name="dialog_regenerate_key_title">Muling Gumawa ng Device Key</string>
+    <string name="dialog_regenerate_key_message">Muling gumawa ng device key? Isang bagong key pair ang gagawin sa pag-restart, kaya hindi maaapektuhan ng mga dating paghihigpit ang mga bagong account.</string>
+    <string name="toast_device_key_regenerated">Matagumpay na nagawa ang device key. Pakisubukang i-restart ang app.</string>
+    <string name="manage_instances">Pamahalaan</string>
+    <string name="instance_manager_title">Tagapamahala ng Instance</string>
+    <string name="instance_manager_desc">Pamahalaan ang mga nakahiwalay na profile ng laro. Ang bawat instance ay may sariling cryptographic identity at sariling account.</string>
+    <string name="new_instance">+ Bagong Instance</string>
+    <string name="instance_active">Aktibo</string>
+    <string name="instance_activate">Piliin</string>
+    <string name="instance_regenerate_key">Gumawa Ulit ng Key</string>
+    <string name="instance_rename">Pangalanan Ulit</string>
+    <string name="instance_delete">Burahin</string>
+    <string name="instance_key_prefix">Key: %s</string>
+    <string name="toast_instance_switched">Lumipat sa instance: %s</string>
+    <string name="toast_instance_created">Nilikha ang bagong instance: %s</string>
+    <string name="toast_instance_key_regenerated">Muling ginawa ang key para sa %s</string>
+    <string name="toast_instance_deleted">Nabura ang instance</string>
+    <string name="dialog_new_instance_title">Bagong Instance</string>
+    <string name="dialog_new_instance_hint">Pangalan ng instance (hal. Slot 2, Alt 1)</string>
+    <string name="dialog_rename_instance_title">Pangalanan Ulit ang Instance</string>
+    <string name="btn_create">Lumikha</string>
+    <string name="btn_save">I-save</string>
+    <string name="instance_name_prefix">Instance: %s</string>
+    <string name="dialog_delete_instance_message">Permanenteng tanggalin ang %s? Lahat ng data sa instance na ito ay aalisin.</string>
+    <string name="dialog_regenerate_instance_key_message">Muling gumawa ng cryptographic key para sa %s? Magbabago ang hardware fingerprint ng instance.</string>
 </resources>

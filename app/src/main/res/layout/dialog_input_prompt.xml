@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/buttons"
+    android:padding="22dp">
+
+    <TextView
+        android:id="@+id/dialog_prompt_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:textColor="@color/text"
+        android:layout_marginBottom="6dp" />
+
+    <TextView
+        android:id="@+id/dialog_prompt_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:alpha="0.6"
+        android:textColor="@color/text"
+        android:layout_marginBottom="14dp"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/dialog_prompt_input"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="@drawable/section_background"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:textColor="@color/text"
+        android:textColorHint="#66FFFFFF"
+        android:textSize="14sp"
+        android:singleLine="true"
+        android:layout_marginBottom="20dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/dialog_prompt_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:textSize="13sp"
+            android:textColor="@color/text"
+            android:alpha="0.55"
+            android:padding="8dp"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <Button
+            android:id="@+id/dialog_prompt_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:background="@drawable/buttons_3"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/text"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>

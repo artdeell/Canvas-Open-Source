@@ -8,7 +8,6 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
-import git.artdeell.skymodloader.net.StarwatchBlocker;
 
 public class SMLApplication extends Application {
     public static final String MOD_UPDATER_SERVICE_NOTIFICATION_CHANNEL = "canvas_mod_updater_service_notif_ch";
@@ -24,8 +23,6 @@ public class SMLApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        StarwatchBlocker.init(this);
-        StarwatchBlocker.install();
         Log.i("Canvas", "SMLApplication.onCreate() called");
         smlApplication = this;
 

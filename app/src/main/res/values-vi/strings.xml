@@ -108,7 +108,7 @@
     <string name="section_developer_options">Tùy chọn nhà phát triển</string>
     <string name="cheat_engine_server">Máy chủ Cheat Engine</string>
     <string name="custom_server">Máy chủ tùy chỉnh</string>
-    <string name="block_starwatch">Chặn Starwatch</string>
+        <string name="enable_network_shield">Privacy Shield</string>
     <string name="server_url">URL máy chủ</string>
     <string name="server_url_hint" translatable="false">insert-url</string>
     <string name="enable_logcat_monitoring">Bật theo dõi Logcat</string>
@@ -169,4 +169,33 @@
     <string name="toast_export_failed">Không thể xuất bản sao lưu</string>
     <string name="toast_import_success">Đã khôi phục bản sao lưu thành công! Đang khởi động lại…</string>
     <string name="toast_import_failed">Không thể khôi phục bản sao lưu</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">Lop bao ve thu nghiem nay duoc thiet ke de loc du lieu tu xa va giam nguy co bi khoa hanh dong.\n\nBan nen khoi dong lai tro choi.</string>
+    <string name="regenerate_device_key">Tao Lai Khoa Thiet Bi</string>
+    <string name="regenerate_device_key_desc">Tao danh tinh ma hoa moi cho thiet bi nay</string>
+    <string name="dialog_regenerate_key_title">Tao Lai Khoa Thiet Bi</string>
+    <string name="dialog_regenerate_key_message">Tạo lại khóa thiết bị? Một cặp khóa mới sẽ được tạo khi khởi động lại, giúp các hạn chế trước đây không ảnh hưởng đến các tài khoản mới.</string>
+    <string name="toast_device_key_regenerated">Da tao lai khoa thiet bi thanh cong. Vui long khoi dong lai ung dung.</string>
+    <string name="manage_instances">Quan ly</string>
+    <string name="instance_manager_title">Quan Ly Phien Ban</string>
+    <string name="instance_manager_desc">Quan ly cac ho so tro choi rieng biet. Moi phien ban co danh tinh ma hoa va tai khoan doc lap rieng.</string>
+    <string name="new_instance">+ Phien Ban Moi</string>
+    <string name="instance_active">Dang Dung</string>
+    <string name="instance_activate">Chon</string>
+    <string name="instance_regenerate_key">Tao Lai Khoa</string>
+    <string name="instance_rename">Doi Ten</string>
+    <string name="instance_delete">Xoa</string>
+    <string name="instance_key_prefix">Khoa: %s</string>
+    <string name="toast_instance_switched">Da chuyen sang phien ban: %s</string>
+    <string name="toast_instance_created">Da tao phien ban moi: %s</string>
+    <string name="toast_instance_key_regenerated">Da tao lai khoa cho %s</string>
+    <string name="toast_instance_deleted">Da xoa phien ban</string>
+    <string name="dialog_new_instance_title">Phien Ban Moi</string>
+    <string name="dialog_new_instance_hint">Ten phien ban (vd: Slot 2, Nick Phu)</string>
+    <string name="dialog_rename_instance_title">Doi Ten Phien Ban</string>
+    <string name="btn_create">Tạo</string>
+    <string name="btn_save">Lưu</string>
+    <string name="instance_name_prefix">Phiên bản: %s</string>
+    <string name="dialog_delete_instance_message">Xóa vĩnh viễn %s? Tất cả dữ liệu của phiên bản này sẽ bị xóa.</string>
+    <string name="dialog_regenerate_instance_key_message">Tạo lại khóa mã hóa cho %s? Dấu vân tay phần cứng của phiên bản sẽ thay đổi.</string>
 </resources>

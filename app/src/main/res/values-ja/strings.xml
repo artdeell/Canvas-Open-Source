@@ -108,7 +108,7 @@
     <string name="section_developer_options">開発者オプション</string>
     <string name="cheat_engine_server">Cheat Engine サーバー</string>
     <string name="custom_server">カスタムサーバー</string>
-    <string name="block_starwatch">Starwatchをブロック</string>
+        <string name="enable_network_shield">Privacy Shield</string>
     <string name="server_url">サーバー URL</string>
     <string name="server_url_hint" translatable="false">insert-url</string>
     <string name="enable_logcat_monitoring">Logcat モニタリングを有効化</string>
@@ -169,4 +169,33 @@
     <string name="toast_export_failed">バックアップのエクスポートに失敗しました</string>
     <string name="toast_import_success">バックアップの復元に成功しました！再起動中…</string>
     <string name="toast_import_failed">バックアップの復元に失敗しました</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">この保護層は、バックグラウンドのテレメトリをフィルタリングし、追跡エンドポイントを分離してアクション制限のリスクを軽減します。\n\n変更を適用するにはゲームの再起動をお勧めします。</string>
+    <string name="regenerate_device_key">デバイスキーを再生成</string>
+    <string name="regenerate_device_key_desc">このデバイスに新しい暗号化IDを生成します</string>
+    <string name="dialog_regenerate_key_title">デバイスキーを再生成</string>
+    <string name="dialog_regenerate_key_message">デバイスキーを再生成しますか？再起動時に新しいキーペアが作成されるため、以前の制限が新しいアカウントに影響することはありません。</string>
+    <string name="toast_device_key_regenerated">デバイスキーが正常に再生成されました。アプリを再起動してください。</string>
+    <string name="manage_instances">管理</string>
+    <string name="instance_manager_title">インスタンス管理</string>
+    <string name="instance_manager_desc">独立したゲームプロファイルを管理します。各インスタンスは独自の暗号化キーとアカウントを持ちます。</string>
+    <string name="new_instance">+ 新規インスタンス</string>
+    <string name="instance_active">有効</string>
+    <string name="instance_activate">選択</string>
+    <string name="instance_regenerate_key">キー再生成</string>
+    <string name="instance_rename">名前変更</string>
+    <string name="instance_delete">削除</string>
+    <string name="instance_key_prefix">キー: %s</string>
+    <string name="toast_instance_switched">インスタンスを切り替えました: %s</string>
+    <string name="toast_instance_created">新規インスタンスを作成しました: %s</string>
+    <string name="toast_instance_key_regenerated">%s のキーを再生成しました</string>
+    <string name="toast_instance_deleted">インスタンスを削除しました</string>
+    <string name="dialog_new_instance_title">新規インスタンス</string>
+    <string name="dialog_new_instance_hint">インスタンス名 (例: スロット2、サブ1)</string>
+    <string name="dialog_rename_instance_title">インスタンス名の変更</string>
+    <string name="btn_create">作成</string>
+    <string name="btn_save">保存</string>
+    <string name="instance_name_prefix">インスタンス: %s</string>
+    <string name="dialog_delete_instance_message">%s を完全に削除しますか？このインスタンスのすべてのデータが削除されます。</string>
+    <string name="dialog_regenerate_instance_key_message">%s の暗号化キーを再生成しますか？インスタンスのハードウェアフィンガープリントが変更されます。</string>
 </resources>

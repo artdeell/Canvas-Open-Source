@@ -108,7 +108,7 @@
     <string name="section_developer_options">Fejlesztői beállítások</string>
     <string name="cheat_engine_server">Csalómotor-kiszolgáló (cheatengine)</string>
     <string name="custom_server">Egyéni szerver</string>
-    <string name="block_starwatch">Starwatch blokkolása</string>
+        <string name="enable_network_shield">Privacy Shield</string>
     <string name="server_url">Szerver URL-címe</string>
     <string name="server_url_hint" translatable="false">insert-url</string>
     <string name="enable_logcat_monitoring">Logcat-figyelés engedélyezése</string>
@@ -169,4 +169,33 @@
     <string name="toast_export_failed">Nem sikerült exportálni a biztonsági mentést</string>
     <string name="toast_import_success">Biztonsági mentés sikeresen visszaállítva! Újraindítás…</string>
     <string name="toast_import_failed">Nem sikerült visszaállítani a biztonsági mentést</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">Ez a kiserleti vedelmi reteg kiszuri a hatterbeli telemetriat es csokkenti a muveletkorlatozasok kockazatat.\n\nJavasolt a jatek ujrainditasa.</string>
+    <string name="regenerate_device_key">Eszkozkulcs ujrageneralasa</string>
+    <string name="regenerate_device_key_desc">Uj kriptografiai azonosito letrehozasa ehhez az eszkozhoz</string>
+    <string name="dialog_regenerate_key_title">Eszkozkulcs ujrageneralasa</string>
+    <string name="dialog_regenerate_key_message">Újragenerálod az eszközkulcsot? Újraindításkor egy új kulcspár jön létre, így a korábbi korlátozások nem érintik az új fiókokat.</string>
+    <string name="toast_device_key_regenerated">Eszkozkulcs sikeresen ujrageneralva. Kerjuk, inditsd ujra az alkalmazast.</string>
+    <string name="manage_instances">Kezeles</string>
+    <string name="instance_manager_title">Profilkezelo</string>
+    <string name="instance_manager_desc">Elkulonitett jatekprofilok kezelese. Minden profil sajat kriptografiai kulccsal es fuggetlen fiokkal rendelkezik.</string>
+    <string name="new_instance">+ Uj Profil</string>
+    <string name="instance_active">Aktiv</string>
+    <string name="instance_activate">Kivalasztas</string>
+    <string name="instance_regenerate_key">Kulcs ujrageneralasa</string>
+    <string name="instance_rename">Atnevezes</string>
+    <string name="instance_delete">Torles</string>
+    <string name="instance_key_prefix">Kulcs: %s</string>
+    <string name="toast_instance_switched">Profil valtva: %s</string>
+    <string name="toast_instance_created">Uj profil letrehozva: %s</string>
+    <string name="toast_instance_key_regenerated">Kulcs ujrageneralva ehhez: %s</string>
+    <string name="toast_instance_deleted">Profil torolve</string>
+    <string name="dialog_new_instance_title">Uj Profil</string>
+    <string name="dialog_new_instance_hint">Profil neve (pl. 2. fiok)</string>
+    <string name="dialog_rename_instance_title">Profil atnevezese</string>
+    <string name="btn_create">Létrehozás</string>
+    <string name="btn_save">Mentés</string>
+    <string name="instance_name_prefix">Profil: %s</string>
+    <string name="dialog_delete_instance_message">Véglegesen törölni szeretnéd a következőt: %s? A profil összes adata el lesz távolítva.</string>
+    <string name="dialog_regenerate_instance_key_message">Újragenerálod a kriptográfiai kulcsot a következőhöz: %s? A profil hardveres ujjlenyomata megváltozik.</string>
 </resources>

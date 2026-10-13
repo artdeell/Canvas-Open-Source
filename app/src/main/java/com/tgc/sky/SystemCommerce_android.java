@@ -39,7 +39,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Locale;
 
-import git.artdeell.skymodloader.net.StarwatchBlocker;
 import git.artdeell.skymodloader.server.ServerManager;
 
 public class SystemCommerce_android
@@ -356,8 +355,6 @@ public class SystemCommerce_android
 
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                WebResourceResponse blocked = StarwatchBlocker.interceptWebViewRequest(request);
-                if (blocked != null) return blocked;
                 return super.shouldInterceptRequest(view, request);
             }
         });

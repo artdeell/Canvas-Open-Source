@@ -196,7 +196,7 @@ public class DeviceKey {
         }
     }
 
-    private static String GetPublicKeyAsBase64(PublicKey publicKey) {
+    public static String GetPublicKeyAsBase64(PublicKey publicKey) {
         byte[] bArr = new byte[33];
         ECPublicKey eCPublicKey = (ECPublicKey) publicKey;
         byte[] byteArray = eCPublicKey.getW().getAffineX().toByteArray();
@@ -241,5 +241,48 @@ public class DeviceKey {
 
     private static BigInteger sqrtMod(BigInteger bigInteger) {
         return bigInteger.modPow(MODULUS.add(BigInteger.ONE).shiftRight(2), MODULUS);
+    }
+
+    public static KeyPair CreateKeyPairInDir(File dir) {
+        try {
+            KeyPairGenerator instance = KeyPairGenerator.getInstance("EC");
+            instance.initialize(new ECGenParameterSpec("secp256r1"));
+            KeyPair kp = instance.generateKeyPair();
+            if (dir != null) {
+                if (!dir.exists()) dir.mkdirs();
+                FileOutputStream privateFos = new FileOutputStream(new File(dir, PRIVATE_KEY_FILE));
+                privateFos.write(kp.getPrivate().getEncoded());
+                privateFos.close();
+                FileOutputStream publicFos = new FileOutputStream(new File(dir, PUBLIC_KEY_FILE));
+                publicFos.write(kp.getPublic().getEncoded());
+                publicFos.close();
+            }
+            return kp;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String GetPublicKeyFromDir(File dir) {
+        if (dir == null) return null;
+        File publicKeyFile = new File(dir, PUBLIC_KEY_FILE);
+        if (!publicKeyFile.exists()) return null;
+        try (FileInputStream fis = new FileInputStream(publicKeyFile)) {
+            byte[] bytes = new byte[(int) publicKeyFile.length()];
+            fis.read(bytes);
+            X509EncodedKeySpec pubSpec = new X509EncodedKeySpec(bytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
+            PublicKey publicKey = keyFactory.generatePublic(pubSpec);
+            return GetPublicKeyAsBase64(publicKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String GetMaskedKey(String base64) {
+        if (base64 == null || base64.length() < 10) return "N/A";
+        return base64.substring(0, 6) + "..." + base64.substring(base64.length() - 4);
     }
 }

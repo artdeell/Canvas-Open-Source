@@ -100,8 +100,14 @@ bool requestFileMultiNamed(const char* const* mime_types, size_t mime_type_count
 
     JNIEnv* env;
     if (Canvas::javaVM->GetEnv((void**)&env, JNI_VERSION_1_6) == JNI_EDETACHED) {
-        __android_log_print(ANDROID_LOG_ERROR, "fileselector", "Not on ImGui UI thread????");
-        abort();
+        if (Canvas::javaVM->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+            __android_log_print(ANDROID_LOG_ERROR, "fileselector", "Failed to attach thread to JVM");
+            return false;
+        }
+    }
+    if (!class_FileSelector || !method_nselectFileMultiNamed) {
+        __android_log_print(ANDROID_LOG_ERROR, "fileselector", "FileSelector not initialized");
+        return false;
     }
 
     jobjectArray mimeArr = fsel_build_mime_array(env, mime_types, mime_type_count);
@@ -145,8 +151,14 @@ bool requestFiles(const char* const* mime_types, size_t mime_type_count,
 
     JNIEnv* env;
     if (Canvas::javaVM->GetEnv((void**)&env, JNI_VERSION_1_6) == JNI_EDETACHED) {
-        __android_log_print(ANDROID_LOG_ERROR, "fileselector", "Not on ImGui UI thread????");
-        abort();
+        if (Canvas::javaVM->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+            __android_log_print(ANDROID_LOG_ERROR, "fileselector", "Failed to attach thread to JVM");
+            return false;
+        }
+    }
+    if (!class_FileSelector || !method_nselectFiles) {
+        __android_log_print(ANDROID_LOG_ERROR, "fileselector", "FileSelector not initialized");
+        return false;
     }
 
     jobjectArray mimeArr = fsel_build_mime_array(env, mime_types, mime_type_count);

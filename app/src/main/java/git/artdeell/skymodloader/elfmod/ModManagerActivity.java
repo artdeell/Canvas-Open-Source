@@ -22,6 +22,8 @@ import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.EditText;
+import git.artdeell.skymodloader.InstanceManager;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -33,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import git.artdeell.skymodloader.AboutDialogHelper;
@@ -100,6 +103,232 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
         setButtonClickListeners();
         setButtonLongClickListeners();
         initializeTabNavigation();
+        initializeInstanceManager();
+    }
+
+    private TextView tvActiveInstanceName;
+    private TextView tvActiveInstanceKey;
+
+
+    private void initializeInstanceManager() {
+        InstanceManager.init(this);
+        View instanceCard = findViewById(R.id.mm_instance_card);
+        View btnManage = findViewById(R.id.btn_manage_instances);
+        tvActiveInstanceName = findViewById(R.id.tv_active_instance_name);
+        tvActiveInstanceKey = findViewById(R.id.tv_active_instance_key);
+
+        View.OnClickListener listener = v -> showInstanceManagerDialog();
+        if (instanceCard != null) instanceCard.setOnClickListener(listener);
+        if (btnManage != null) btnManage.setOnClickListener(listener);
+
+        updateInstanceUI();
+    }
+
+    private void updateInstanceUI() {
+        if (tvActiveInstanceName != null && tvActiveInstanceKey != null) {
+            String name = InstanceManager.getActiveInstanceName(this);
+            String maskedKey = InstanceManager.getActiveMaskedKey(this);
+            tvActiveInstanceName.setText(getString(R.string.instance_name_prefix, name));
+            tvActiveInstanceKey.setText(getString(R.string.instance_key_prefix, maskedKey));
+        }
+    }
+
+    private void showInstanceManagerDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_instance_manager);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int dialogWidth = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);
+            dialog.getWindow().setLayout(dialogWidth, LinearLayout.LayoutParams.WRAP_CONTENT);
+        }
+
+        LinearLayout container = dialog.findViewById(R.id.dialog_instances_container);
+        Button btnNew = dialog.findViewById(R.id.dialog_btn_new_instance);
+        Button btnClose = dialog.findViewById(R.id.dialog_btn_close_instances);
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnNew.setOnClickListener(v -> showNewInstancePrompt(dialog, container));
+
+        populateInstancesList(dialog, container);
+        dialog.show();
+    }
+
+    private void populateInstancesList(Dialog dialog, LinearLayout container) {
+        if (container == null) return;
+        container.removeAllViews();
+        List<InstanceManager.InstanceInfo> instances = InstanceManager.getInstances(this);
+
+        for (InstanceManager.InstanceInfo info : instances) {
+            View itemView = getLayoutInflater().inflate(R.layout.item_instance_entry, container, false);
+            TextView tvName = itemView.findViewById(R.id.item_instance_name);
+            TextView tvBadge = itemView.findViewById(R.id.item_instance_badge);
+            TextView tvKey = itemView.findViewById(R.id.item_instance_key);
+            Button btnActivate = itemView.findViewById(R.id.item_btn_activate);
+            TextView btnRegen = itemView.findViewById(R.id.item_btn_regen_key);
+            TextView btnRename = itemView.findViewById(R.id.item_btn_rename);
+            TextView btnDelete = itemView.findViewById(R.id.item_btn_delete);
+
+            tvName.setText(info.name);
+            tvKey.setText(getString(R.string.instance_key_prefix, info.maskedKey));
+
+            if (info.isCurrent) {
+                tvBadge.setVisibility(View.VISIBLE);
+                btnActivate.setVisibility(View.GONE);
+                btnDelete.setVisibility(View.GONE);
+            } else {
+                tvBadge.setVisibility(View.GONE);
+                btnActivate.setVisibility(View.VISIBLE);
+                btnActivate.setOnClickListener(v -> {
+                    InstanceManager.switchInstance(this, info.id);
+                    Toast.makeText(this, getString(R.string.toast_instance_switched, info.name), Toast.LENGTH_SHORT).show();
+                    updateInstanceUI();
+                    populateInstancesList(dialog, container);
+                });
+                if (instances.size() > 1) {
+                    btnDelete.setVisibility(View.VISIBLE);
+                    btnDelete.setOnClickListener(v -> showDeleteInstancePrompt(dialog, container, info));
+                } else {
+                    btnDelete.setVisibility(View.GONE);
+                }
+            }
+
+            btnRegen.setOnClickListener(v -> showRegenerateKeyPrompt(dialog, container, info));
+            btnRename.setOnClickListener(v -> showRenameInstancePrompt(dialog, container, info));
+
+            container.addView(itemView);
+        }
+    }
+
+    private void showNewInstancePrompt(Dialog parentDialog, LinearLayout container) {
+        Dialog promptDialog = new Dialog(this);
+        promptDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        promptDialog.setContentView(R.layout.dialog_input_prompt);
+        if (promptDialog.getWindow() != null) {
+            promptDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            promptDialog.getWindow().setLayout(width, LinearLayout.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView tvTitle = promptDialog.findViewById(R.id.dialog_prompt_title);
+        EditText input = promptDialog.findViewById(R.id.dialog_prompt_input);
+        TextView btnCancel = promptDialog.findViewById(R.id.dialog_prompt_cancel);
+        Button btnConfirm = promptDialog.findViewById(R.id.dialog_prompt_confirm);
+
+        tvTitle.setText(R.string.dialog_new_instance_title);
+        input.setHint(R.string.dialog_new_instance_hint);
+        btnConfirm.setText(R.string.btn_create);
+
+        btnCancel.setOnClickListener(v -> promptDialog.dismiss());
+        btnConfirm.setOnClickListener(v -> {
+            String name = input.getText().toString();
+            InstanceManager.InstanceInfo created = InstanceManager.createInstance(this, name);
+            if (created != null) {
+                Toast.makeText(this, getString(R.string.toast_instance_created, created.name), Toast.LENGTH_SHORT).show();
+                populateInstancesList(parentDialog, container);
+            }
+            promptDialog.dismiss();
+        });
+
+        promptDialog.show();
+    }
+
+    private void showRenameInstancePrompt(Dialog parentDialog, LinearLayout container, InstanceManager.InstanceInfo info) {
+        Dialog promptDialog = new Dialog(this);
+        promptDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        promptDialog.setContentView(R.layout.dialog_input_prompt);
+        if (promptDialog.getWindow() != null) {
+            promptDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            promptDialog.getWindow().setLayout(width, LinearLayout.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView tvTitle = promptDialog.findViewById(R.id.dialog_prompt_title);
+        EditText input = promptDialog.findViewById(R.id.dialog_prompt_input);
+        TextView btnCancel = promptDialog.findViewById(R.id.dialog_prompt_cancel);
+        Button btnConfirm = promptDialog.findViewById(R.id.dialog_prompt_confirm);
+
+        tvTitle.setText(R.string.dialog_rename_instance_title);
+        input.setText(info.name);
+        input.setSelection(info.name.length());
+        btnConfirm.setText(R.string.btn_save);
+
+        btnCancel.setOnClickListener(v -> promptDialog.dismiss());
+        btnConfirm.setOnClickListener(v -> {
+            String newName = input.getText().toString();
+            if (!newName.trim().isEmpty()) {
+                InstanceManager.renameInstance(this, info.id, newName);
+                updateInstanceUI();
+                populateInstancesList(parentDialog, container);
+            }
+            promptDialog.dismiss();
+        });
+
+        promptDialog.show();
+    }
+
+    private void showDeleteInstancePrompt(Dialog parentDialog, LinearLayout container, InstanceManager.InstanceInfo info) {
+        Dialog confirmDialog = new Dialog(this);
+        confirmDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        confirmDialog.setContentView(R.layout.dialog_confirm_prompt);
+        if (confirmDialog.getWindow() != null) {
+            confirmDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            confirmDialog.getWindow().setLayout(width, LinearLayout.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView tvTitle = confirmDialog.findViewById(R.id.dialog_confirm_title);
+        TextView tvMsg = confirmDialog.findViewById(R.id.dialog_confirm_message);
+        TextView btnCancel = confirmDialog.findViewById(R.id.dialog_confirm_cancel);
+        Button btnOk = confirmDialog.findViewById(R.id.dialog_confirm_ok);
+
+        tvTitle.setText(R.string.instance_delete);
+        tvMsg.setText(getString(R.string.dialog_delete_instance_message, info.name));
+        btnOk.setText(R.string.instance_delete);
+        btnOk.setTextColor(0xFFFF5252);
+
+        btnCancel.setOnClickListener(v -> confirmDialog.dismiss());
+        btnOk.setOnClickListener(v -> {
+            InstanceManager.deleteInstance(this, info.id);
+            Toast.makeText(this, R.string.toast_instance_deleted, Toast.LENGTH_SHORT).show();
+            populateInstancesList(parentDialog, container);
+            confirmDialog.dismiss();
+        });
+
+        confirmDialog.show();
+    }
+
+    private void showRegenerateKeyPrompt(Dialog parentDialog, LinearLayout container, InstanceManager.InstanceInfo info) {
+        Dialog confirmDialog = new Dialog(this);
+        confirmDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        confirmDialog.setContentView(R.layout.dialog_confirm_prompt);
+        if (confirmDialog.getWindow() != null) {
+            confirmDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            confirmDialog.getWindow().setLayout(width, LinearLayout.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView tvTitle = confirmDialog.findViewById(R.id.dialog_confirm_title);
+        TextView tvMsg = confirmDialog.findViewById(R.id.dialog_confirm_message);
+        TextView btnCancel = confirmDialog.findViewById(R.id.dialog_confirm_cancel);
+        Button btnOk = confirmDialog.findViewById(R.id.dialog_confirm_ok);
+
+        tvTitle.setText(R.string.instance_regenerate_key);
+        tvMsg.setText(getString(R.string.dialog_regenerate_instance_key_message, info.name));
+        btnOk.setText(R.string.instance_regenerate_key);
+
+        btnCancel.setOnClickListener(v -> confirmDialog.dismiss());
+        btnOk.setOnClickListener(v -> {
+            InstanceManager.regenerateKeyForInstance(this, info.id);
+            Toast.makeText(this, getString(R.string.toast_instance_key_regenerated, info.name), Toast.LENGTH_SHORT).show();
+            updateInstanceUI();
+            if (parentDialog != null && container != null) {
+                populateInstancesList(parentDialog, container);
+            }
+            confirmDialog.dismiss();
+        });
+
+        confirmDialog.show();
     }
 
     private void initializeModUpdater() {
@@ -232,6 +461,7 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
     protected void onResume() {
         super.onResume();
         updateButtonTextColor();
+        updateInstanceUI();
     }
 
     public void setLogcatEnabled(boolean flag) {
@@ -650,7 +880,7 @@ public class ModManagerActivity extends Activity implements LoadingListener, Mod
                     File externalDataDir = new File("/sdcard/Android/data/" + getPackageName());
 
                     clearDirectorySelective(filesDir,
-                        new String[]{"mods", "Accounts", "PrivateAccounts", "OfficialAccount", "config"},
+                        new String[]{"mods", "Accounts", "PrivateAccounts", "OfficialAccount", "config", "Instances"},
                         new String[]{"AccountAuthInfo.bin", "device_private.key", "device_public.key"});
 
                     File cacheDir = getCacheDir();

@@ -31,7 +31,6 @@ import com.tgc.sky.accounts.SystemAccountServerInfo;
 import com.tgc.sky.accounts.SystemAccountServerState;
 import com.tgc.sky.accounts.SystemAccountType;
 
-import git.artdeell.skymodloader.net.StarwatchBlocker;
 
 import org.json.JSONObject;
 
@@ -288,8 +287,6 @@ public class WebLogin extends WebViewClient implements SystemAccountInterface {
 
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        WebResourceResponse blocked = StarwatchBlocker.interceptWebViewRequest(request);
-        if (blocked != null) return blocked;
         return super.shouldInterceptRequest(view, request);
     }
 

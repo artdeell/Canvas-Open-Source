@@ -108,7 +108,14 @@
     <string name="section_developer_options">Opzioni Sviluppatore</string>
     <string name="cheat_engine_server">Server Cheat Engine</string>
     <string name="custom_server">Server personalizzato</string>
-    <string name="block_starwatch">Blocca Starwatch</string>
+    <string name="enable_network_shield">Privacy Shield</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">Questo livello di protezione sperimentale è progettato per filtrare la telemetria in background, isolare gli endpoint di tracciamento e ridurre il rischio di blocchi delle azioni.\n\nSebbene dovrebbe contribuire a rendere il gameplay più sicuro, nessuna protezione può essere garantita al 100%. Si consiglia di riavviare il gioco per rendere effettive le modifiche.</string>
+    <string name="regenerate_device_key">Rigenera chiave dispositivo</string>
+    <string name="regenerate_device_key_desc">Genera una nuova identità crittografica per questo dispositivo</string>
+    <string name="dialog_regenerate_key_title">Rigenera chiave dispositivo</string>
+    <string name="dialog_regenerate_key_message">Vuoi rigenerare la chiave del dispositivo? Al riavvio verrà creata una nuova coppia di chiavi, così le restrizioni precedenti non influenzeranno i nuovi account.</string>
+    <string name="toast_device_key_regenerated">Chiave del dispositivo rigenerata. Riavvia l\'applicazione.</string>
     <string name="server_url">URL del server</string>
     <string name="server_url_hint" translatable="false">insert-url</string>
     <string name="enable_logcat_monitoring">Abilita monitoraggio Logcat</string>
@@ -169,4 +176,26 @@
     <string name="toast_export_failed">Impossibile esportare il backup</string>
     <string name="toast_import_success">Backup ripristinato con successo! Riavvio in corso…</string>
     <string name="toast_import_failed">Impossibile ripristinare il backup</string>
+    <string name="manage_instances">Gestisci</string>
+    <string name="instance_manager_title">Gestione Istanze</string>
+    <string name="instance_manager_desc">Gestisci i profili di gioco isolati. Ogni istanza ha la propria identita crittografica e account indipendente.</string>
+    <string name="new_instance">+ Nuova Istanza</string>
+    <string name="instance_active">Attiva</string>
+    <string name="instance_activate">Seleziona</string>
+    <string name="instance_regenerate_key">Rigenera Chiave</string>
+    <string name="instance_rename">Rinomina</string>
+    <string name="instance_delete">Elimina</string>
+    <string name="instance_key_prefix">Chiave: %s</string>
+    <string name="toast_instance_switched">Passato all\'istanza: %s</string>
+    <string name="toast_instance_created">Nuova istanza creata: %s</string>
+    <string name="toast_instance_key_regenerated">Chiave rigenerata per %s</string>
+    <string name="toast_instance_deleted">Istanza eliminata</string>
+    <string name="dialog_new_instance_title">Nuova Istanza</string>
+    <string name="dialog_new_instance_hint">Nome istanza (es. Slot 2, Alt 1)</string>
+    <string name="dialog_rename_instance_title">Rinomina Istanza</string>
+    <string name="btn_create">Crea</string>
+    <string name="btn_save">Salva</string>
+    <string name="instance_name_prefix">Istanza: %s</string>
+    <string name="dialog_delete_instance_message">Vuoi eliminare definitivamente %s? Tutti i dati di questa istanza verranno rimossi.</string>
+    <string name="dialog_regenerate_instance_key_message">Rigenerare la chiave crittografica per %s? L\'impronta hardware dell\'istanza cambierà.</string>
 </resources>

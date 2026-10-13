@@ -110,7 +110,7 @@
     <string name="section_developer_options">Opsi Pengembang</string>
     <string name="cheat_engine_server">Server Cheat Engine</string>
     <string name="custom_server">Server kustom</string>
-    <string name="block_starwatch">Blokir Starwatch</string>
+        <string name="enable_network_shield">Privacy Shield</string>
     <string name="server_url">URL Server</string>
     <string name="server_url_hint" translatable="false">masukkan-url</string>
     <string name="enable_logcat_monitoring">Aktifkan Pemantauan Logcat</string>
@@ -153,7 +153,8 @@
     <string name="toast_clearing_data">Sedang membersihkan data…</string>
     <string name="toast_cleared_data">Berhasil menghapus %1$d file dan %2$d folder\nMemulai ulang…</string>
     <string name="toast_data_cleared_restarting">Data berhasil dibersihkan. Sedang memulai ulang…</string>
-
+
+
     <!-- community tab -->
     <string name="tab_mods">Mod</string>
     <string name="tab_community">Komunitas</string>
@@ -172,4 +173,33 @@
     <string name="toast_export_failed">Gagal mengekspor cadangan</string>
     <string name="toast_import_success">Cadangan berhasil dipulihkan! Memulai ulang…</string>
     <string name="toast_import_failed">Gagal memulihkan cadangan</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">Lapisan perlindungan eksperimental ini dirancang untuk menyaring telemetri latar belakang dan mengurangi risiko pemblokiran aksi.\n\nDisarankan untuk memulai ulang game.</string>
+    <string name="regenerate_device_key">Buat Ulang Kunci Perangkat</string>
+    <string name="regenerate_device_key_desc">Buat identitas kriptografi baru untuk perangkat ini</string>
+    <string name="dialog_regenerate_key_title">Buat Ulang Kunci Perangkat</string>
+    <string name="dialog_regenerate_key_message">Buat ulang kunci perangkat? Sepasang kunci baru akan dibuat saat memulai ulang, sehingga pembatasan sebelumnya tidak akan memengaruhi akun baru.</string>
+    <string name="toast_device_key_regenerated">Kunci perangkat berhasil dibuat ulang. Silakan mulai ulang aplikasi.</string>
+    <string name="manage_instances">Kelola</string>
+    <string name="instance_manager_title">Pengelola Instans</string>
+    <string name="instance_manager_desc">Kelola profil game terisolasi. Setiap instans memiliki identitas kriptografi dan akun independen sendiri.</string>
+    <string name="new_instance">+ Instans Baru</string>
+    <string name="instance_active">Aktif</string>
+    <string name="instance_activate">Pilih</string>
+    <string name="instance_regenerate_key">Buat Ulang Kunci</string>
+    <string name="instance_rename">Ganti Nama</string>
+    <string name="instance_delete">Hapus</string>
+    <string name="instance_key_prefix">Kunci: %s</string>
+    <string name="toast_instance_switched">Beralih ke instans: %s</string>
+    <string name="toast_instance_created">Instans baru dibuat: %s</string>
+    <string name="toast_instance_key_regenerated">Kunci dibuat ulang untuk %s</string>
+    <string name="toast_instance_deleted">Instans dihapus</string>
+    <string name="dialog_new_instance_title">Instans Baru</string>
+    <string name="dialog_new_instance_hint">Nama instans (cth. Slot 2, Akun 2)</string>
+    <string name="dialog_rename_instance_title">Ganti Nama Instans</string>
+    <string name="btn_create">Buat</string>
+    <string name="btn_save">Simpan</string>
+    <string name="instance_name_prefix">Instans: %s</string>
+    <string name="dialog_delete_instance_message">Hapus permanen %s? Semua data di instans ini akan dihapus.</string>
+    <string name="dialog_regenerate_instance_key_message">Buat ulang kunci kriptografi untuk %s? Sidik jari perangkat keras instans akan berubah.</string>
 </resources>

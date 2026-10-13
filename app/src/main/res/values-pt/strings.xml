@@ -108,7 +108,7 @@
     <string name="section_developer_options">OPÇÕES DO DESENVOLVEDOR</string>
     <string name="cheat_engine_server">Servidor do Cheat Engine</string>
     <string name="custom_server">Servidor personalizado</string>
-    <string name="block_starwatch">Bloquear Starwatch</string>
+        <string name="enable_network_shield">Privacy Shield</string>
     <string name="server_url">URL do servidor</string>
     <string name="server_url_hint" translatable="true">Digite a URL</string>
     <string name="enable_logcat_monitoring">Ativar monitoramento do Logcat</string>
@@ -169,4 +169,33 @@
     <string name="toast_export_failed">Falha ao exportar o backup</string>
     <string name="toast_import_success">Backup restaurado com sucesso! Reiniciando…</string>
     <string name="toast_import_failed">Falha ao restaurar o backup</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">Esta camada de protecao experimental filtra telemetria em segundo plano e reduz o risco de bloqueios.\n\nE recomendavel reiniciar o jogo.</string>
+    <string name="regenerate_device_key">Regenerar Chave do Dispositivo</string>
+    <string name="regenerate_device_key_desc">Gera uma nova identidade criptografica para este dispositivo</string>
+    <string name="dialog_regenerate_key_title">Regenerar Chave do Dispositivo</string>
+    <string name="dialog_regenerate_key_message">Deseja regenerar a chave do dispositivo? Um novo par de chaves será criado ao reiniciar, para que as restrições anteriores não afetem novas contas.</string>
+    <string name="toast_device_key_regenerated">Chave do dispositivo regenerada com sucesso. Reinicie o aplicativo.</string>
+    <string name="manage_instances">Gerenciar</string>
+    <string name="instance_manager_title">Gerenciador de Instancias</string>
+    <string name="instance_manager_desc">Gerencie perfis de jogo isolados. Cada instancia tem sua propria identidade criptografica e conta independente.</string>
+    <string name="new_instance">+ Nova Instancia</string>
+    <string name="instance_active">Ativa</string>
+    <string name="instance_activate">Selecionar</string>
+    <string name="instance_regenerate_key">Regenerar Chave</string>
+    <string name="instance_rename">Renomear</string>
+    <string name="instance_delete">Excluir</string>
+    <string name="instance_key_prefix">Chave: %s</string>
+    <string name="toast_instance_switched">Alternado para a instancia: %s</string>
+    <string name="toast_instance_created">Nova instancia criada: %s</string>
+    <string name="toast_instance_key_regenerated">Chave regenerada para %s</string>
+    <string name="toast_instance_deleted">Instancia excluida</string>
+    <string name="dialog_new_instance_title">Nova Instancia</string>
+    <string name="dialog_new_instance_hint">Nome da instancia (ex. Slot 2, Alt 1)</string>
+    <string name="dialog_rename_instance_title">Renomear Instancia</string>
+    <string name="btn_create">Criar</string>
+    <string name="btn_save">Salvar</string>
+    <string name="instance_name_prefix">Instância: %s</string>
+    <string name="dialog_delete_instance_message">Deseja excluir permanentemente %s? Todos os dados desta instância serão removidos.</string>
+    <string name="dialog_regenerate_instance_key_message">Regenerar a chave criptográfica para %s? A impressão digital de hardware da instância será alterada.</string>
 </resources>

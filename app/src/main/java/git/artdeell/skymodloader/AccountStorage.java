@@ -120,6 +120,7 @@ public class AccountStorage {
         File filesDir = context.getFilesDir();
         File currentServerDir = getServerStorageDirectory(context, currentServerKey);
         saveServerData(filesDir, currentServerDir);
+        InstanceManager.saveActiveToCurrentInstance(context);
     }
 
     public static synchronized void restoreActive(Context context) {

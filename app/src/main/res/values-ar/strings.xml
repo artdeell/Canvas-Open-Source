@@ -108,7 +108,7 @@
     <string name="section_developer_options">خيارات المطور</string>
     <string name="cheat_engine_server">خادم محرك الغش</string>
     <string name="custom_server">خادم مخصص</string>
-    <string name="block_starwatch">حظر Starwatch</string>
+        <string name="enable_network_shield">Privacy Shield</string>
     <string name="server_url">رابط الخادم</string>
     <string name="server_url_hint" translatable="false">أدخل-الرابط</string>
     <string name="enable_logcat_monitoring">تفعيل مراقبة السجل</string>
@@ -169,4 +169,33 @@
     <string name="toast_export_failed">فشل تصدير النسخة الاحتياطية</string>
     <string name="toast_import_success">تمت استعادة النسخة الاحتياطية بنجاح! جارٍ إعادة التشغيل…</string>
     <string name="toast_import_failed">فشلت استعادة النسخة الاحتياطية</string>
+    <string name="network_shield_dialog_title">Privacy Shield</string>
+    <string name="network_shield_dialog_message">تم تصميم طبقة الحماية التجريبية هذه لتصفية بيانات القياس عن بعد في الخلفية وتقليل مخاطر حظر الإجراءات.\n\nيوصى بإعادة تشغيل اللعبة.</string>
+    <string name="regenerate_device_key">إعادة إنشاء مفتاح الجهاز</string>
+    <string name="regenerate_device_key_desc">إنشاء هوية تشفير جديدة لهذا الجهاز</string>
+    <string name="dialog_regenerate_key_title">إعادة إنشاء مفتاح الجهاز</string>
+    <string name="dialog_regenerate_key_message">هل تريد إعادة إنشاء مفتاح الجهاز؟ سيتم إنشاء زوج مفاتيح جديد عند إعادة التشغيل، حتى لا تؤثر القيود السابقة على الحسابات الجديدة.</string>
+    <string name="toast_device_key_regenerated">تمت إعادة إنشاء مفتاح الجهاز بنجاح. يرجى إعادة تشغيل التطبيق.</string>
+    <string name="manage_instances">إدارة</string>
+    <string name="instance_manager_title">مدير الحسابات المتعددة</string>
+    <string name="instance_manager_desc">إدارة ملفات تعريف اللعبة المعزولة. كل مثيل له هويته التشفيرية وحسابه المستقل.</string>
+    <string name="new_instance">+ مثيل جديد</string>
+    <string name="instance_active">نشط</string>
+    <string name="instance_activate">تحديد</string>
+    <string name="instance_regenerate_key">تجديد المفتاح</string>
+    <string name="instance_rename">إعادة تسمية</string>
+    <string name="instance_delete">حذف</string>
+    <string name="instance_key_prefix">المفتاح: %s</string>
+    <string name="toast_instance_switched">تم التبديل إلى: %s</string>
+    <string name="toast_instance_created">تم إنشاء مثيل جديد: %s</string>
+    <string name="toast_instance_key_regenerated">تم تجديد المفتاح لـ %s</string>
+    <string name="toast_instance_deleted">تم حذف المثيل</string>
+    <string name="dialog_new_instance_title">مثيل جديد</string>
+    <string name="dialog_new_instance_hint">اسم المثيل (مثال: فتحة 2، حساب بديل)</string>
+    <string name="dialog_rename_instance_title">إعادة تسمية المثيل</string>
+    <string name="btn_create">إنشاء</string>
+    <string name="btn_save">حفظ</string>
+    <string name="instance_name_prefix">المثيل: %s</string>
+    <string name="dialog_delete_instance_message">هل تريد حذف %s نهائياً؟ ستتم إزالة كافة بيانات هذا المثيل.</string>
+    <string name="dialog_regenerate_instance_key_message">هل تريد إعادة إنشاء المفتاح المشفر لـ %s؟ ستتغير البصمة الرقمية لجهاز المثيل.</string>
 </resources>

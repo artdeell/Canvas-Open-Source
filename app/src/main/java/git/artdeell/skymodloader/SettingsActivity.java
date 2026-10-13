@@ -9,9 +9,12 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import git.artdeell.skymodloader.net.StarwatchBlocker;
 import git.artdeell.skymodloader.server.ServerManager;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -33,7 +35,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Switch hideCanvasMenuSwitch;
     private Switch ceserverSwitch;
     private Switch customServerSwitch;
-    private Switch starwatchSwitch;
+    private Switch daybreakerSwitch;
     private Switch logcatSwitch;
     private EditText serverUrlInput;
 
@@ -46,7 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
         hideCanvasMenuSwitch = findViewById(R.id.mm_hideCanvasMenu);
         ceserverSwitch = findViewById(R.id.mm_enableCeserver);
         customServerSwitch = findViewById(R.id.mm_enableCustomServer);
-        starwatchSwitch = findViewById(R.id.mm_blockStarwatch);
+        daybreakerSwitch = findViewById(R.id.mm_enableDaybreaker);
         logcatSwitch = findViewById(R.id.mm_enableLogcat);
         serverUrlInput = findViewById(R.id.server_url_input);
 
@@ -82,12 +84,14 @@ public class SettingsActivity extends AppCompatActivity {
             AccountStorage.sync(this);
         });
 
-        starwatchSwitch.setChecked(getSharedPreferences(StarwatchBlocker.PREFS_NAME, MODE_PRIVATE)
-            .getBoolean(StarwatchBlocker.PREF_BLOCK_STARWATCH, false));
-        starwatchSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            getSharedPreferences(StarwatchBlocker.PREFS_NAME, MODE_PRIVATE)
-                .edit().putBoolean(StarwatchBlocker.PREF_BLOCK_STARWATCH, isChecked).apply();
-            StarwatchBlocker.setStarwatchBlocked(isChecked);
+        daybreakerSwitch.setChecked(getSharedPreferences("daybreaker_configs", MODE_PRIVATE)
+            .getBoolean("enable_daybreaker", false));
+        daybreakerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            getSharedPreferences("daybreaker_configs", MODE_PRIVATE)
+                .edit().putBoolean("enable_daybreaker", isChecked).apply();
+            if (isChecked) {
+                showPrivacyShieldDialog();
+            }
         });
 
         serverUrlInput.setText(getSharedPreferences("package_configs", MODE_PRIVATE)
@@ -123,8 +127,62 @@ public class SettingsActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_export_data).setOnClickListener(v -> startExportBackup());
         findViewById(R.id.btn_import_data).setOnClickListener(v -> startImportBackup());
+        findViewById(R.id.btn_regenerate_device_key).setOnClickListener(v -> showRegenerateDeviceKeyDialog());
         findViewById(R.id.btn_clear_app_data).setOnClickListener(v -> showClearDataDialog());
         findViewById(R.id.btn_custom_bootloader).setOnClickListener(v -> showBootloaderDialog());
+    }
+
+    private void showPrivacyShieldDialog() {
+        Dialog infoDialog = new Dialog(this);
+        infoDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        infoDialog.setContentView(R.layout.dialog_confirm_prompt);
+        if (infoDialog.getWindow() != null) {
+            infoDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            infoDialog.getWindow().setLayout(width, LinearLayout.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView tvTitle = infoDialog.findViewById(R.id.dialog_confirm_title);
+        TextView tvMsg = infoDialog.findViewById(R.id.dialog_confirm_message);
+        TextView btnCancel = infoDialog.findViewById(R.id.dialog_confirm_cancel);
+        Button btnOk = infoDialog.findViewById(R.id.dialog_confirm_ok);
+
+        tvTitle.setText(R.string.network_shield_dialog_title);
+        tvMsg.setText(R.string.network_shield_dialog_message);
+        btnCancel.setVisibility(View.GONE);
+        btnOk.setText(android.R.string.ok);
+        btnOk.setOnClickListener(v -> infoDialog.dismiss());
+
+        infoDialog.show();
+    }
+
+    private void showRegenerateDeviceKeyDialog() {
+        Dialog confirmDialog = new Dialog(this);
+        confirmDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        confirmDialog.setContentView(R.layout.dialog_confirm_prompt);
+        if (confirmDialog.getWindow() != null) {
+            confirmDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            confirmDialog.getWindow().setLayout(width, LinearLayout.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView tvTitle = confirmDialog.findViewById(R.id.dialog_confirm_title);
+        TextView tvMsg = confirmDialog.findViewById(R.id.dialog_confirm_message);
+        TextView btnCancel = confirmDialog.findViewById(R.id.dialog_confirm_cancel);
+        Button btnOk = confirmDialog.findViewById(R.id.dialog_confirm_ok);
+
+        tvTitle.setText(R.string.dialog_regenerate_key_title);
+        tvMsg.setText(R.string.dialog_regenerate_key_message);
+        btnOk.setText(R.string.instance_regenerate_key);
+
+        btnCancel.setOnClickListener(v -> confirmDialog.dismiss());
+        btnOk.setOnClickListener(v -> {
+            InstanceManager.regenerateKeyForInstance(this, InstanceManager.getActiveInstanceId(this));
+            Toast.makeText(this, R.string.toast_device_key_regenerated, Toast.LENGTH_LONG).show();
+            confirmDialog.dismiss();
+        });
+
+        confirmDialog.show();
     }
 
     private void showBootloaderDialog() {
@@ -413,7 +471,7 @@ public class SettingsActivity extends AppCompatActivity {
         int dirCount = 0;
         if (!filesDir.exists() || !filesDir.isDirectory()) return new int[]{0, 0};
 
-        String[] preservedDirs = {"mods", "Accounts", "PrivateAccounts", "OfficialAccount", "config"};
+        String[] preservedDirs = {"mods", "Accounts", "PrivateAccounts", "OfficialAccount", "config", "Instances"};
         String[] preservedFiles = {"AccountAuthInfo.bin", "device_private.key", "device_public.key"};
         File[] contents = filesDir.listFiles();
         if (contents == null) return new int[]{0, 0};
