@@ -1251,4 +1251,38 @@ public class SystemIO_android {
     public void WaitForDebugger() {
         Debug.waitForDebugger();
     }
+
+    private static volatile int sThermalStatus = -1;
+
+    public long GetLastApkUpdateTime() {
+        try {
+            if (this.m_activity != null && this.m_activity.getPackageManager() != null) {
+                return this.m_activity.getPackageManager().getPackageInfo("com.tgc.sky.android", 0).lastUpdateTime;
+            }
+        } catch (Exception unused) {
+            try {
+                if (this.m_activity != null && this.m_activity.getPackageManager() != null) {
+                    return this.m_activity.getPackageManager().getPackageInfo(this.m_activity.getPackageName(), 0).lastUpdateTime;
+                }
+            } catch (Exception unused2) {
+                return 0L;
+            }
+        }
+        return 0L;
+    }
+
+    public int GetCurrentThermalStatus() {
+        if (sThermalStatus != -1) {
+            return sThermalStatus;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && this.m_activity != null) {
+            android.os.PowerManager powerManager = (android.os.PowerManager) this.m_activity.getSystemService(Context.POWER_SERVICE);
+            if (powerManager != null) {
+                sThermalStatus = powerManager.getCurrentThermalStatus();
+                return sThermalStatus;
+            }
+        }
+        return 0;
+    }
 }
+

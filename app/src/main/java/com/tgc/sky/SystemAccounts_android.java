@@ -4,6 +4,7 @@ import git.artdeell.skymodloader.auth.Apple;
 import com.tgc.sky.accounts.AppleGameCenter;
 import git.artdeell.skymodloader.auth.Facebook;
 import git.artdeell.skymodloader.auth.Google;
+import com.tgc.sky.accounts.GooglePlayGames;
 import git.artdeell.skymodloader.auth.Huawei;
 import git.artdeell.skymodloader.auth.Nintendo;
 import git.artdeell.skymodloader.auth.Sony;
@@ -17,44 +18,62 @@ import com.tgc.sky.accounts.SystemAccountServerInfo;
 import com.tgc.sky.accounts.SystemAccountServerState;
 import com.tgc.sky.accounts.SystemAccountType;
 
+import java.util.Hashtable;
+import java.util.Map;
 
 public class SystemAccounts_android implements SystemAccountInterface.UpdateClientInfoCallback {
     private static volatile SystemAccounts_android sInstance;
+    private final Hashtable<SystemAccountType, SystemAccountInterface> m_systemAccounts;
     private GameActivity m_activity;
-    private Apple m_systemAccountApple;
-    private AppleGameCenter m_systemAccountAppleGameCenter;
-    private Facebook m_systemAccountFacebook;
-    private Google m_systemAccountGoogle;
-    private Huawei m_systemAccountHuawei;
-    private Nintendo m_systemAccountNintendo;
-    private Sony m_systemAccountPlaystation;
-    private Steam m_systemAccountSteam;
-    private Twitch m_systemAccountTwitch;
-
 
     public native void OnSystemAccount(SystemAccountClientInfo systemAccountClientInfo);
 
     SystemAccounts_android(GameActivity gameActivity) {
         this.m_activity = gameActivity;
-        AppleGameCenter appleGameCenter =  this.m_systemAccountAppleGameCenter = new AppleGameCenter();
+        this.m_systemAccounts = new Hashtable<>();
+
+        AppleGameCenter appleGameCenter = new AppleGameCenter();
         appleGameCenter.Initialize(gameActivity, this);
-        Google google = this.m_systemAccountGoogle = new Google();
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_AppleGameCenter, appleGameCenter);
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_AppleGameCenterVN, appleGameCenter);
+
+        Google google = new Google();
         google.Initialize(gameActivity, this);
-        Facebook facebook = this.m_systemAccountFacebook = new Facebook();
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_Google, google);
+
+        GooglePlayGames googlePlayGames = new GooglePlayGames();
+        googlePlayGames.Initialize(gameActivity, this, SystemAccountType.kSystemAccountType_GooglePlayGames);
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_GooglePlayGames, googlePlayGames);
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_GooglePlayGamesVN, googlePlayGames);
+
+        Facebook facebook = new Facebook();
         facebook.Initialize(gameActivity, this);
-        Apple apple = this.m_systemAccountApple = new Apple();
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_Facebook, facebook);
+
+        Apple apple = new Apple();
         apple.Initialize(gameActivity, this);
-        Nintendo nintendo = this.m_systemAccountNintendo = new Nintendo();
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_Apple, apple);
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_AppleVN, apple);
+
+        Nintendo nintendo = new Nintendo();
         nintendo.Initialize(gameActivity, this);
-        Huawei huawei = this.m_systemAccountHuawei = new Huawei();
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_Nintendo, nintendo);
+
+        Huawei huawei = new Huawei();
         huawei.Initialize(gameActivity, this);
-        this.m_systemAccountPlaystation = new Sony();
-        m_systemAccountPlaystation.Initialize(gameActivity, this);
-        Steam steam = this.m_systemAccountSteam = new Steam();
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_Huawei, huawei);
+
+        Sony playstation = new Sony();
+        playstation.Initialize(gameActivity, this);
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_Sony, playstation);
+
+        Steam steam = new Steam();
         steam.Initialize(gameActivity, this);
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_Steam, steam);
+
         Twitch twitch = new Twitch();
-        this.m_systemAccountTwitch = twitch;
         twitch.Initialize(gameActivity, this);
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_Twitch, twitch);
 
         sInstance = this;
     }
@@ -63,101 +82,113 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
         return sInstance;
     }
 
-    /* renamed from: com.tgc.sky.SystemAccounts_android$1 */
-    static /* synthetic */ class SystemAccountsSwitchMap {
-        static final /* synthetic */ int[] INTS;
-
-        /* JADX WARNING: Can't wrap try/catch for region: R(14:0|1|2|3|4|5|6|7|8|9|10|11|12|(3:13|14|16)) */
-        /* JADX WARNING: Can't wrap try/catch for region: R(16:0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|16) */
-        /* JADX WARNING: Failed to process nested try/catch */
-        /* JADX WARNING: Missing exception handler attribute for start block: B:11:0x003e */
-        /* JADX WARNING: Missing exception handler attribute for start block: B:13:0x0049 */
-        /* JADX WARNING: Missing exception handler attribute for start block: B:3:0x0012 */
-        /* JADX WARNING: Missing exception handler attribute for start block: B:5:0x001d */
-        /* JADX WARNING: Missing exception handler attribute for start block: B:7:0x0028 */
-        /* JADX WARNING: Missing exception handler attribute for start block: B:9:0x0033 */
-        static {
-            INTS = new int[SystemAccountType.values().length];
-            INTS[SystemAccountType.kSystemAccountType_AppleGameCenter.ordinal()] = 1;
-            INTS[SystemAccountType.kSystemAccountType_Google.ordinal()] = 2;
-            INTS[SystemAccountType.kSystemAccountType_Facebook.ordinal()] = 3;
-            INTS[SystemAccountType.kSystemAccountType_Apple.ordinal()] = 4;
-            INTS[SystemAccountType.kSystemAccountType_Nintendo.ordinal()] = 5;
-            INTS[SystemAccountType.kSystemAccountType_Huawei.ordinal()] = 6;
-            INTS[SystemAccountType.kSystemAccountType_Sony.ordinal()] = 7;
-            INTS[SystemAccountType.kSystemAccountType_Steam.ordinal()] = 8;
-            INTS[SystemAccountType.kSystemAccountType_Twitch.ordinal()] = 9;
-            INTS[SystemAccountType.kSystemAccountType_Local.ordinal()] = 10;
-            INTS[SystemAccountType.kSystemAccountType_AppleGameCenterVN.ordinal()] = 11;
-            INTS[SystemAccountType.kSystemAccountType_AppleVN.ordinal()] = 12;
-        }
-    }
-
     public SystemAccountInterface GetSystemAccount(SystemAccountType systemAccountType) {
-        switch (SystemAccountsSwitchMap.INTS[systemAccountType.ordinal()]) {
-            case 1:
-                return this.m_systemAccountAppleGameCenter;
-            case 2:
-                return this.m_systemAccountGoogle;
-            case 3:
-                return this.m_systemAccountFacebook;
-            case 4:
-                return this.m_systemAccountApple;
-            case 5:
-                return this.m_systemAccountNintendo;
-            case 6:
-                return this.m_systemAccountHuawei;
-            case 7:
-                return this.m_systemAccountPlaystation;
-            case 8:
-                return this.m_systemAccountSteam;
-            case 9:
-                return this.m_systemAccountTwitch;
-            default:
-                return null;
+        if (systemAccountType == null) return null;
+        return this.m_systemAccounts.get(systemAccountType);
+    }
+
+    SystemAccountType GetGooglePlayGamesAccountType() {
+        if ("com.tgc.sky.android".contains(".vn.")) {
+            return SystemAccountType.kSystemAccountType_GooglePlayGamesVN;
+        }
+        return SystemAccountType.kSystemAccountType_GooglePlayGames;
+    }
+
+    public boolean IsAchievementUnlocked(String str) {
+        SystemAccountInterface acc = GetSystemAccount(GetGooglePlayGamesAccountType());
+        if (acc != null) {
+            return acc.IsAchievementUnlocked(str);
+        }
+        return false;
+    }
+
+    public void ShowAchievementsUI() {
+        SystemAccountInterface acc = GetSystemAccount(GetGooglePlayGamesAccountType());
+        if (acc != null) {
+            acc.ShowAchievementsUI();
         }
     }
 
-    /* access modifiers changed from: package-private */
-    public void onResume() {
-        //this.m_systemAccountGoogle.onResume();
+    public boolean UnlockAchievement(String str, double d) {
+        SystemAccountInterface acc = GetSystemAccount(GetGooglePlayGamesAccountType());
+        if (acc != null) {
+            return acc.UnlockAchievement(str, d);
+        }
+        return false;
+    }
+
+    void onResume() {
+        for (Map.Entry<SystemAccountType, SystemAccountInterface> entry : this.m_systemAccounts.entrySet()) {
+            if (entry.getValue() != null) {
+                entry.getValue().onResume();
+            }
+        }
     }
 
     public void InitializeCredentials(int i) {
-        SystemAccountInterface GetSystemAccount = GetSystemAccount(SystemAccountType.values()[i]);
-        if (GetSystemAccount != null) {
-            UpdateClientInfo(GetSystemAccount.GetClientInfo());
+        if (i < 0 || i >= SystemAccountType.values().length) return;
+        SystemAccountType type = SystemAccountType.values()[i];
+        android.util.Log.i("SystemAccounts", "InitializeCredentials called for: " + type + " (index " + i + ")");
+        SystemAccountInterface acc = GetSystemAccount(type);
+        if (acc != null) {
+            UpdateClientInfo(acc.GetClientInfo());
+        } else {
+            android.util.Log.w("SystemAccounts", "No handler for: " + type);
         }
     }
 
     public void SignIn(int i) {
-        SystemAccountInterface GetSystemAccount = GetSystemAccount(SystemAccountType.values()[i]);
-        if (GetSystemAccount != null) {
-            GetSystemAccount.SignIn();
+        if (i < 0 || i >= SystemAccountType.values().length) return;
+        SystemAccountType type = SystemAccountType.values()[i];
+        android.util.Log.i("SystemAccounts", "SignIn called for: " + type + " (index " + i + ")");
+        SystemAccountInterface acc = GetSystemAccount(type);
+        if (acc != null) {
+            acc.SignIn();
+        } else {
+            android.util.Log.w("SystemAccounts", "No handler for SignIn: " + type);
         }
     }
 
     public void SignOut(int i) {
-        SystemAccountInterface GetSystemAccount = GetSystemAccount(SystemAccountType.values()[i]);
-        if (GetSystemAccount != null) {
-            GetSystemAccount.SignOut();
+        if (i < 0 || i >= SystemAccountType.values().length) return;
+        SystemAccountInterface acc = GetSystemAccount(SystemAccountType.values()[i]);
+        if (acc != null) {
+            acc.SignOut();
+        }
+    }
+
+    public void RefreshCredentials(int i) {
+        if (i < 0 || i >= SystemAccountType.values().length) return;
+        SystemAccountInterface acc = GetSystemAccount(SystemAccountType.values()[i]);
+        if (acc != null) {
+            acc.RefreshCredentials();
         }
     }
 
     public void RefreshCredentials(int i, int i2) {
-        SystemAccountInterface GetSystemAccount = GetSystemAccount(SystemAccountType.values()[i]);
-        if (GetSystemAccount != null) {
-            GetSystemAccount.RefreshCredentials(SystemAccountClientRequestState.values()[i2]);
+        if (i < 0 || i >= SystemAccountType.values().length) return;
+        SystemAccountInterface acc = GetSystemAccount(SystemAccountType.values()[i]);
+        if (acc != null) {
+            if (i2 >= 0 && i2 < SystemAccountClientRequestState.values().length) {
+                acc.RefreshCredentials(SystemAccountClientRequestState.values()[i2]);
+            } else {
+                acc.RefreshCredentials();
+            }
         }
     }
 
     public void UpdateServerInfo(int i, int i2, String str, String str2) {
-        SystemAccountInterface GetSystemAccount = GetSystemAccount(SystemAccountType.values()[i]);
-        if (GetSystemAccount != null) {
-            SystemAccountServerInfo GetServerInfo = GetSystemAccount.GetServerInfo();
-            GetServerInfo.state = SystemAccountServerState.values()[i2];
-            GetServerInfo.accountId = str;
-            GetServerInfo.alias = str2;
+        if (i < 0 || i >= SystemAccountType.values().length) return;
+        SystemAccountInterface acc = GetSystemAccount(SystemAccountType.values()[i]);
+        if (acc != null) {
+            SystemAccountServerInfo serverInfo = acc.GetServerInfo();
+            if (serverInfo != null) {
+                if (i2 >= 0 && i2 < SystemAccountServerState.values().length) {
+                    serverInfo.state = SystemAccountServerState.values()[i2];
+                }
+                serverInfo.accountId = str;
+                serverInfo.alias = str2;
+            }
         }
     }
 
@@ -166,31 +197,36 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
     }
 
     public static String systemAccountTypeToString(SystemAccountType systemAccountType) {
-        switch (SystemAccountsSwitchMap.INTS[systemAccountType.ordinal()]) {
-            case 1:
-                return "AppleGameCenter";
-            case 2:
-                return "Google";
-            case 3:
-                return "Facebook";
-            case 4:
-                return "Apple";
-            case 5:
-                return "Nintendo";
-            case 6:
-                return "Huawei";
-            case 7:
-                return "Sony";
-            case 8:
-                return "Steam";
-            case 9:
-                return "Twitch";
-            case 10:
+        if (systemAccountType == null) return null;
+        switch (systemAccountType) {
+            case kSystemAccountType_Local:
                 return "Local";
-            case 11:
+            case kSystemAccountType_AppleGameCenter:
+                return "AppleGameCenter";
+            case kSystemAccountType_AppleGameCenterVN:
                 return "AppleGameCenterVN";
-            case 12:
+            case kSystemAccountType_Google:
+                return "Google";
+            case kSystemAccountType_GooglePlayGames:
+                return "GooglePlayGames";
+            case kSystemAccountType_GooglePlayGamesVN:
+                return "GooglePlayGamesVN";
+            case kSystemAccountType_Facebook:
+                return "Facebook";
+            case kSystemAccountType_Apple:
+                return "Apple";
+            case kSystemAccountType_AppleVN:
                 return "AppleVN";
+            case kSystemAccountType_Nintendo:
+                return "Nintendo";
+            case kSystemAccountType_Huawei:
+                return "Huawei";
+            case kSystemAccountType_Sony:
+                return "Sony";
+            case kSystemAccountType_Steam:
+                return "Steam";
+            case kSystemAccountType_Twitch:
+                return "Twitch";
             default:
                 return null;
         }
