@@ -9,6 +9,8 @@ import git.artdeell.skymodloader.auth.Huawei;
 import git.artdeell.skymodloader.auth.Nintendo;
 import git.artdeell.skymodloader.auth.Sony;
 import git.artdeell.skymodloader.auth.Steam;
+import git.artdeell.skymodloader.MainActivity;
+import git.artdeell.skymodloader.SMLApplication;
 import git.artdeell.skymodloader.auth.Twitch;
 
 import com.tgc.sky.accounts.SystemAccountClientInfo;
@@ -44,7 +46,10 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
         GooglePlayGames googlePlayGames = new GooglePlayGames();
         googlePlayGames.Initialize(gameActivity, this, SystemAccountType.kSystemAccountType_GooglePlayGames);
         this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_GooglePlayGames, googlePlayGames);
-        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_GooglePlayGamesVN, googlePlayGames);
+
+        GooglePlayGames googlePlayGamesVN = new GooglePlayGames();
+        googlePlayGamesVN.Initialize(gameActivity, this, SystemAccountType.kSystemAccountType_GooglePlayGamesVN);
+        this.m_systemAccounts.put(SystemAccountType.kSystemAccountType_GooglePlayGamesVN, googlePlayGamesVN);
 
         Facebook facebook = new Facebook();
         facebook.Initialize(gameActivity, this);
@@ -88,7 +93,8 @@ public class SystemAccounts_android implements SystemAccountInterface.UpdateClie
     }
 
     SystemAccountType GetGooglePlayGamesAccountType() {
-        if ("com.tgc.sky.android".contains(".vn.")) {
+        if ((SMLApplication.skyPName != null && SMLApplication.skyPName.contains(".vn.")) ||
+            (MainActivity.SKY_PACKAGE_NAME != null && MainActivity.SKY_PACKAGE_NAME.contains(".vn."))) {
             return SystemAccountType.kSystemAccountType_GooglePlayGamesVN;
         }
         return SystemAccountType.kSystemAccountType_GooglePlayGames;

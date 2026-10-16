@@ -46,6 +46,7 @@ import com.tgc.sky.ui.TextFieldLimiter;
 import com.tgc.sky.ui.Utils;
 import com.tgc.sky.ui.dialogs.DialogResult;
 import com.tgc.sky.ui.panels.CodeScanner;
+import com.tgc.sky.ui.panels.FuntapAgeVerification;
 import com.tgc.sky.ui.panels.Starboard;
 import com.tgc.sky.ui.text.LocalizationManager;
 import com.tgc.sky.ui.text.Markup;
@@ -54,6 +55,9 @@ import com.tgc.sky.ui.text.SystemVAlignment;
 import com.tgc.sky.ui.text.TextLabel;
 import com.tgc.sky.ui.text.TextLabelArgs;
 import com.tgc.sky.ui.text.TextLabelManager;
+
+import git.artdeell.skymodloader.MainActivity;
+import git.artdeell.skymodloader.SMLApplication;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -89,6 +93,7 @@ public class SystemUI_android {
     private QRCameraHandler m_qrCameraHandler;
     private DialogResult m_result;
     private Starboard m_starBoard;
+    private FuntapAgeVerification m_funtapAgeVerification;
     private TextField m_textField;
     private TextFieldLimiter m_textFieldLimiter;
     private TextLabelManager m_textLabelManager;
@@ -1226,11 +1231,17 @@ public class SystemUI_android {
     }
 
     public boolean IsVietnameseBuild() {
-        return IsPreferredSupportedLanguageVietnamese();
+        if (SMLApplication.skyPName != null && SMLApplication.skyPName.contains(".vn.")) {
+            return true;
+        }
+        if (MainActivity.SKY_PACKAGE_NAME != null && MainActivity.SKY_PACKAGE_NAME.contains(".vn.")) {
+            return true;
+        }
+        return false;
     }
 
     public boolean IsVietnameseBuildOrLanguage() {
-        return false;
+        return IsVietnameseBuild() || IsPreferredSupportedLanguageVietnamese();
     }
 
     public void SetGameInputConfig(boolean z, boolean z2, boolean z3, boolean z4, boolean z5, boolean z6, boolean z7, String[] strArr, String[] strArr2) {
@@ -1551,8 +1562,54 @@ public class SystemUI_android {
     public void CreateARAnchor(String str) {}
     public boolean DestroyARAnchor(String str) { return false; }
     public void ARCameraUpdate() {}
-    public int ShowAgeVerification(String str, String str2) { return -1; }
-    public void CloseAgeVerification(int i) {}
+    public int ShowAgeVerification(final String str, final String str2) {
+        int iTryActivate;
+        if (GetMainWindowAttachedSheet() || (iTryActivate = TryActivate()) == -1) {
+            return -1;
+        }
+        this.m_activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                SystemUI_android systemUI_android = SystemUI_android.this;
+                GameActivity gameActivity = SystemUI_android.this.m_activity;
+                SystemUI_android systemUI_android2 = SystemUI_android.this;
+                systemUI_android.m_funtapAgeVerification = new FuntapAgeVerification(
+                    gameActivity,
+                    systemUI_android2,
+                    systemUI_android2.m_markup,
+                    new FuntapAgeVerification.Handle() {
+                        @Override
+                        public void run(String str3, int i, boolean z) {
+                            SystemUI_android.this.SetResult(str3, i, z);
+                            if (z) {
+                                SystemUI_android.this.m_funtapAgeVerification = null;
+                            }
+                        }
+                    },
+                    str,
+                    str2
+                );
+                SystemUI_android.this.m_funtapAgeVerification.showAtLocation(SystemUI_android.this.m_activity.getWindow().getDecorView(), 16, 0, 0);
+            }
+        });
+        return iTryActivate;
+    }
+
+    public synchronized void CloseAgeVerification(int i) {
+        if (i != -1) {
+            if (i == this.m_currentId) {
+                this.m_activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (SystemUI_android.this.m_funtapAgeVerification != null) {
+                            SystemUI_android.this.m_funtapAgeVerification.onCloseButton();
+                            SystemUI_android.this.m_result = new DialogResult();
+                        }
+                    }
+                });
+            }
+        }
+    }
     public void onResume() {}
     public void onDestroy() {}
 }

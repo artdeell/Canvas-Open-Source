@@ -852,6 +852,9 @@ public class GameActivity extends TGCNativeActivity implements View.OnCapturedPo
         if (a != null) a.remove(l);
     }
 
+    public void setMotionEventsDisabled(boolean z) {
+    }
+
     private int getDeviceVendorId(InputEvent event) {
         InputDevice device = event.getDevice();
         if (device == null) return 0;
