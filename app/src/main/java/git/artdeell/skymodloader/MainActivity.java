@@ -548,6 +548,10 @@ public class MainActivity extends Activity {
                                                   int isLive, int isSeekable,
                                                   int playbackState);
 
+    public static native void nativeSetOtherAudioPlaying(boolean playing);
+
+    public static native void nativeSetOtherAudioEnabled(boolean enabled);
+
     public static class DeviceInfo {
         public float xdpi;
         public float ydpi;

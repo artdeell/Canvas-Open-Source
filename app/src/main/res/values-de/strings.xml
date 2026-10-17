@@ -90,6 +90,9 @@
     <!-- setting_layout -->
     <string name="section_general">Allgemein</string>
     <string name="hide_canvas_menu">Canvas-Menü ausblenden</string>
+    <string name="other_audio_headphones">Kopfhörer beim Musikhören</string>
+    <string name="other_audio_headphones_desc">Wenn eine andere App Musik spielt, trägt dein Avatar Kopfhörer und die Sky-Musik wird stummgeschaltet</string>
+    <string name="other_audio_headphones_unsupported">Auf diesem Gerät nicht unterstützt</string>
     <string name="section_developer_options">Entwickleroptionen</string>
     <string name="cheat_engine_server">Cheat Engine Server</string>
     <string name="custom_server">Eigener Server</string>

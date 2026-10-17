@@ -105,6 +105,9 @@
     <!-- setting_layout -->
     <string name="section_general">Generali</string>
     <string name="hide_canvas_menu">Nascondi il menu di Canvas</string>
+    <string name="other_audio_headphones">Cuffie durante l\'ascolto</string>
+    <string name="other_audio_headphones_desc">Quando un\'altra app riproduce musica, il tuo avatar indossa le cuffie e la musica di Sky viene silenziata</string>
+    <string name="other_audio_headphones_unsupported">Non supportato su questo dispositivo</string>
     <string name="section_developer_options">Opzioni Sviluppatore</string>
     <string name="cheat_engine_server">Server Cheat Engine</string>
     <string name="custom_server">Server personalizzato</string>

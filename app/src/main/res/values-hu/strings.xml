@@ -105,6 +105,9 @@
     <!-- setting_layout -->
     <string name="section_general">Általános</string>
     <string name="hide_canvas_menu">Canvas menü elrejtése</string>
+    <string name="other_audio_headphones">Fejhallgató zenehallgatáskor</string>
+    <string name="other_audio_headphones_desc">Ha egy másik alkalmazás zenét játszik, az avatarod fejhallgatót visel, és a Sky zenéje elnémul</string>
+    <string name="other_audio_headphones_unsupported">Ezen az eszközön nem támogatott</string>
     <string name="section_developer_options">Fejlesztői beállítások</string>
     <string name="cheat_engine_server">Csalómotor-kiszolgáló (cheatengine)</string>
     <string name="custom_server">Egyéni szerver</string>

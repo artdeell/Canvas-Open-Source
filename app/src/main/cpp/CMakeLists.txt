@@ -12,7 +12,7 @@ project("imgui")
 add_library(ktx_read SHARED IMPORTED)
 set_target_properties(ktx_read PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Utils/ktx/libktx_read.so)
 
-file(GLOB CPP_FILES
+file(GLOB CPP_FILES CONFIGURE_DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/Core/**/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Core/**/*.c
         ${CMAKE_CURRENT_SOURCE_DIR}/Utils/**/*.cpp

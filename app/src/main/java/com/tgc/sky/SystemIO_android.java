@@ -8,12 +8,16 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.hardware.HardwareBuffer;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.media.AudioPlaybackConfiguration;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Debug;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StatFs;
 import android.util.Log;
 import com.tgc.sky.io.AudioDeviceType;
@@ -28,6 +32,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -56,6 +61,16 @@ public class SystemIO_android {
     private Future<String> mSubtitleRequest;
     public float m_batteryLevel;
     private boolean m_isOtherAudioPlaying;
+    private AudioManager.AudioPlaybackCallback m_otherAudioCallback;
+    private static final int OTHER_AUDIO_SELF_CHECK_MS = 30000;
+    private boolean m_otherAudioSupported;
+    private boolean m_otherAudioCheckFinished;
+    private Handler m_otherAudioHandler;
+    private final Runnable m_otherAudioSelfCheck = new Runnable() {
+        public void run() {
+            SystemIO_android.this.m_finishOtherAudioSelfCheck();
+        }
+    };
     private boolean m_isPhonecallActive;
     private boolean m_networkReachableByCellular;
     private boolean m_networkReachableByWifi;
@@ -203,6 +218,7 @@ public class SystemIO_android {
             exoplayerService.SetVolume(this.mExoplayerPauseVolume);
         }
         this.mIsPaused = false;
+        m_scheduleOtherAudioSelfCheck();
 
     }
 
@@ -214,11 +230,25 @@ public class SystemIO_android {
         if (exoplayerService != null) {
             exoplayerService.SetVolume(0.0f);
         }
+        if (this.m_otherAudioHandler != null) {
+            this.m_otherAudioHandler.removeCallbacks(this.m_otherAudioSelfCheck);
+        }
 
     }
 
     /* access modifiers changed from: package-private */
     public void onDestroy() {
+        if (this.m_otherAudioHandler != null) {
+            this.m_otherAudioHandler.removeCallbacks(this.m_otherAudioSelfCheck);
+        }
+        if (this.m_otherAudioCallback != null) {
+            AudioManager audioManager = (AudioManager) this.m_activity.getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager != null) {
+                audioManager.unregisterAudioPlaybackCallback(this.m_otherAudioCallback);
+            }
+            this.m_otherAudioCallback = null;
+        }
+        git.artdeell.skymodloader.MainActivity.nativeSetOtherAudioPlaying(false);
     }
 
     public int GetPlatformInt() {
@@ -758,6 +788,112 @@ public class SystemIO_android {
                 SystemIO_android.this.m_onAudioDeviceChanged(audioManager, intent);
             }
         }, intentFilter));
+        m_initializeOtherAudioMonitor(audioManager);
+    }
+
+    private void m_initializeOtherAudioMonitor(AudioManager audioManager) {
+        boolean enabled = this.m_activity.getSharedPreferences("package_configs", Context.MODE_PRIVATE)
+                .getBoolean("other_audio_headphones", false);
+        if (!enabled || audioManager == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            if (enabled) {
+                Log.w(TAG, "Other audio: playback monitor unavailable on Android " + Build.VERSION.SDK_INT + ", not supported");
+            }
+            git.artdeell.skymodloader.MainActivity.nativeSetOtherAudioPlaying(false);
+            return;
+        }
+        this.m_otherAudioHandler = new Handler(Looper.getMainLooper());
+        m_updateOtherAudioPlaying(audioManager.getActivePlaybackConfigurations());
+        this.m_otherAudioCallback = new AudioManager.AudioPlaybackCallback() {
+            @Override
+            public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
+                SystemIO_android.this.m_updateOtherAudioPlaying(configs);
+            }
+        };
+        audioManager.registerAudioPlaybackCallback(this.m_otherAudioCallback, null);
+    }
+
+    void m_onOwnPlaybackChanged() {
+        if (this.m_otherAudioCallback == null) {
+            return;
+        }
+        AudioManager audioManager = (AudioManager) this.m_activity.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            m_updateOtherAudioPlaying(audioManager.getActivePlaybackConfigurations());
+        }
+    }
+
+    private void m_updateOtherAudioPlaying(List<AudioPlaybackConfiguration> configs) {
+        int media = 0;
+        boolean game = false;
+        if (configs != null) {
+            for (AudioPlaybackConfiguration config : configs) {
+                AudioAttributes attributes = config.getAudioAttributes();
+                if (attributes == null) {
+                    continue;
+                }
+                if (attributes.getUsage() == AudioAttributes.USAGE_MEDIA) {
+                    media++;
+                } else if (attributes.getUsage() == AudioAttributes.USAGE_GAME) {
+                    game = true;
+                }
+            }
+        }
+        if (game && !this.m_otherAudioSupported) {
+            m_setOtherAudioSupported();
+        }
+        ExoplayerService ownPlayer = this.mExoplayer;
+        int own = ownPlayer != null && ownPlayer.m_audible ? 1 : 0;
+        boolean playing = this.m_otherAudioSupported && media > own;
+        this.m_isOtherAudioPlaying = playing;
+        git.artdeell.skymodloader.MainActivity.nativeSetOtherAudioPlaying(playing);
+    }
+
+    private void m_setOtherAudioSupported() {
+        this.m_otherAudioSupported = true;
+        this.m_otherAudioCheckFinished = true;
+        this.m_otherAudioHandler.removeCallbacks(this.m_otherAudioSelfCheck);
+        Log.i(TAG, "Other audio: USAGE_GAME player seen, detection supported");
+        m_storeOtherAudioUnsupported(false);
+        git.artdeell.skymodloader.MainActivity.nativeSetOtherAudioEnabled(true);
+    }
+
+    private void m_scheduleOtherAudioSelfCheck() {
+        if (this.m_otherAudioHandler == null || this.m_otherAudioCheckFinished) {
+            return;
+        }
+        this.m_otherAudioHandler.removeCallbacks(this.m_otherAudioSelfCheck);
+        this.m_otherAudioHandler.postDelayed(this.m_otherAudioSelfCheck, OTHER_AUDIO_SELF_CHECK_MS);
+    }
+
+    private void m_finishOtherAudioSelfCheck() {
+        if (this.m_otherAudioCheckFinished || this.m_otherAudioCallback == null) {
+            return;
+        }
+        AudioManager audioManager = (AudioManager) this.m_activity.getSystemService(Context.AUDIO_SERVICE);
+        List<AudioPlaybackConfiguration> configs = audioManager != null ? audioManager.getActivePlaybackConfigurations() : null;
+        m_updateOtherAudioPlaying(configs);
+        if (this.m_otherAudioSupported) {
+            return;
+        }
+        StringBuilder usages = new StringBuilder();
+        if (configs != null) {
+            for (AudioPlaybackConfiguration config : configs) {
+                AudioAttributes attributes = config.getAudioAttributes();
+                if (usages.length() > 0) {
+                    usages.append(", ");
+                }
+                usages.append(attributes == null ? "none" : String.valueOf(attributes.getUsage()));
+            }
+        }
+        this.m_otherAudioCheckFinished = true;
+        Log.w(TAG, "Other audio: no USAGE_GAME player after " + (OTHER_AUDIO_SELF_CHECK_MS / 1000)
+                + " s in the foreground (active usages: [" + usages + "]), detection not supported on this device");
+        m_storeOtherAudioUnsupported(true);
+    }
+
+    private void m_storeOtherAudioUnsupported(boolean unsupported) {
+        this.m_activity.getSharedPreferences("package_configs", Context.MODE_PRIVATE).edit()
+                .putBoolean("other_audio_headphones_unsupported", unsupported).apply();
     }
 
     /* access modifiers changed from: private */
