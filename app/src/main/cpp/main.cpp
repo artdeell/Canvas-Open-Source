@@ -24,6 +24,7 @@
 #include <android/asset_manager_jni.h>
 #include "shadowhook.h"
 #include "ChatFlagFix/ChatFlagFixInstall.h"
+#include "Core/OtherAudio/OtherAudioLocate.h"
 
 extern "C" {
 #include "Core/ceserver/ceserver.h"
@@ -237,6 +238,7 @@ int main() {
     // changing that timing is a separate decision from moving the hook.
 
     install_chat_fix();
+    OtherAudio::Locate(Canvas::libName);
 
     return 0;
 }
@@ -273,6 +275,7 @@ Java_git_artdeell_skymodloader_MainActivity_settle(
     }
 
     install_chat_fix();
+    OtherAudio::Locate(Canvas::libName ? Canvas::libName : "libBootloader.so");
 }
 
 

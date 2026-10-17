@@ -105,6 +105,9 @@
     <!-- setting_layout -->
     <string name="section_general">Chung</string>
     <string name="hide_canvas_menu">Ẩn menu Canvas</string>
+    <string name="other_audio_headphones">Tai nghe khi nghe nhạc</string>
+    <string name="other_audio_headphones_desc">Khi ứng dụng khác phát nhạc, nhân vật của bạn đeo tai nghe và nhạc Sky bị tắt</string>
+    <string name="other_audio_headphones_unsupported">Không được hỗ trợ trên thiết bị này</string>
     <string name="section_developer_options">Tùy chọn nhà phát triển</string>
     <string name="cheat_engine_server">Máy chủ Cheat Engine</string>
     <string name="custom_server">Máy chủ tùy chỉnh</string>

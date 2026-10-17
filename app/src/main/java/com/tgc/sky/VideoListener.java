@@ -36,6 +36,11 @@ class VideoListener implements Player.Listener {
         if (z) {
             this.m_retryTime = 0;
         }
+        this.m_service.m_audible = z && this.m_player.getAudioFormat() != null;
+        SystemIO_android systemIO = SystemIO_android.getInstance();
+        if (systemIO != null) {
+            systemIO.m_onOwnPlaybackChanged();
+        }
     }
 
     @Override

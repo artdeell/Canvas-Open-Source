@@ -33,6 +33,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static final int REQUEST_EXPORT_BACKUP = 9002;
     private static final int REQUEST_IMPORT_BACKUP = 9003;
     private Switch hideCanvasMenuSwitch;
+    private Switch otherAudioHeadphonesSwitch;
     private Switch ceserverSwitch;
     private Switch customServerSwitch;
     private Switch daybreakerSwitch;
@@ -46,6 +47,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         ImageView backButton = findViewById(R.id.back_button);
         hideCanvasMenuSwitch = findViewById(R.id.mm_hideCanvasMenu);
+        otherAudioHeadphonesSwitch = findViewById(R.id.mm_otherAudioHeadphones);
         ceserverSwitch = findViewById(R.id.mm_enableCeserver);
         customServerSwitch = findViewById(R.id.mm_enableCustomServer);
         daybreakerSwitch = findViewById(R.id.mm_enableDaybreaker);
@@ -60,6 +62,18 @@ public class SettingsActivity extends AppCompatActivity {
             getSharedPreferences("package_configs", MODE_PRIVATE)
                 .edit().putBoolean("hide_canvas_menu", isChecked).apply()
         );
+
+        otherAudioHeadphonesSwitch.setChecked(getSharedPreferences("package_configs", MODE_PRIVATE)
+            .getBoolean("other_audio_headphones", false));
+        otherAudioHeadphonesSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+            getSharedPreferences("package_configs", MODE_PRIVATE)
+                .edit().putBoolean("other_audio_headphones", isChecked).apply()
+        );
+        boolean otherAudioUnsupported = Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+            || getSharedPreferences("package_configs", MODE_PRIVATE)
+                .getBoolean("other_audio_headphones_unsupported", false);
+        findViewById(R.id.mm_otherAudioHeadphonesStatus)
+            .setVisibility(otherAudioUnsupported ? View.VISIBLE : View.GONE);
 
         ceserverSwitch.setChecked(getSharedPreferences("package_configs", MODE_PRIVATE)
             .getBoolean("ceserver", false));

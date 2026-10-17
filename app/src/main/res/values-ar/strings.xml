@@ -105,6 +105,9 @@
     <!-- setting_layout -->
     <string name="section_general">عام</string>
     <string name="hide_canvas_menu">إخفاء قائمة Canvas</string>
+    <string name="other_audio_headphones">سماعات أثناء الاستماع</string>
+    <string name="other_audio_headphones_desc">عندما يشغّل تطبيق آخر الموسيقى، ترتدي شخصيتك السماعات وتُكتم موسيقى Sky</string>
+    <string name="other_audio_headphones_unsupported">غير مدعوم على هذا الجهاز</string>
     <string name="section_developer_options">خيارات المطور</string>
     <string name="cheat_engine_server">خادم محرك الغش</string>
     <string name="custom_server">خادم مخصص</string>

@@ -90,6 +90,9 @@
   <string name="launch_huawei">APP GALLERY | VERSIÓN HUAWEI\nJUGAR</string>
   <string name="section_general">General</string>
   <string name="hide_canvas_menu">Ocultar menú Canvas</string>
+  <string name="other_audio_headphones">Auriculares al escuchar música</string>
+  <string name="other_audio_headphones_desc">Cuando otra app reproduce música, tu avatar usa auriculares y la música de Sky se silencia</string>
+  <string name="other_audio_headphones_unsupported">No compatible con este dispositivo</string>
   <string name="section_developer_options">Opciones de desarrollador</string>
   <string name="cheat_engine_server">Servidor de Cheat Engine</string>
   <string name="custom_server">Servidor personalizado</string>

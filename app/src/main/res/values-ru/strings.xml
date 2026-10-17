@@ -93,6 +93,9 @@
     <!-- setting_layout -->
     <string name="section_general">Основные</string>
     <string name="hide_canvas_menu">Скрыть меню Canvas</string>
+    <string name="other_audio_headphones">Наушники при прослушивании</string>
+    <string name="other_audio_headphones_desc">Когда другое приложение играет музыку, ваш персонаж надевает наушники, а музыка Sky приглушается</string>
+    <string name="other_audio_headphones_unsupported">Не поддерживается на этом устройстве</string>
     <string name="section_developer_options">Для разработчиков</string>
     <string name="cheat_engine_server">Сервер Cheat Engine</string>
     <string name="custom_server">Свой сервер</string>

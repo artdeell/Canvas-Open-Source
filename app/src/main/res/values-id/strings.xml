@@ -107,6 +107,9 @@
     <!-- setting_layout -->
     <string name="section_general">Umum</string>
     <string name="hide_canvas_menu">Sembunyikan menu Canvas</string>
+    <string name="other_audio_headphones">Headphone saat mendengarkan</string>
+    <string name="other_audio_headphones_desc">Saat aplikasi lain memutar musik, avatarmu memakai headphone dan musik Sky dibisukan</string>
+    <string name="other_audio_headphones_unsupported">Tidak didukung di perangkat ini</string>
     <string name="section_developer_options">Opsi Pengembang</string>
     <string name="cheat_engine_server">Server Cheat Engine</string>
     <string name="custom_server">Server kustom</string>

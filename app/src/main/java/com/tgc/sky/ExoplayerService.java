@@ -43,6 +43,7 @@ class ExoplayerService {
     // Written by VideoListener.onPlaybackStateChanged. TGC stores it but never
     // reads it; kept for parity.
     int m_state;
+    volatile boolean m_audible;
 
     public void Initialize(Context context) {
         if (this.m_player == null) {
@@ -83,6 +84,7 @@ class ExoplayerService {
             exoPlayer.release();
             this.m_player = null;
         }
+        this.m_audible = false;
         ImageReader imageReader = this.m_imageReader;
         if (imageReader != null) {
             imageReader.close();

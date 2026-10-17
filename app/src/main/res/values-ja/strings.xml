@@ -105,6 +105,9 @@
     <!-- setting_layout -->
     <string name="section_general">一般</string>
     <string name="hide_canvas_menu">Canvas メニューを非表示</string>
+    <string name="other_audio_headphones">音楽再生中のヘッドホン</string>
+    <string name="other_audio_headphones_desc">他のアプリで音楽を再生すると、アバターがヘッドホンを着け、Sky の音楽がミュートされます</string>
+    <string name="other_audio_headphones_unsupported">この端末ではサポートされていません</string>
     <string name="section_developer_options">開発者オプション</string>
     <string name="cheat_engine_server">Cheat Engine サーバー</string>
     <string name="custom_server">カスタムサーバー</string>
