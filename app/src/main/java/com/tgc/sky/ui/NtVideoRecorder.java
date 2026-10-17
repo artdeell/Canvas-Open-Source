@@ -280,13 +280,14 @@ public class NtVideoRecorder {
         }
     }
 
-    private boolean createAudioCodec() {
-        this.m_audioByteBuffer = ByteBuffer.allocateDirect(2048);
+    private boolean createAudioCodec(boolean z) {
+        int i = z ? 1024 : 2048;
+        this.m_audioByteBuffer = ByteBuffer.allocateDirect(i);
         this.m_audioBufferInfo = new MediaCodec.BufferInfo();
         MediaFormat createAudioFormat = MediaFormat.createAudioFormat("audio/mp4a-latm", 24000, 2);
         createAudioFormat.setInteger("bitrate", 768000);
         createAudioFormat.setInteger("aac-profile", 2);
-        createAudioFormat.setInteger("max-input-size", 2048);
+        createAudioFormat.setInteger("max-input-size", i);
         try {
             MediaCodec createEncoderByType = MediaCodec.createEncoderByType("audio/mp4a-latm");
             this.m_audioCodec = createEncoderByType;
@@ -297,7 +298,7 @@ public class NtVideoRecorder {
         }
     }
 
-    public boolean startRecordingWithFilename(String str, int i, int i2, String str2, int i3, boolean z, int i4, boolean z2) {
+    public boolean startRecordingWithFilename(String str, int i, int i2, String str2, int i3, boolean z, int i4, boolean z2, boolean z3) {
         if (this.m_isRecording || str == null || !str.endsWith(".mp4")) {
             return false;
         }
@@ -309,7 +310,7 @@ public class NtVideoRecorder {
         if (findCurrentFileName == "" || !createOrRecreateFile(findCurrentFileName) || !createVideoCodec(findCurrentFileName, i3, i4)) {
             return false;
         }
-        if (this.m_isRecordAudio && !createAudioCodec()) {
+        if (this.m_isRecordAudio && !createAudioCodec(z3)) {
             return false;
         }
         this.m_videoCodec.start();

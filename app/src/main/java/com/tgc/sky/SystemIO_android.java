@@ -647,7 +647,7 @@ public class SystemIO_android {
         if (this.m_videoRecorder == null) {
             return false;
         }
-        return this.m_videoRecorder.startRecordingWithFilename(str, i, i2, str2, i4, z2, i5, z3);
+        return this.m_videoRecorder.startRecordingWithFilename(str, i, i2, str2, i4, z2, i5, z3, z4);
     }
 
     public boolean StartRecording(String str, int i, int i2, int i3, boolean z, int i4, boolean z2, int i5, boolean z3) {
@@ -664,7 +664,7 @@ public class SystemIO_android {
         if (this.m_videoRecorder == null) {
             return false;
         }
-        return this.m_videoRecorder.startRecordingWithFilename(str, i, i2, str2, i4, z, i5, z2);
+        return this.m_videoRecorder.startRecordingWithFilename(str, i, i2, str2, i4, z, i5, z2, false);
     }
 
 
