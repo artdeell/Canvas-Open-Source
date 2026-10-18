@@ -226,7 +226,7 @@ static void install_chat_fix() {
 __unused __attribute__((constructor))
 int main() {
     LOGI("Starting Sky ModMenu.. Build time: " __DATE__ " " __TIME__);
-    shadowhook_init(SHADOWHOOK_MODE_UNIQUE, false);
+    shadowhook_init(SHADOWHOOK_MODE_SHARED, false);
     Canvas::libName = "libBootloader.so";
     do {
         sleep(1);

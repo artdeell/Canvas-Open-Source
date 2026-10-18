@@ -64,11 +64,10 @@ CipherHook* CipherHook::Fire() {
             } else if (pInstance->get_address() == this->get_address()
                        && pInstance->m_type == Types::e_hook) {
                 const auto prior = Cipher::DescribePatchesAt(get_address());
-                LOGI("Cipher: hook chain at %p - prior=%s, new=%s",
+                LOGI("Cipher: hook chain at %p - prior=%s, new=%s (coexisting shared hook)",
                      (void*)get_address(),
                      prior.empty() ? "<unknown>" : prior.front().ownerModule.c_str(),
                      CipherInternal::ResolveOwnerForLog(callerPC).c_str());
-                this->set_Address(pInstance->p_Hook, false); //hooks the hooked function instead
             }
         }
     }
@@ -80,10 +79,15 @@ CipherHook* CipherHook::Fire() {
         this->p_Callback
     );
 
-    this->stub = shadowhook_hook_func_addr(
+    uint32_t hook_flags = this->get_Lock()
+        ? SHADOWHOOK_HOOK_WITH_UNIQUE_MODE
+        : SHADOWHOOK_HOOK_WITH_SHARED_MODE;
+
+    this->stub = shadowhook_hook_func_addr_2(
         (void *)this->get_address(),
         (void *)this->p_Hook,
-        (void **)this->p_Callback
+        (void **)this->p_Callback,
+        hook_flags
     );
 
     if (this->stub == nullptr) {
